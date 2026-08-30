@@ -8,6 +8,13 @@
       "when": 1788100000000,
       "tag": "0001_package1_domain",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788110000000,
+      "tag": "0002_package2_vertical_slice",
+      "breakpoints": true
     }
   ]
 }

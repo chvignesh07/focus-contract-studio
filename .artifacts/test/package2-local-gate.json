@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "package": 2,
+  "scope": "local-vertical-slice",
+  "status": "LOCAL_PASS",
+  "hosted_chatgpt_status": "NOT_RUN",
+  "package0_status": "INCONCLUSIVE",
+  "source_binding": {
+    "public_package1_head": "e560e0998f24cda1c7c8c2740b67ece487b1ea52",
+    "candidate_state": "uncommitted-package2-diff",
+    "implementation_manifest_sha256": "440d1e937acbfee9682771926a902d005dc425668d04e7adf6419d22439a669e",
+    "implementation_manifest_file_count": 95
+  },
+  "canonical_gate": {
+    "result_binding": "SOURCE_MANIFEST_PASS",
+    "command": "npm run verify:package2",
+    "started_at_utc": "2026-08-30T20:32:03Z",
+    "completed_at_utc": "2026-08-30T20:32:53Z",
+    "exit_code": 0,
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "workerd": "1.20260730.1",
+    "wrangler": "4.116.0",
+    "tests": {
+      "package0": { "passed": 80, "total": 80 },
+      "package1_node": { "passed": 9, "total": 9 },
+      "package1_workerd_d1": { "passed": 59, "total": 59 },
+      "package2_node": { "passed": 34, "total": 34 },
+      "package2_workerd_d1": { "passed": 18, "total": 18 },
+      "package2_dom": { "passed": 5, "total": 5 },
+      "package2_browser": { "passed": 5, "total": 5 }
+    },
+    "build": "PASS",
+    "runtime_vulnerabilities": 0,
+    "complete_graph_vulnerabilities": 0
+  },
+  "assertions": {
+    "sealed_rrf_materialization": "PASS",
+    "deterministic_rrf_repeats": 100,
+    "read_operation_zero_write": "PASS",
+    "evidence_token_fixed_vector_and_negative_matrix": "PASS",
+    "proposal_atomicity_and_fault_injection": "PASS",
+    "proposal_replay_collision_and_concurrency": "PASS",
+    "proposal_status": "NOT_APPLIED",
+    "initial_focus_browser_telemetry": "PASS_UNTRUSTED",
+    "initial_focus_live_dom_manifest": "PASS",
+    "initial_focus_one_graph_per_revision": "PASS",
+    "exact_webmcp_tool_count": 2,
+    "webmcp_lifecycle_and_cancellation": "PASS",
+    "native_dialog_accessibility": "PASS",
+    "responsive_reflow_320_375_200_percent": "PASS",
+    "axe_serious_critical": 0,
+    "runtime_hmac_secret_validation": "PASS",
+    "source_and_semantic_evidence_binding": "PASS"
+  },
+  "remote_bindings": false,
+  "clean_clone_binding": "PENDING_CONTAINING_COMMIT",
+  "external_account_mutations": []
+}

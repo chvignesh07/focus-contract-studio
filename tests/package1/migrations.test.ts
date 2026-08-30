@@ -28,6 +28,12 @@ const domainTables = [
   'workspaces',
 ] as const;
 
+const evolvedDomainTables = [
+  ...domainTables,
+  'initial_focus_observation_commits',
+  'precedent_retrieval_profiles',
+].sort();
+
 async function schema(database: D1Database) {
   return database
     .prepare(
@@ -45,15 +51,18 @@ async function schema(database: D1Database) {
     .all<{ name: string; sql: string }>();
 }
 
-test('fresh Package 1 migration creates every Revision 2 domain table as STRICT', async () => {
+test('the evolved migration set preserves every Package 1 table and adds Package 2 tables as STRICT', async () => {
   const result = await schema(env.DB);
-  expect(result.results.map(({ name }) => name)).toEqual(domainTables);
+  expect(result.results.map(({ name }) => name)).toEqual(evolvedDomainTables);
+  expect(result.results.map(({ name }) => name)).toEqual(
+    expect.arrayContaining([...domainTables]),
+  );
   for (const row of result.results) {
     expect(row.sql, row.name).toMatch(/\) STRICT$/);
   }
 });
 
-test('reapplying the numbered Package 1 migration is a no-op', async () => {
+test('reapplying the ordered numbered migrations is a no-op', async () => {
   const before = await schema(env.DB);
   await applyD1Migrations(
     env.DB,
@@ -66,7 +75,7 @@ test('reapplying the numbered Package 1 migration is a no-op', async () => {
   const journal = await env.DB
     .prepare('SELECT COUNT(*) AS count FROM package1_test_migrations')
     .first<{ count: number }>();
-  expect(journal?.count).toBe(1);
+  expect(journal?.count).toBe(2);
 });
 
 test('the additive migration upgrades a database that contains the Package 0 probe', async () => {
@@ -80,7 +89,7 @@ test('the additive migration upgrades a database that contains the Package 0 pro
     'package0_parent',
   ]);
   expect((await schema(env.UPGRADE_DB)).results.map(({ name }) => name)).toEqual(
-    domainTables,
+    evolvedDomainTables,
   );
   expect(
     await env.UPGRADE_DB.prepare(

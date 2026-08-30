@@ -22,5 +22,14 @@ paths = [
   '''^\.next/''',
   '''^\.vinext/''',
   '''^\.wrangler/''',
+  '''^\.playwright-browsers/''',
   '''^node_modules/''',
 ]
+
+[[allowlists]]
+description = "Package 2 deterministic public HMAC test vector derived from bytes 0 through 31"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "match"
+regexes = ['''expectedToken\s*=''']
+paths = ['''^tests/package2-node/evidence-token\.test\.ts$''']

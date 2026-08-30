@@ -16,6 +16,7 @@ Requirements: Node.js 22.13 or newer and npm.
 npm ci
 npm run verify:package0
 npm run verify:package1
+npm run verify:package2
 npm run dev
 ```
 
@@ -27,7 +28,7 @@ The Package 0 gate also scans the tracked tree and every reachable Git commit fo
 
 Package 1 adds the complete additive Revision 2 D1 schema and a fail-closed anonymous workspace boundary. A signed `__Host-fcs_session` cookie carries a random 256-bit bearer token; D1 stores only domain-separated digests. Reload resolves the same server-owned workspace, while reset rotates the token and creates one isolated deterministic generation with recoverable idempotency. The seed contains exactly two Delete Account variants, implemented revision 1 focusing Delete, and synthetic precedent D001 recommending Cancel. D1 triggers enforce append-only evidence rows, monotonic revision/view pointers, and the proposal, observation, and idempotency transition vocabularies.
 
-The session routes require project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` secrets plus `FCS_PUBLIC_ORIGIN`; values must never be committed. New workspace creation and new reset mutations each pass an atomic server-global D1 fuse capped at 32 admissions per 60-second window. Reload and lost-response reset replay do not consume new-mutation capacity. This caller-independent fuse bounds anonymous storage pressure without pretending that Origin or an identity header authenticates an operator; its deployment thresholds remain provisional until the separately gated hosted load tests run.
+The session routes require project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` secrets plus `FCS_PUBLIC_ORIGIN`; values must never be committed. Each HMAC value must be a distinct canonical unpadded base64url encoding of exactly 32 random bytes. Missing, short, padded, malformed, or reused values fail closed. New workspace creation and new reset mutations each pass an atomic server-global D1 fuse capped at 32 admissions per 60-second window. Reload and lost-response reset replay do not consume new-mutation capacity. This caller-independent fuse bounds anonymous storage pressure without pretending that Origin or an identity header authenticates an operator; its deployment thresholds remain provisional until the separately gated hosted load tests run.
 
 `npm run verify:package1` runs the unchanged Package 0 gate plus Package 1 migration/upgrade, `STRICT` constraint, foreign-key, state-machine, query-plan, streaming body-limit, admission-concurrency, cookie, CSRF/origin, route, two-session isolation, reset/replay, bounded cleanup, privacy, typecheck, lint, production-build, and dependency-security checks. All Worker/D1 tests run with remote bindings disabled. The proposal/retrieval cycle follows D1's documented transaction requirement by placing `PRAGMA defer_foreign_keys = on` inside the atomic batch. Package 1 local success does not resolve Package 0's hosted supported-client row and does not prove a deployed Site.
 
@@ -38,6 +39,18 @@ The preserved `0.2.0` scaffold originally used `vinext start`, which executes th
 Reviewed numbered SQL is the sole migration authority. The weaker Drizzle generator path is fail-closed, its CLI dependency has been removed, and both the runtime and complete locked dependency graphs currently audit at zero known vulnerabilities. The historical Package 0 audit artifact remains preserved as evidence of that earlier candidate rather than being rewritten.
 
 The temporary hosted D1 probe is fail-closed. Its page checkbox is only a human guard, and caller Origin is only a CSRF layer. Both run and cleanup require a separately supplied operator token whose SHA-256 digest is configured as a hosted secret, verified owner-only access as an external prerequisite, and distinct server-enforced windows capped at 15 minutes. Run and cleanup cannot be enabled together. Cleanup requires the run flag off while owner and operator authorization remain, works from a new browser without a cleanup cookie, and cannot begin until the durable run window plus a five-second drain has elapsed. Atomic gate-plus-schema acquisition rechecks the database clock, preventing both pre-acquisition and post-acquisition delayed runners from recreating schema after zero cleanup. Finalization verifies the exact gate and work-table definitions before removing only the three probe-owned names. Collision, replay, concurrency, lease, forgery, zero-row, cleanup-failure, schema-ownership, and zero-residual protections have local regressions. This is probe safety, not hosted proof.
+
+## Package 2 local vertical slice
+
+Package 2 materializes the sealed 36-record RRF fixture, persists the 34 product records and their profiles/lineage, and runs one deterministic active-focus retrieval path. The first viewport shows implemented revision 1 with Delete focused, D001 recommending Cancel, and a visible decision mismatch. A native modal rehearsal captures the live allowlisted DOM manifest and first browser `focusin` without storing typed text. The persisted result is labeled untrusted browser telemetry, is limited to one immutable graph per workspace/variant/revision, converges under replay and concurrency, and cannot authorize any proposal or mutation. The user can then create a durable Cancel proposal whose diff remains visibly `NOT APPLIED` after reload; approval and application are intentionally absent.
+
+Evidence tokens are short-lived HMAC capabilities bound to the private session bearer, server-resolved workspace, variant, implemented revision, canonical context, ordered result packet, and issue second. Create reruns retrieval before staging. One guarded D1 batch persists the query, ranked results, per-field support, proposal, idempotency outcome, and final success audit; database triggers reject unsupported citations, forged mappings, changed-field gaps, JSON/column drift, replay collisions, and duplicate equivalent open proposals.
+
+The product registers exactly two top-level imperative Site tools: `read_active_focus_review` and `create_focus_contract_proposal`. Neither schema accepts identity, workspace, role, approval, apply, CSRF, session, or arbitrary retrieval input. The ordinary web UI remains complete when Site tools are unavailable. Registration teardown and cancellation are tested, and all outputs are bounded.
+
+`npm run verify:package2` runs every Package 0/1 regression plus the Package 2 Node, real Workerd/D1, DOM, and built-Worker Playwright suites; TypeScript, ESLint, production build, dependency audits, and source/evidence binding are mandatory. Browser checks cover native initial focus, a deliberate autofocus-divergence rejection, the exact tabbable set, configured Tab/Shift+Tab wrap, modal background pointer/keyboard inertness, durable reload, open-dialog and page controls at 320/375 px and 200% layout zoom, reduced motion, and axe serious/critical violations. The browser cache is project-local and ignored; all new direct browser-test dependencies are exact-version pinned.
+
+Local Package 2 completion does not resolve Package 0: supported ChatGPT tool execution remains `NOT_RUN`, remote bindings remain disabled, and no saved/deployed Site is claimed.
 
 ## Authority and safety
 
@@ -61,6 +74,10 @@ The source repository is publicly and anonymously cloneable at [github.com/chvig
 - `docs/evidence/PACKAGE1_VERIFICATION.md` — Package 1 local exit-gate methods, results, and hosted limitations.
 - `.artifacts/test/package1-local-gate.json` — machine-readable local D1/session/isolation result summary.
 - `.artifacts/security/package1-security.json` — anonymous-boundary and privacy control summary.
+- `docs/evidence/PACKAGE2_VERIFICATION.md` — source-bound Package 2 retrieval, proposal, UI, WebMCP, accessibility, and hosted-limit evidence.
+- `.artifacts/test/package2-local-gate.json` — canonical Package 2 local gate summary.
+- `.artifacts/browser/package2-local-journey.json` — built-Worker, disposable-D1 Playwright and axe summary.
+- `.artifacts/security/package2-security.json` — Package 2 proposal/tool boundary, audit, and secret-scan summary.
 
 Stage 1 evidence is intentionally split into structural consistency, live checkout verification, and independently reviewed sanitized Sites receipts. A final binding verifier recomputes receipt hashes and binds the saved lineage to the actual checkout; every local result still states that it does not independently prove hosted facts or Stage 1 completion. The exact future single-owner sequence and commands are in the external runbook.
 

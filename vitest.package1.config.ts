@@ -18,13 +18,10 @@ export default defineConfig({
       },
       miniflare: {
         bindings: {
-          FCS_SESSION_HMAC_SECRET:
-            'package1-test-session-secret-material-32-bytes-minimum',
-          FCS_CSRF_HMAC_SECRET:
-            'package1-test-csrf-secret-material-32-bytes-minimum',
+          FCS_SESSION_HMAC_SECRET: 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE',
+          FCS_CSRF_HMAC_SECRET: 'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI',
           FCS_PUBLIC_ORIGIN: 'https://focus-contract-studio.example',
-          FCS_RATE_LIMIT_HMAC_SECRET:
-            'package1-test-rate-limit-secret-material-32-bytes-minimum',
+          FCS_RATE_LIMIT_HMAC_SECRET: 'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM',
           PACKAGE1_TEST_MIGRATIONS: await readD1Migrations(
             path.join(repositoryRoot, 'drizzle'),
           ),

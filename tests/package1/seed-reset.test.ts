@@ -69,7 +69,7 @@ test('deterministic seed creates exactly two variants, revision 1 Delete, and D0
 
   const precedent = await env.DB.prepare(
     `SELECT record_key, behavior, normalized_outcome_key, provenance_kind
-       FROM precedent_records WHERE workspace_id = ?`,
+       FROM precedent_records WHERE workspace_id = ? AND record_key = 'D001'`,
   )
     .bind(bootstrap.workspace.id)
     .first<Record<string, string>>();

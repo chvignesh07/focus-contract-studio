@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Focus Contract Studio — Package 0',
-  description: 'Focus Contract Studio bootstrap verification surface.',
+  title: 'Focus Contract Studio',
+  description:
+    'Observe a real focus decision, compare bounded human precedent, and stage an unapplied proposal.',
   icons: { icon: '/favicon.svg' },
 };
 

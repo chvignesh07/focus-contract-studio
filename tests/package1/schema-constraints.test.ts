@@ -1187,16 +1187,19 @@ test('append-only entities have update/delete guards while workspace purge still
   ).toEqual({ count: 0 });
 });
 
-test('reset finalizer requires the exact two-edge D001 successor graph', async () => {
+test('reset finalizer requires the complete Package 2 corpus and exact D001 standard edge', async () => {
   const trigger = await env.DB.prepare(
     `SELECT sql FROM sqlite_schema
       WHERE type = 'trigger' AND name = 'trg_reset_commit_complete'`,
   ).first<{ sql: string }>();
+  expect(trigger?.sql).toMatch(/COUNT\(\*\) FROM precedent_records[\s\S]*= 34/);
   expect(trigger?.sql).toMatch(
-    /COUNT\(\*\) FROM precedent_subject_edges[\s\S]*= 2/,
+    /COUNT\(\*\) FROM precedent_retrieval_profiles[\s\S]*= 34/,
+  );
+  expect(trigger?.sql).toMatch(
+    /COUNT\(\*\) FROM precedent_subject_edges[\s\S]*= 1/,
   );
   expect(trigger?.sql).toMatch(/delete-account-standard/);
-  expect(trigger?.sql).toMatch(/delete-account-danger-emphasis/);
   expect(trigger?.sql).toMatch(/normalized_outcome_key = 'cancel-button'/);
 });
 

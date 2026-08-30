@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "package": 2,
+  "scope": "built-local-worker-real-disposable-d1",
+  "status": "PASS",
+  "verified_at_utc": "2026-08-30T20:32:53Z",
+  "source_manifest_sha256": "440d1e937acbfee9682771926a902d005dc425668d04e7adf6419d22439a669e",
+  "engine": "playwright-chromium-1234",
+  "real_local_d1": true,
+  "remote_bindings": false,
+  "tests": { "passed": 5, "total": 5 },
+  "journeys": {
+    "anonymous_bootstrap_and_revision1_review": "PASS",
+    "native_dialog_actual_initial_focus_and_escape_restore": "PASS",
+    "live_dom_manifest_matches_rendered_dialog": "PASS",
+    "deliberate_autofocus_divergence_rejected_without_client_repair": "PASS",
+    "background_inertness_while_modal": "PASS",
+    "background_pointer_activation_blocked": "PASS",
+    "configured_tab_and_shift_tab_wrap": "PASS",
+    "cancel_proposal_durable_after_reload": "PASS",
+    "proposal_visibly_not_applied": "PASS",
+    "page_and_open_dialog_controls_unobscured_at_320_and_375": "PASS",
+    "page_and_open_dialog_controls_two_hundred_percent_layout_zoom": "PASS",
+    "reduced_motion": "PASS"
+  },
+  "axe": { "serious": 0, "critical": 0 },
+  "hosted_client_claim": "NOT_RUN"
+}

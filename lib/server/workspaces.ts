@@ -16,6 +16,7 @@ import {
   resetTokenForSession,
 } from './session';
 import { createWorkspaceSeed } from '../domain/workspace-seed';
+import { createWorkspaceCorpusSeed } from '../retrieval/corpus-seed';
 import { workspaceQueryInventory } from './query-inventory';
 
 const ACCESS_TTL_SECONDS = 8 * 60 * 60;
@@ -81,6 +82,7 @@ async function seedStatements(
   guard?: SeedGuard,
 ): Promise<D1PreparedStatement[]> {
   const seed = await createWorkspaceSeed(workspaceId);
+  const corpus = await createWorkspaceCorpusSeed(workspaceId);
   const statements: D1PreparedStatement[] = [];
   for (const variant of seed.variants) {
     statements.push(
@@ -123,35 +125,108 @@ async function seedStatements(
       [workspaceId, seed.activeVariantId, now],
       guard,
     ),
-    seedInsert(
-      db,
-      `precedent_records (
-         id, workspace_id, record_key, dataset_version, scope_kind, scope_key,
-         behavior, normalized_outcome_key, status, valid_from, valid_until,
-         rationale, tags_json, provenance_kind, provenance_ref, created_at
-       )`,
-      `?, ?, 'D001', 'fcs-precedent-v2', 'use_case', 'delete-account',
-       'initial-focus', 'cancel-button', 'active', 0, NULL,
-       'Prior synthetic reviewer decision: focus Cancel first to make the reversible action the safe default.',
-       '["synthetic","reviewed","focus-safety"]', 'synthetic-seed', 'D001', ?`,
-      [seed.precedent.id, workspaceId, now],
-      guard,
-    ),
   );
-  for (let index = 0; index < seed.variants.length; index += 1) {
-    const variant = seed.variants[index]!;
+
+  for (const record of corpus) {
     statements.push(
       seedInsert(
         db,
-        `precedent_subject_edges (
-           id, workspace_id, record_id, target_kind, target_key, edge_type, weight
+        `precedent_records (
+           id, workspace_id, record_key, dataset_version, scope_kind, scope_key,
+           behavior, normalized_outcome_key, status, valid_from, valid_until,
+           rationale, tags_json, provenance_kind, provenance_ref, created_at
          )`,
-        `?, ?, ?, 'variant', ?, 'applies-to', 1000`,
+        `?, ?, ?, 'fcs-precedent-v2', ?, ?, ?, ?, ?, ?, ?, ?, ?,
+         'synthetic-seed', ?, ?`,
         [
-          seed.edgeIds[index],
+          record.recordId,
           workspaceId,
-          seed.precedent.id,
-          variant.slug,
+          record.source.id,
+          record.scopeKind,
+          record.scopeKey,
+          record.source.behavior,
+          record.source.outcomeKey,
+          record.databaseStatus,
+          record.validFrom,
+          record.validUntil,
+          record.source.rationale,
+          JSON.stringify(record.source.tags),
+          record.source.id,
+          now,
+        ],
+        guard,
+      ),
+    );
+  }
+
+  for (const record of corpus) {
+    statements.push(
+      seedInsert(
+        db,
+        `precedent_retrieval_profiles (
+           record_id, workspace_id, product, component_family, use_case,
+           variants_json, intent, risk, source_status, hostile,
+           mismatch_tags_json, shape_tags_json, relationships_json,
+           supersedes_record_key
+         )`,
+        `?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`,
+        [
+          record.recordId,
+          workspaceId,
+          record.source.product,
+          record.source.componentFamily,
+          record.source.useCase,
+          JSON.stringify(record.source.variants),
+          record.source.intent,
+          record.source.risk,
+          record.source.status,
+          record.source.hostile ? 1 : 0,
+          JSON.stringify(record.source.mismatchTags),
+          JSON.stringify(record.source.shapeTags),
+          JSON.stringify(record.source.relationships),
+          record.source.supersedes,
+        ],
+        guard,
+      ),
+    );
+    for (const edge of record.edges) {
+      statements.push(
+        seedInsert(
+          db,
+          `precedent_subject_edges (
+             id, workspace_id, record_id, target_kind, target_key, edge_type, weight
+           )`,
+          `?, ?, ?, ?, ?, ?, ?`,
+          [
+            edge.id,
+            workspaceId,
+            record.recordId,
+            edge.targetKind,
+            edge.targetKey,
+            edge.edgeType,
+            edge.weight,
+          ],
+          guard,
+        ),
+      );
+    }
+  }
+
+  for (const record of corpus) {
+    if (!record.lineageId || !record.supersededRecordId) continue;
+    statements.push(
+      seedInsert(
+        db,
+        `precedent_lineage (
+           id, workspace_id, from_record_id, to_record_id, relationship, created_at
+         )`,
+        `?, ?, ?, ?, 'supersedes', ?`,
+        [
+          record.lineageId,
+          workspaceId,
+          record.recordId,
+          record.supersededRecordId,
+          now,
         ],
         guard,
       ),
@@ -245,6 +320,31 @@ export async function resolveWorkspaceSession(input: {
   csrfToken: string;
   csrfDigest: string;
 }> {
+  const resolved = await resolveWorkspaceEvidenceSession({
+    db: input.db,
+    cookieHeader: input.cookieHeader,
+    now: input.now,
+    sessionSecret: input.sessionSecret,
+    includePurged: input.includePurged,
+  });
+  return {
+    workspace: resolved.workspace,
+    csrfToken: await csrfTokenForSession(resolved.sessionToken, input.csrfSecret),
+    csrfDigest: resolved.csrfDigest,
+  };
+}
+
+export async function resolveWorkspaceEvidenceSession(input: {
+  db: D1Database;
+  cookieHeader: string | null;
+  now: number;
+  sessionSecret: string;
+  includePurged?: boolean;
+}): Promise<{
+  workspace: WorkspaceSummary;
+  csrfDigest: string;
+  sessionToken: Uint8Array;
+}> {
   const parsed = await parseSessionCookie(input.cookieHeader, {
     now: input.now,
     sessionSecret: input.sessionSecret,
@@ -265,8 +365,8 @@ export async function resolveWorkspaceSession(input: {
   }
   return {
     workspace: { id: workspace.id, generation: workspace.generation },
-    csrfToken: await csrfTokenForSession(parsed.token, input.csrfSecret),
     csrfDigest: workspace.csrf_digest,
+    sessionToken: parsed.token,
   };
 }
 
