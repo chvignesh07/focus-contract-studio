@@ -25,6 +25,7 @@ const initialState: ProbeState = {
 export function Package0HostedProbePanel() {
   const [state, setState] = useState<ProbeState>(initialState);
   const [d1Armed, setD1Armed] = useState(false);
+  const [operatorToken, setOperatorToken] = useState('');
 
   async function run(action: ProbeAction) {
     setState({
@@ -40,6 +41,15 @@ export function Package0HostedProbePanel() {
       if (action === 'observe_platform') {
         headers['oai-authenticated-user-email'] =
           'package0-spoof@invalid.example';
+      }
+      if (
+        action === 'run_disposable_d1' ||
+        action === 'finalize_disposable_d1'
+      ) {
+        if (operatorToken) {
+          headers['x-fcs-package0-operator-token'] = operatorToken;
+        }
+        setOperatorToken('');
       }
 
       const response = await fetch('/api/package0-probe', {
@@ -82,9 +92,9 @@ export function Package0HostedProbePanel() {
         Hosted platform checks
       </h2>
       <p className="mt-1 text-xs leading-5 text-stone-500">
-        Observation writes only short-lived hardened cookies. D1 mutation stays
-        server-disabled unless an approved owner-only probe window explicitly
-        enables its durable single-use gate.
+        Observation writes only short-lived hardened cookies. D1 actions require
+        owner-only access, a server-bounded run or cleanup window, and a separate
+        operator token verified only on the server.
       </p>
       <label className="mt-3 flex max-w-md items-start gap-2 text-xs leading-5 text-stone-600">
         <input
@@ -94,10 +104,33 @@ export function Package0HostedProbePanel() {
           onChange={(event) => setD1Armed(event.target.checked)}
           type="checkbox"
         />
-        Arm this page&apos;s human confirmation only. Server admission separately
-        requires proven owner-only access, an approved environment flag, and an
-        unused durable D1 gate.
+        Arm this page&apos;s human confirmation only; it is not authorization.
+        Server admission separately requires the exact active window, operator
+        token, owner-only prerequisite, and unused durable D1 gate.
       </label>
+      <label className="mt-3 block max-w-md text-xs font-medium leading-5 text-stone-700">
+        Package 0 operator token
+        <input
+          aria-describedby="package0-operator-token-help"
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
+          className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-xs text-stone-800 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2 disabled:opacity-55"
+          disabled={state.busy !== null}
+          maxLength={43}
+          onChange={(event) => setOperatorToken(event.target.value)}
+          spellCheck={false}
+          type="password"
+          value={operatorToken}
+        />
+      </label>
+      <p
+        className="mt-1 max-w-md text-xs leading-5 text-stone-500"
+        id="package0-operator-token-help"
+      >
+        Enter the approved 43-character token for one D1 action. This page clears
+        it immediately after the request and never stores it in a cookie.
+      </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <ProbeButton
           available
@@ -107,14 +140,18 @@ export function Package0HostedProbePanel() {
           ownAction="observe_platform"
         />
         <ProbeButton
-          available={d1Armed}
+          available={d1Armed && operatorToken.length === 43}
           busy={state.busy}
-          label={d1Armed ? 'Run disposable D1 probe' : 'D1 probe locked'}
+          label={
+            d1Armed && operatorToken.length === 43
+              ? 'Run disposable D1 probe'
+              : 'D1 probe locked'
+          }
           onClick={() => run('run_disposable_d1')}
           ownAction="run_disposable_d1"
         />
         <ProbeButton
-          available
+          available={operatorToken.length === 43}
           busy={state.busy}
           label="Finalize D1 cleanup"
           onClick={() => run('finalize_disposable_d1')}
@@ -185,7 +222,7 @@ function successResult(
     return hasPassingD1Result(result)
       ? {
           message:
-            'Hosted D1 behavior passed and zero work tables remain. Its durable single-use gate is sealed; disable the server flag, then finalize D1 cleanup.',
+            'Hosted D1 behavior passed and zero work tables remain. Keep owner and operator authorization, disable the run flag, wait for the original run window plus five-second drain, deploy a bounded cleanup window, then finalize.',
           tone: 'pass',
         }
       : {
@@ -217,14 +254,32 @@ function safeFailureMessage(result: unknown): string {
     if (result.code === 'HOSTED_D1_PROBE_DISABLED') {
       return 'Hosted D1 mutation is disabled. It may run only during the approved owner-only probe window.';
     }
+    if (result.code === 'HOSTED_D1_OPERATOR_UNAUTHORIZED') {
+      return 'Hosted D1 stopped because separate operator authorization was missing or invalid.';
+    }
+    if (result.code === 'HOSTED_D1_RUN_WINDOW_CLOSED') {
+      return 'Hosted D1 stopped because its server-bounded run window is absent, invalid, inactive, expired, or longer than 15 minutes.';
+    }
+    if (result.code === 'HOSTED_D1_CLEANUP_DISABLED') {
+      return 'Hosted D1 finalization is disabled until the separately approved cleanup configuration is deployed.';
+    }
+    if (result.code === 'HOSTED_D1_CLEANUP_WINDOW_CLOSED') {
+      return 'Hosted D1 cleanup stopped because its server-bounded window is absent, invalid, inactive, expired, or longer than 15 minutes.';
+    }
+    if (result.code === 'HOSTED_D1_CONFIGURATION_CONFLICT') {
+      return 'Hosted D1 stopped because run and cleanup enablement cannot be active in the same deployment configuration.';
+    }
     if (result.code === 'HOSTED_D1_OWNER_ONLY_NOT_CONFIRMED') {
       return 'Hosted D1 stopped because owner-only access was not explicitly confirmed.';
     }
     if (result.code === 'HOSTED_D1_PROBE_STILL_ENABLED') {
-      return 'Disable the hosted D1 probe flag before finalizing its durable gate.';
+      return 'Disable the hosted D1 run flag while keeping owner and operator authorization before finalizing its durable gate.';
     }
     if (result.code === 'HOSTED_D1_PROBE_ALREADY_USED') {
       return 'The durable D1 gate rejected a repeat or concurrent probe run.';
+    }
+    if (result.code === 'HOSTED_D1_FINALIZE_BUSY') {
+      return 'Hosted D1 cleanup is not ready. Wait for the original run window, five-second drain, and any active recovery lease before retrying.';
     }
     return `Probe stopped with ${result.code}.`;
   }

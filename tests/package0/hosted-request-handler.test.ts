@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
@@ -10,6 +11,31 @@ import { interpretPlatformObservation } from '../../probes/hosted/presentation.t
 
 const endpoint = 'https://focus.example/api/package0-probe';
 const identityKey = Buffer.alloc(32, 7).toString('base64url');
+const operatorToken = Buffer.alloc(32, 13).toString('base64url');
+const operatorTokenSha256 = createHash('sha256')
+  .update(operatorToken)
+  .digest('hex');
+const nowUnixSeconds = Math.floor(Date.now() / 1000);
+const cleanupNowUnixSeconds = nowUnixSeconds + 306;
+
+const activeRunWindow = {
+  d1Enabled: true,
+  d1WindowExpiresAt: String(nowUnixSeconds + 300),
+  d1WindowNotBefore: String(nowUnixSeconds - 30),
+  nowUnixSeconds,
+  operatorTokenSha256,
+  ownerOnlyConfirmed: true,
+};
+
+const activeCleanupWindow = {
+  d1CleanupEnabled: true,
+  d1CleanupWindowExpiresAt: String(cleanupNowUnixSeconds + 300),
+  d1CleanupWindowNotBefore: String(cleanupNowUnixSeconds - 1),
+  d1Enabled: false,
+  nowUnixSeconds: cleanupNowUnixSeconds,
+  operatorTokenSha256,
+  ownerOnlyConfirmed: true,
+};
 
 function request(
   action: string,
@@ -24,6 +50,13 @@ function request(
     },
     body: JSON.stringify({ action }),
   });
+}
+
+function operatorRequest(
+  action: string,
+  token = operatorToken,
+): Request {
+  return request(action, { 'x-fcs-package0-operator-token': token });
 }
 
 test('hosted probe rejects cross-origin requests before doing work', async () => {
@@ -164,10 +197,36 @@ test('identity presentation passes only a configured, issued, exact repeat compa
   );
 });
 
-test('hosted D1 mutation stays disabled unless the owner-only probe flag is explicit', async () => {
+test('same-origin and environment latches never authorize D1 without an operator token', async () => {
   const response = await handlePackage0ProbeRequest(
     request('run_disposable_d1'),
-    { d1Enabled: false },
+    activeRunWindow,
+  );
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED',
+  });
+});
+
+test('a forged operator token fails closed without exposing configuration state', async () => {
+  const response = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1', Buffer.alloc(32, 14).toString('base64url')),
+    activeRunWindow,
+  );
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED',
+  });
+});
+
+test('hosted D1 mutation stays disabled unless the run flag is explicit', async () => {
+  const response = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1'),
+    { ...activeRunWindow, d1Enabled: false },
   );
 
   assert.equal(response.status, 403);
@@ -179,14 +238,140 @@ test('hosted D1 mutation stays disabled unless the owner-only probe flag is expl
 
 test('hosted D1 mutation also requires an explicit owner-only access confirmation', async () => {
   const response = await handlePackage0ProbeRequest(
-    request('run_disposable_d1'),
-    { d1Enabled: true, ownerOnlyConfirmed: false },
+    operatorRequest('run_disposable_d1'),
+    { ...activeRunWindow, ownerOnlyConfirmed: false },
   );
 
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), {
     ok: false,
     code: 'HOSTED_D1_OWNER_ONLY_NOT_CONFIRMED',
+  });
+});
+
+test('run and cleanup enablement cannot be active in the same configuration', async () => {
+  const response = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1'),
+    { ...activeRunWindow, d1CleanupEnabled: true },
+  );
+
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    code: 'HOSTED_D1_CONFIGURATION_CONFLICT',
+  });
+});
+
+test('hosted D1 run windows reject missing, malformed, inactive, expired, and overlong bounds', async () => {
+  const invalidWindows = [
+    {
+      d1WindowNotBefore: undefined,
+      d1WindowExpiresAt: String(nowUnixSeconds + 300),
+    },
+    { d1WindowNotBefore: 'not-a-time', d1WindowExpiresAt: 'also-not-a-time' },
+    {
+      d1WindowNotBefore: String(nowUnixSeconds - 600),
+      d1WindowExpiresAt: String(nowUnixSeconds),
+    },
+    {
+      d1WindowNotBefore: String(nowUnixSeconds + 1),
+      d1WindowExpiresAt: String(nowUnixSeconds + 300),
+    },
+    {
+      d1WindowNotBefore: String(nowUnixSeconds - 1),
+      d1WindowExpiresAt: String(nowUnixSeconds + 900),
+    },
+  ];
+
+  for (const window of invalidWindows) {
+    const response = await handlePackage0ProbeRequest(
+      operatorRequest('run_disposable_d1'),
+      { ...activeRunWindow, ...window },
+    );
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), {
+      ok: false,
+      code: 'HOSTED_D1_RUN_WINDOW_CLOSED',
+    });
+  }
+});
+
+test('a valid bounded run window reaches database availability at its inclusive start', async () => {
+  const response = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1'),
+    {
+      ...activeRunWindow,
+      d1WindowNotBefore: String(nowUnixSeconds),
+    },
+  );
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    code: 'HOSTED_D1_PROBE_UNAVAILABLE',
+  });
+});
+
+test('the exact 900-second maximum run window is accepted but 901 seconds is not', async () => {
+  const accepted = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1'),
+    {
+      ...activeRunWindow,
+      d1WindowExpiresAt: String(nowUnixSeconds + 900),
+      d1WindowNotBefore: String(nowUnixSeconds),
+    },
+  );
+  assert.equal(accepted.status, 503);
+
+  const rejected = await handlePackage0ProbeRequest(
+    operatorRequest('run_disposable_d1'),
+    {
+      ...activeRunWindow,
+      d1WindowExpiresAt: String(nowUnixSeconds + 901),
+      d1WindowNotBefore: String(nowUnixSeconds),
+    },
+  );
+  assert.equal(rejected.status, 403);
+  assert.deepEqual(await rejected.json(), {
+    ok: false,
+    code: 'HOSTED_D1_RUN_WINDOW_CLOSED',
+  });
+});
+
+test('cleanup requires run disablement plus owner confirmation, operator auth, and its own bounded window', async () => {
+  for (const [dependencies, code] of [
+    [
+      { ...activeCleanupWindow, d1CleanupEnabled: false },
+      'HOSTED_D1_CLEANUP_DISABLED',
+    ],
+    [
+      {
+        ...activeCleanupWindow,
+        d1CleanupWindowExpiresAt: String(nowUnixSeconds),
+      },
+      'HOSTED_D1_CLEANUP_WINDOW_CLOSED',
+    ],
+    [
+      { ...activeCleanupWindow, ownerOnlyConfirmed: false },
+      'HOSTED_D1_OWNER_ONLY_NOT_CONFIRMED',
+    ],
+  ] as const) {
+    const response = await handlePackage0ProbeRequest(
+      operatorRequest('finalize_disposable_d1'),
+      dependencies,
+    );
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { ok: false, code });
+  }
+
+  const missingToken = await handlePackage0ProbeRequest(
+    request('finalize_disposable_d1'),
+    activeCleanupWindow,
+  );
+  assert.equal(missingToken.status, 403);
+  assert.deepEqual(await missingToken.json(), {
+    ok: false,
+    code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED',
   });
 });
 
@@ -217,12 +402,11 @@ test('enabled HTTP action seals one run, rejects repeats, then finalizes to zero
       ),
     ]);
     const response = await handlePackage0ProbeRequest(
-      request('run_disposable_d1'),
+      operatorRequest('run_disposable_d1'),
       {
+        ...activeRunWindow,
         database,
-        d1Enabled: true,
         downMigration,
-        ownerOnlyConfirmed: true,
         upMigration,
       },
     );
@@ -241,18 +425,19 @@ test('enabled HTTP action seals one run, rejects repeats, then finalizes to zero
     assert.equal(body.result.residualWorkTableCount, 0);
     assert.equal(body.result.singleUseGate, 'SEALED');
 
-    const cleanupCookie = /(__Host-fcs_p0_d1_cleanup=[^;,]+)/u.exec(
-      response.headers.get('set-cookie') ?? '',
-    )?.[1];
-    assert.ok(cleanupCookie);
+    assert.equal(response.headers.get('set-cookie'), null);
+    assert.doesNotMatch(JSON.stringify(body), new RegExp(operatorToken, 'u'));
+    assert.doesNotMatch(
+      JSON.stringify(body),
+      new RegExp(operatorTokenSha256, 'u'),
+    );
 
     const second = await handlePackage0ProbeRequest(
-      request('run_disposable_d1'),
+      operatorRequest('run_disposable_d1'),
       {
+        ...activeRunWindow,
         database,
-        d1Enabled: true,
         downMigration,
-        ownerOnlyConfirmed: true,
         upMigration,
       },
     );
@@ -266,12 +451,28 @@ test('enabled HTTP action seals one run, rejects repeats, then finalizes to zero
       /__Host-fcs_p0_d1_cleanup=/u,
     );
 
-    const prematureFinalize = await handlePackage0ProbeRequest(
-      request('finalize_disposable_d1', { cookie: cleanupCookie }),
+    const beforeDrain = await handlePackage0ProbeRequest(
+      operatorRequest('finalize_disposable_d1'),
       {
+        ...activeCleanupWindow,
+        database,
+        d1CleanupWindowExpiresAt: String(nowUnixSeconds + 604),
+        d1CleanupWindowNotBefore: String(nowUnixSeconds + 303),
+        nowUnixSeconds: nowUnixSeconds + 304,
+      },
+    );
+    assert.equal(beforeDrain.status, 409);
+    assert.deepEqual(await beforeDrain.json(), {
+      ok: false,
+      code: 'HOSTED_D1_FINALIZE_BUSY',
+    });
+
+    const prematureFinalize = await handlePackage0ProbeRequest(
+      operatorRequest('finalize_disposable_d1'),
+      {
+        ...activeCleanupWindow,
         database,
         d1Enabled: true,
-        ownerOnlyConfirmed: true,
       },
     );
     assert.equal(prematureFinalize.status, 409);
@@ -281,32 +482,32 @@ test('enabled HTTP action seals one run, rejects repeats, then finalizes to zero
     });
 
     const forgedFinalize = await handlePackage0ProbeRequest(
-      request('finalize_disposable_d1', {
-        cookie: `__Host-fcs_p0_d1_cleanup=${'z'.repeat(43)}`,
-      }),
+      operatorRequest(
+        'finalize_disposable_d1',
+        Buffer.alloc(32, 14).toString('base64url'),
+      ),
       {
+        ...activeCleanupWindow,
         database,
-        d1Enabled: false,
-        ownerOnlyConfirmed: true,
       },
     );
     assert.equal(forgedFinalize.status, 403);
     assert.deepEqual(await forgedFinalize.json(), {
       ok: false,
-      code: 'HOSTED_D1_FINALIZE_FORBIDDEN',
+      code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED',
     });
 
     const finalize = await handlePackage0ProbeRequest(
-      request('finalize_disposable_d1', { cookie: cleanupCookie }),
+      operatorRequest('finalize_disposable_d1'),
       {
+        ...activeCleanupWindow,
         database,
-        d1Enabled: false,
         downMigration,
-        ownerOnlyConfirmed: true,
       },
     );
     assert.equal(finalize.status, 200);
-    assert.deepEqual(await finalize.json(), {
+    const finalizeBody = await finalize.json();
+    assert.deepEqual(finalizeBody, {
       ok: true,
       action: 'finalize_disposable_d1',
       result: {
@@ -315,6 +516,11 @@ test('enabled HTTP action seals one run, rejects repeats, then finalizes to zero
         rollback: 'PASS',
       },
     });
+    assert.equal(finalize.headers.get('set-cookie'), null);
+    assert.doesNotMatch(
+      JSON.stringify(finalizeBody),
+      new RegExp(operatorToken, 'u'),
+    );
   } finally {
     await miniflare.dispose();
   }
@@ -347,15 +553,14 @@ test('two concurrent hosted D1 requests admit exactly one run', async () => {
       ),
     ]);
     const dependencies = {
+      ...activeRunWindow,
       database,
-      d1Enabled: true,
       downMigration,
-      ownerOnlyConfirmed: true,
       upMigration,
     };
     const responses = await Promise.all([
-      handlePackage0ProbeRequest(request('run_disposable_d1'), dependencies),
-      handlePackage0ProbeRequest(request('run_disposable_d1'), dependencies),
+      handlePackage0ProbeRequest(operatorRequest('run_disposable_d1'), dependencies),
+      handlePackage0ProbeRequest(operatorRequest('run_disposable_d1'), dependencies),
     ]);
 
     assert.deepEqual(

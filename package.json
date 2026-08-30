@@ -15,9 +15,10 @@
     "test:package0:authority": "node --experimental-strip-types --test tests/package0/authority-import.test.ts",
     "test:package0:webmcp": "node --experimental-strip-types --test tests/package0/webmcp-lifecycle.test.ts",
     "test:package0:hosted": "node --experimental-strip-types --test tests/package0/hosted-request-handler.test.ts",
+    "test:package0:runbook": "node --experimental-strip-types --test tests/package0/external-runbook.test.ts",
     "test:package0:d1": "node --experimental-strip-types --test tests/package0/d1-probe.test.ts tests/package0/d1-hosted-probe.test.ts",
     "test:package0:cloudflare": "vitest run --config vitest.package0.config.ts",
-    "test:package0": "npm run test:package0:authority && npm run test:package0:webmcp && npm run test:package0:hosted && npm run test:package0:d1 && npm run test:package0:cloudflare",
+    "test:package0": "npm run test:package0:authority && npm run test:package0:webmcp && npm run test:package0:runbook && npm run test:package0:hosted && npm run test:package0:d1 && npm run test:package0:cloudflare",
     "audit:package0": "npm audit --omit=dev && npm audit --audit-level=high",
     "verify:package0": "npm run typecheck && npm run lint && npm run test:package0 && npm run build && npm run audit:package0"
   },

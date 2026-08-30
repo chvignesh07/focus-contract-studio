@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "authorityRevision": "2.0",
+  "status": "NOT_RUN",
+  "externalActionsPerformed": [],
+  "officialBasis": [
+    "https://learn.chatgpt.com/docs/sites"
+  ],
+  "globalInvariants": {
+    "oneApprovalAndStopPerStage": true,
+    "projectIdMustComeFromCreateSite": true,
+    "saveCommitShaMustEqualPrivatelyPushedPostCreationHead": true,
+    "savedVersionIsNotADeployment": true,
+    "everyDeploymentIsProduction": true,
+    "ownerOnlyAccessIsAnExternalPrerequisiteNotOperatorAuthentication": true,
+    "sameOriginIsCsrfDefenseNotOperatorAuthentication": true,
+    "operatorTokenOrDigestMustNeverEnterSourceLogsResponsesOrEvidence": true,
+    "browserAutomationScreenshotsSnapshotsAndNetworkLogsAreForbiddenWhileOperatorTokenIsPresent": true,
+    "publicAccessProhibitedDuringPackage0": true,
+    "package1Prohibited": true
+  },
+  "stages": [
+    {
+      "id": "stage-1-create-push-package-save-only",
+      "requiresFreshApproval": true,
+      "preconditions": [
+        "local_package0_security_commit_is_clean_and_fully_reverified",
+        "hosting_json_has_no_project_id",
+        "no_site_has_been_created_for_this_checkout"
+      ],
+      "actions": [
+        "create_site_once_if_project_id_absent",
+        "persist_returned_project_id_verbatim",
+        "commit_project_id_source_change",
+        "reverify_post_creation_head",
+        "push_post_creation_head_privately",
+        "package_post_creation_head",
+        "save_version_with_post_creation_head_commit_sha"
+      ],
+      "forbiddenActions": [
+        "deploy_saved_version",
+        "change_site_access",
+        "set_runtime_environment_values",
+        "mutate_hosted_d1",
+        "run_identity_probe",
+        "publish_source_or_site"
+      ],
+      "requiredEvidence": [
+        "project_id_persisted_in_hosting_json",
+        "post_creation_head_full_sha",
+        "clean_reverification_for_post_creation_head",
+        "private_push_head_matches_post_creation_head",
+        "package_built_from_post_creation_head",
+        "saved_version_commit_sha_matches_post_creation_head",
+        "no_deployment_created"
+      ],
+      "stopAfter": "saved_version_exists_without_deployment"
+    },
+    {
+      "id": "stage-2-owner-only-read-only-observation",
+      "requiresFreshApproval": true,
+      "preconditions": [
+        "stage_1_evidence_passed",
+        "exact_stage_1_saved_version_selected",
+        "all_d1_and_identity_controls_absent_or_hard_disabled"
+      ],
+      "actions": [
+        "deploy_exact_saved_version_owner_only",
+        "verify_owner_only_access",
+        "run_read_only_hosted_observations",
+        "run_supported_site_tool_observation",
+        "record_only_bounded_non_sensitive_results"
+      ],
+      "forbiddenActions": [
+        "enable_d1_run",
+        "enable_d1_cleanup",
+        "configure_operator_token",
+        "run_identity_probe",
+        "change_site_access",
+        "mutate_hosted_d1",
+        "publish_source_or_site"
+      ],
+      "requiredEvidence": [
+        "deployed_version_equals_stage_1_saved_version",
+        "deployed_commit_sha_equals_stage_1_post_creation_head",
+        "access_is_verified_owner_only",
+        "d1_controls_remained_hard_disabled",
+        "read_only_observation_results"
+      ],
+      "stopAfter": "owner_only_read_only_observations_recorded"
+    },
+    {
+      "id": "stage-3-optional-identity-observation",
+      "requiresFreshApproval": true,
+      "optional": true,
+      "preconditions": [
+        "stage_2_evidence_passed",
+        "exact_stage_1_saved_version_remains_selected",
+        "all_d1_controls_remain_hard_disabled"
+      ],
+      "actions": [
+        "configure_identity_probe_secret_without_recording_value",
+        "deploy_identity_observation_configuration_owner_only",
+        "run_header_anti_spoof_observation",
+        "run_repeat_sign_in_byte_stability_observation",
+        "remove_identity_probe_secret",
+        "redeploy_identity_disabled_configuration"
+      ],
+      "forbiddenActions": [
+        "enable_d1_run",
+        "enable_d1_cleanup",
+        "configure_operator_token",
+        "mutate_hosted_d1",
+        "change_site_access",
+        "publish_source_or_site"
+      ],
+      "requiredEvidence": [
+        "no_raw_identity_header_cookie_or_secret_recorded",
+        "optional_identity_result_is_truthful",
+        "identity_probe_secret_removed_and_redeployed"
+      ],
+      "stopAfter": "optional_identity_controls_removed"
+    },
+    {
+      "id": "stage-4-bounded-d1-run-and-cleanup",
+      "requiresFreshApproval": true,
+      "preconditions": [
+        "stage_2_owner_only_access_evidence_passed",
+        "exact_stage_1_saved_version_remains_selected",
+        "hosted_d1_has_not_been_mutated_by_package0",
+        "operator_can_retain_the_raw_token_outside_browser_repo_chat_logs_and_evidence_until_cleanup_finishes"
+      ],
+      "actions": [
+        "verify_owner_only_access_prerequisite",
+        "configure_operator_token_digest_as_secret",
+        "enable_bounded_d1_run_window",
+        "deploy_run_configuration",
+        "execute_disposable_d1_once",
+        "prove_repeat_rejection",
+        "disable_d1_run_keep_owner_and_operator_authorization",
+        "wait_for_stored_run_window_expiry_plus_five_second_drain",
+        "enable_bounded_cleanup_window",
+        "deploy_cleanup_configuration",
+        "finalize_without_browser_cookie_dependency",
+        "prove_zero_exact_probe_schema",
+        "remove_all_temporary_values",
+        "redeploy_hard_disabled_configuration"
+      ],
+      "runConfiguration": {
+        "PACKAGE0_OWNER_ONLY_ACCESS_CONFIRMED": "true",
+        "PACKAGE0_D1_OPERATOR_TOKEN_SHA256": "secret_lowercase_sha256_of_32_byte_base64url_token",
+        "PACKAGE0_HOSTED_D1_PROBE_ENABLED": "true",
+        "PACKAGE0_HOSTED_D1_PROBE_WINDOW_NOT_BEFORE": "integer_unix_seconds",
+        "PACKAGE0_HOSTED_D1_PROBE_WINDOW_EXPIRES_AT": "integer_unix_seconds_at_most_900_after_not_before",
+        "PACKAGE0_HOSTED_D1_CLEANUP_ENABLED": "false_or_absent",
+        "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_NOT_BEFORE": "absent",
+        "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_EXPIRES_AT": "absent"
+      },
+      "cleanupConfiguration": {
+        "PACKAGE0_OWNER_ONLY_ACCESS_CONFIRMED": "true",
+        "PACKAGE0_D1_OPERATOR_TOKEN_SHA256": "same_secret_digest_as_run_configuration",
+        "PACKAGE0_HOSTED_D1_PROBE_ENABLED": "false_or_absent",
+        "PACKAGE0_HOSTED_D1_PROBE_WINDOW_NOT_BEFORE": "absent",
+        "PACKAGE0_HOSTED_D1_PROBE_WINDOW_EXPIRES_AT": "absent",
+        "PACKAGE0_HOSTED_D1_CLEANUP_ENABLED": "true",
+        "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_NOT_BEFORE": "integer_unix_seconds",
+        "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_EXPIRES_AT": "integer_unix_seconds_at_most_900_after_not_before"
+      },
+      "hardDisabledConfiguration": {
+        "remove": [
+          "PACKAGE0_OWNER_ONLY_ACCESS_CONFIRMED",
+          "PACKAGE0_D1_OPERATOR_TOKEN_SHA256",
+          "PACKAGE0_HOSTED_D1_PROBE_ENABLED",
+          "PACKAGE0_HOSTED_D1_PROBE_WINDOW_NOT_BEFORE",
+          "PACKAGE0_HOSTED_D1_PROBE_WINDOW_EXPIRES_AT",
+          "PACKAGE0_HOSTED_D1_CLEANUP_ENABLED",
+          "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_NOT_BEFORE",
+          "PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_EXPIRES_AT",
+          "PACKAGE0_IDENTITY_PROBE_KEY"
+        ]
+      },
+      "forbiddenActions": [
+        "use_origin_as_operator_authorization",
+        "use_browser_checkbox_as_operator_authorization",
+        "use_environment_boolean_as_sole_operator_authorization",
+        "finalize_while_d1_run_is_enabled",
+        "remove_owner_or_operator_authorization_before_finalization",
+        "record_raw_operator_token_or_digest",
+        "drop_non_probe_schema",
+        "change_site_access",
+        "publish_source_or_site"
+      ],
+      "requiredEvidence": [
+        "run_window_duration_is_at_most_900_seconds_and_active_at_request_time",
+        "one_operator_authorized_run_passed",
+        "repeat_or_concurrent_run_rejected",
+        "cleanup_started_only_after_stored_run_window_expiry_plus_five_second_drain",
+        "cleanup_deployment_has_run_disabled_owner_true_operator_digest_retained_and_cleanup_window_active",
+        "cleanup_succeeded_without_any_browser_cleanup_cookie",
+        "exact_parent_child_and_gate_tables_are_absent",
+        "unrelated_and_preexisting_data_are_unchanged",
+        "all_temporary_values_removed_and_hard_disabled_configuration_redeployed"
+      ],
+      "stopAfter": "zero_probe_schema_and_hard_disabled_redeployment_proven"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ The preserved `0.2.0` scaffold originally used `vinext start`, which executes th
 
 The runtime dependency audit is clean. The complete development graph retains four moderate `esbuild` advisories through the generated `drizzle-kit` toolchain; that CLI is not served or invoked by the application. The bounded assessment and future upgrade condition are committed under `.artifacts/security/`.
 
-The temporary hosted D1 probe is fail-closed. Its page checkbox is only a human confirmation; the server also requires verified owner-only access, a short approved enablement window, an atomic durable single-use gate, and a token-bound final cleanup after the enable flag is removed. Reserved-table collisions, concurrent/repeat calls, forged cleanup tokens, cleanup failure, and an expired stranded gate all have local regressions. This is probe safety, not hosted proof.
+The temporary hosted D1 probe is fail-closed. Its page checkbox is only a human guard, and caller Origin is only a CSRF layer. Both run and cleanup require a separately supplied operator token whose SHA-256 digest is configured as a hosted secret, verified owner-only access as an external prerequisite, and distinct server-enforced windows capped at 15 minutes. Run and cleanup cannot be enabled together. Cleanup requires the run flag off while owner and operator authorization remain, works from a new browser without a cleanup cookie, and cannot begin until the durable run window plus a five-second drain has elapsed. Atomic gate-plus-schema acquisition rechecks the database clock, preventing both pre-acquisition and post-acquisition delayed runners from recreating schema after zero cleanup. Finalization verifies the exact gate and work-table definitions before removing only the three probe-owned names. Collision, replay, concurrency, lease, forgery, zero-row, cleanup-failure, schema-ownership, and zero-residual protections have local regressions. This is probe safety, not hosted proof.
 
 ## Authority and safety
 
@@ -36,6 +36,8 @@ Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a propo
 
 - `docs/evidence/AUTHORITY_VALIDATION.json` — product-repository authority import validation.
 - `docs/evidence/BOOTSTRAP_PROBES.md` — truthful Package 0 probe matrix.
+- `docs/evidence/PACKAGE0_SECURITY_HARDENING.md` — red/green evidence for the local D1 boundary repair.
+- `docs/evidence/PACKAGE0_EXTERNAL_RUNBOOK.md` — four separately approved external checkpoints; its JSON companion is machine-tested.
 - `docs/evidence/CLIENT_MATRIX.md` — real-client and conditional-client status.
 - `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
 - `docs/evidence/ADVERSARIAL_REVIEW_1.md` — Package 0 finding dispositions and external boundary.

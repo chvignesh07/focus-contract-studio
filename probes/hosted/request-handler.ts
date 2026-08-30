@@ -1,4 +1,5 @@
 import {
+  type DisposableHostedD1RunWindow,
   finalizeDisposableHostedD1Probe,
   HostedD1ProbeError,
   runDisposableHostedD1Probe,
@@ -6,8 +7,9 @@ import {
 
 const observationCookieName = '__Host-fcs_p0_observation';
 const identityCookieName = '__Host-fcs_p0_identity';
-const d1CleanupCookieName = '__Host-fcs_p0_d1_cleanup';
+const operatorTokenHeaderName = 'x-fcs-package0-operator-token';
 const spoofEmail = 'package0-spoof@invalid.example';
+const maxD1WindowSeconds = 900;
 const maxRequestBytes = 256;
 
 type ProbeAction =
@@ -18,9 +20,16 @@ type ProbeAction =
 
 type ProbeDependencies = {
   database?: D1Database;
+  d1CleanupEnabled?: boolean;
+  d1CleanupWindowExpiresAt?: string;
+  d1CleanupWindowNotBefore?: string;
   d1Enabled?: boolean;
+  d1WindowExpiresAt?: string;
+  d1WindowNotBefore?: string;
   downMigration?: string;
   identityKey?: string;
+  nowUnixSeconds?: number;
+  operatorTokenSha256?: string;
   ownerOnlyConfirmed?: boolean;
   upMigration?: string;
 };
@@ -53,15 +62,39 @@ export async function handlePackage0ProbeRequest(
   }
 
   if (action === 'run_disposable_d1') {
+    const operatorToken = await authorizedOperatorToken(request, dependencies);
+    if (!operatorToken) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED' },
+        { status: 403 },
+      );
+    }
     if (!dependencies.d1Enabled) {
       return jsonResponse(
         { ok: false, code: 'HOSTED_D1_PROBE_DISABLED' },
         { status: 403 },
       );
     }
+    if (dependencies.d1CleanupEnabled) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_CONFIGURATION_CONFLICT' },
+        { status: 409 },
+      );
+    }
     if (!dependencies.ownerOnlyConfirmed) {
       return jsonResponse(
         { ok: false, code: 'HOSTED_D1_OWNER_ONLY_NOT_CONFIRMED' },
+        { status: 403 },
+      );
+    }
+    const runWindow = activeBoundedWindow(
+      dependencies.d1WindowNotBefore,
+      dependencies.d1WindowExpiresAt,
+      resolveNowUnixSeconds(dependencies.nowUnixSeconds),
+    );
+    if (!runWindow) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_RUN_WINDOW_CLOSED' },
         { status: 403 },
       );
     }
@@ -76,23 +109,15 @@ export async function handlePackage0ProbeRequest(
       );
     }
 
-    const cleanupToken = randomBase64Url(32);
-    const cleanupTokenSha256 = await sha256Hex(cleanupToken);
     try {
       const result = await runDisposableHostedD1Probe(
         dependencies.database,
         dependencies.upMigration,
         dependencies.downMigration,
-        cleanupTokenSha256,
+        dependencies.operatorTokenSha256!,
+        runWindow,
       );
-      const response = jsonResponse({ ok: true, action, result });
-      setProbeCookie(
-        response.headers,
-        d1CleanupCookieName,
-        cleanupToken,
-        900,
-      );
-      return response;
+      return jsonResponse({ ok: true, action, result });
     } catch (error) {
       const code =
         error instanceof HostedD1ProbeError
@@ -103,20 +128,18 @@ export async function handlePackage0ProbeRequest(
         code === 'HOSTED_D1_SCHEMA_COLLISION'
           ? 409
           : 500;
-      const response = jsonResponse({ ok: false, code }, { status });
-      if (error instanceof HostedD1ProbeError && error.cleanupAuthorized) {
-        setProbeCookie(
-          response.headers,
-          d1CleanupCookieName,
-          cleanupToken,
-          900,
-        );
-      }
-      return response;
+      return jsonResponse({ ok: false, code }, { status });
     }
   }
 
   if (action === 'finalize_disposable_d1') {
+    const operatorToken = await authorizedOperatorToken(request, dependencies);
+    if (!operatorToken) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_OPERATOR_UNAUTHORIZED' },
+        { status: 403 },
+      );
+    }
     if (dependencies.d1Enabled) {
       return jsonResponse(
         { ok: false, code: 'HOSTED_D1_PROBE_STILL_ENABLED' },
@@ -129,28 +152,38 @@ export async function handlePackage0ProbeRequest(
         { status: 403 },
       );
     }
+    if (!dependencies.d1CleanupEnabled) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_CLEANUP_DISABLED' },
+        { status: 403 },
+      );
+    }
+    if (
+      !activeBoundedWindow(
+        dependencies.d1CleanupWindowNotBefore,
+        dependencies.d1CleanupWindowExpiresAt,
+        resolveNowUnixSeconds(dependencies.nowUnixSeconds),
+      )
+    ) {
+      return jsonResponse(
+        { ok: false, code: 'HOSTED_D1_CLEANUP_WINDOW_CLOSED' },
+        { status: 403 },
+      );
+    }
     if (!dependencies.database) {
       return jsonResponse(
         { ok: false, code: 'HOSTED_D1_PROBE_UNAVAILABLE' },
         { status: 503 },
       );
     }
-    const cleanupToken = readCookie(request, d1CleanupCookieName);
-    if (!cleanupToken) {
-      return jsonResponse(
-        { ok: false, code: 'HOSTED_D1_FINALIZE_FORBIDDEN' },
-        { status: 403 },
-      );
-    }
 
     try {
       const result = await finalizeDisposableHostedD1Probe(
         dependencies.database,
-        cleanupToken,
+        operatorToken,
+        resolveNowUnixSeconds(dependencies.nowUnixSeconds),
       );
-      const response = jsonResponse({ ok: true, action, result });
-      expireCookie(response.headers, d1CleanupCookieName);
-      return response;
+      return jsonResponse({ ok: true, action, result });
     } catch (error) {
       const code =
         error instanceof HostedD1ProbeError
@@ -160,6 +193,7 @@ export async function handlePackage0ProbeRequest(
         code === 'HOSTED_D1_FINALIZE_FORBIDDEN'
           ? 403
           : code === 'HOSTED_D1_FINALIZE_BUSY' ||
+              code === 'HOSTED_D1_SCHEMA_OWNERSHIP_LOST' ||
               code === 'HOSTED_D1_FINALIZE_UNAVAILABLE'
             ? 409
             : 500;
@@ -212,6 +246,52 @@ export async function handlePackage0ProbeRequest(
     );
   }
   return response;
+}
+
+async function authorizedOperatorToken(
+  request: Request,
+  dependencies: ProbeDependencies,
+): Promise<string | null> {
+  const token = request.headers.get(operatorTokenHeaderName);
+  const expectedDigest = dependencies.operatorTokenSha256;
+  if (
+    !token ||
+    !/^[A-Za-z0-9_-]{43}$/u.test(token) ||
+    !expectedDigest ||
+    !/^[a-f0-9]{64}$/u.test(expectedDigest)
+  ) {
+    return null;
+  }
+  const actualDigest = await sha256Hex(token);
+  return constantTimeTextEqual(actualDigest, expectedDigest) ? token : null;
+}
+
+function activeBoundedWindow(
+  notBeforeValue: string | undefined,
+  expiresAtValue: string | undefined,
+  nowUnixSeconds: number,
+): DisposableHostedD1RunWindow | null {
+  const notBefore = parseUnixSeconds(notBeforeValue);
+  const expiresAt = parseUnixSeconds(expiresAtValue);
+  if (notBefore === null || expiresAt === null) return null;
+  const duration = expiresAt - notBefore;
+  return Number.isInteger(nowUnixSeconds) &&
+    duration > 0 &&
+    duration <= maxD1WindowSeconds &&
+    nowUnixSeconds >= notBefore &&
+    nowUnixSeconds < expiresAt
+    ? { expiresAt, notBefore }
+    : null;
+}
+
+function parseUnixSeconds(value: string | undefined): number | null {
+  if (!value || !/^(?:0|[1-9][0-9]*)$/u.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+function resolveNowUnixSeconds(configured: number | undefined): number {
+  return configured ?? Math.floor(Date.now() / 1000);
 }
 
 async function readAction(request: Request): Promise<ProbeAction | null> {
@@ -314,6 +394,16 @@ function readCookie(request: Request, name: string): string | null {
     }
   }
   return null;
+}
+
+function constantTimeTextEqual(left: string, right: string): boolean {
+  const maxLength = Math.max(left.length, right.length);
+  let difference = left.length ^ right.length;
+  for (let index = 0; index < maxLength; index += 1) {
+    difference |=
+      (left.charCodeAt(index) || 0) ^ (right.charCodeAt(index) || 0);
+  }
+  return difference === 0;
 }
 
 async function signIdentityBytes(
