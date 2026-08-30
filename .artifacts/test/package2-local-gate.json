@@ -8,14 +8,14 @@
   "source_binding": {
     "public_package1_head": "e560e0998f24cda1c7c8c2740b67ece487b1ea52",
     "candidate_state": "pending-containing-commit",
-    "implementation_manifest_sha256": "346ea6e7ceed95c7733ba2c17ff5e7ce9eb5080b68474baf9d6696ee1df386d4",
+    "implementation_manifest_sha256": "98ec0cd8989ab453458300dfa2cecfbd741c1245e9f608bf1b613c865a02288f",
     "implementation_manifest_file_count": 229
   },
   "canonical_gate": {
     "result_binding": "SOURCE_MANIFEST_PASS",
     "command": "npm run verify:package2",
-    "started_at_utc": "2026-08-30T21:45:06Z",
-    "completed_at_utc": "2026-08-30T21:45:57Z",
+    "started_at_utc": "2026-08-30T22:20:35Z",
+    "completed_at_utc": "2026-08-30T22:21:30Z",
     "exit_code": 0,
     "node": "v22.22.3",
     "npm": "10.9.8",

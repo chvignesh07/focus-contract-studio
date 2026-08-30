@@ -113,9 +113,132 @@ test('Package 2 evidence rejects forged all-passing totals', () => {
   assert.match(result.stderr, /package0 exact test count/u);
 });
 
-test('Package 2 evidence rejects cross-artifact count and source-binding drift', () => {
+test('Package 2 evidence rejects semantic, structural, count, and source-binding tampering', () => {
   const cases = [
     {
+      name: 'browser journey forgery',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.journeys.anonymous_bootstrap_and_revision1_review = 'FAIL';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /browser journeys\.anonymous_bootstrap_and_revision1_review is FAIL/u,
+    },
+    {
+      name: 'security zero-write forgery',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/security/package2-security.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.controls.proposal_guard_zero_writes = 1;
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /security controls\.proposal_guard_zero_writes is 1/u,
+    },
+    {
+      name: 'local-gate proposal-status forgery',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.assertions.proposal_status = 'APPLIED';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /local gate assertions\.proposal_status is APPLIED/u,
+    },
+    {
+      name: 'missing browser journey',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        delete value.journeys.reduced_motion;
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /browser journeys must contain exactly the required keys/u,
+    },
+    {
+      name: 'unexpected security control',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/security/package2-security.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.controls.unexpected_control = true;
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /security controls must contain exactly the required keys/u,
+    },
+    {
+      name: 'missing local-gate top-level field',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        delete value.scope;
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /local gate must contain exactly the required keys/u,
+    },
+    {
+      name: 'malformed browser timestamp',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.verified_at_utc = '2026-08-30 21:45:57';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /browser verified_at_utc must be a canonical UTC timestamp/u,
+    },
+    {
+      name: 'malformed canonical Node version',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.canonical_gate.node = '22';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /canonical gate node must be a semantic version/u,
+    },
+    {
+      name: 'escaped duplicate browser journey',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
+        const source = readFileSync(file, 'utf8');
+        const forged = source.replace(
+          '"anonymous_bootstrap_and_revision1_review": "PASS",',
+          '"anonymous_bootstrap_and_revision1_revie\\u0077": "FAIL",\n    "anonymous_bootstrap_and_revision1_review": "PASS",',
+        );
+        assert.notEqual(forged, source);
+        writeFileSync(file, forged);
+      },
+      expected: /duplicate object key in package2-local-journey\.json/u,
+    },
+    {
+      name: 'escaped duplicate security control',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/security/package2-security.json');
+        const source = readFileSync(file, 'utf8');
+        const forged = source.replace(
+          '"proposal_guard_zero_writes": 0,',
+          '"proposal_guard_zero_write\\u0073": 1,\n    "proposal_guard_zero_writes": 0,',
+        );
+        assert.notEqual(forged, source);
+        writeFileSync(file, forged);
+      },
+      expected: /duplicate object key in package2-security\.json/u,
+    },
+    {
+      name: 'escaped duplicate local-gate assertion',
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const source = readFileSync(file, 'utf8');
+        const forged = source.replace(
+          '"proposal_status": "NOT_APPLIED",',
+          '"proposal_statu\\u0073": "APPLIED",\n    "proposal_status": "NOT_APPLIED",',
+        );
+        assert.notEqual(forged, source);
+        writeFileSync(file, forged);
+      },
+      expected: /duplicate object key in package2-local-gate\.json/u,
+    },
+    {
+      name: 'browser test-count forgery',
       mutate(root: string) {
         const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
         const value = JSON.parse(readFileSync(file, 'utf8'));
@@ -125,6 +248,7 @@ test('Package 2 evidence rejects cross-artifact count and source-binding drift',
       expected: /browser tests exact test count/u,
     },
     {
+      name: 'security source-count forgery',
       mutate(root: string) {
         const file = path.join(root, '.artifacts/security/package2-security.json');
         const value = JSON.parse(readFileSync(file, 'utf8'));
@@ -134,6 +258,7 @@ test('Package 2 evidence rejects cross-artifact count and source-binding drift',
       expected: /security source count/u,
     },
     {
+      name: 'canonical result-binding forgery',
       mutate(root: string) {
         const file = path.join(root, '.artifacts/test/package2-local-gate.json');
         const value = JSON.parse(readFileSync(file, 'utf8'));
@@ -143,6 +268,7 @@ test('Package 2 evidence rejects cross-artifact count and source-binding drift',
       expected: /canonical result binding/u,
     },
     {
+      name: 'candidate-state forgery',
       mutate(root: string) {
         const file = path.join(root, '.artifacts/test/package2-local-gate.json');
         const value = JSON.parse(readFileSync(file, 'utf8'));
@@ -152,6 +278,7 @@ test('Package 2 evidence rejects cross-artifact count and source-binding drift',
       expected: /candidate state/u,
     },
     {
+      name: 'Markdown test-count forgery',
       mutate(root: string) {
         const file = path.join(root, 'docs/evidence/PACKAGE2_VERIFICATION.md');
         const markdown = readFileSync(file, 'utf8').replace(
@@ -164,11 +291,20 @@ test('Package 2 evidence rejects cross-artifact count and source-binding drift',
     },
   ];
 
+  const escaped: string[] = [];
   for (const testCase of cases) {
     const root = fixture();
     testCase.mutate(root);
     const result = run(root);
-    assert.notEqual(result.status, 0, `${result.stdout}${result.stderr}`);
+    if (result.status === 0) {
+      escaped.push(testCase.name);
+      continue;
+    }
     assert.match(result.stderr, testCase.expected);
   }
+  assert.deepEqual(
+    escaped,
+    [],
+    `evidence tampering escaped the binder: ${escaped.join(', ')}`,
+  );
 });

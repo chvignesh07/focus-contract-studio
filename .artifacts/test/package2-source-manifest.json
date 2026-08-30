@@ -38,7 +38,7 @@
     }
   ],
   "file_count": 229,
-  "aggregate_sha256": "346ea6e7ceed95c7733ba2c17ff5e7ce9eb5080b68474baf9d6696ee1df386d4",
+  "aggregate_sha256": "98ec0cd8989ab453458300dfa2cecfbd741c1245e9f608bf1b613c865a02288f",
   "files": [
     {
       "path": ".artifacts/README.md",
@@ -658,7 +658,7 @@
     },
     {
       "path": "scripts/package2-evidence-binding.mjs",
-      "sha256": "62120fd1192f8f33a2334ed441703817eea63b6d5a48ad84c896d89adf5710d2"
+      "sha256": "9570c10ed5b9181767c9d416cc24ee05c276583668e5abb28e9a4f9ee4ec4511"
     },
     {
       "path": "scripts/package2-local-server.mjs",
@@ -838,7 +838,7 @@
     },
     {
       "path": "tests/package2-node/evidence-binding.test.ts",
-      "sha256": "85c29e93314e559a2bcba3fed1405b54120851eb3824fe34ce742b20b52392bb"
+      "sha256": "94b31c87713ab041a197559257ca08667706ee873397e9cc003934f73e4524ff"
     },
     {
       "path": "tests/package2-node/evidence-token.test.ts",

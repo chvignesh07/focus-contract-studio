@@ -3,8 +3,8 @@
   "package": 2,
   "scope": "local-implementation-and-tests",
   "status": "PASS",
-  "verified_at_utc": "2026-08-30T21:45:57Z",
-  "source_manifest_sha256": "346ea6e7ceed95c7733ba2c17ff5e7ce9eb5080b68474baf9d6696ee1df386d4",
+  "verified_at_utc": "2026-08-30T22:21:48Z",
+  "source_manifest_sha256": "98ec0cd8989ab453458300dfa2cecfbd741c1245e9f608bf1b613c865a02288f",
   "source_manifest_file_count": 229,
   "controls": {
     "server_resolved_session_and_workspace": true,

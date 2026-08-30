@@ -5,9 +5,138 @@ import { fileURLToPath } from 'node:url';
 
 import { verifyPackage2SourceManifest } from './package2-source-manifest.mjs';
 
+function assertNoDuplicateJsonKeys(source, filePath) {
+  const fileName = path.basename(filePath);
+  let cursor = 0;
+
+  function invalidJson() {
+    throw new Error(`invalid JSON structure in ${fileName}`);
+  }
+
+  function skipWhitespace() {
+    while (
+      cursor < source.length &&
+      (source[cursor] === ' ' ||
+        source[cursor] === '\t' ||
+        source[cursor] === '\n' ||
+        source[cursor] === '\r')
+    ) {
+      cursor += 1;
+    }
+  }
+
+  function parseString() {
+    if (source[cursor] !== '"') invalidJson();
+    const start = cursor;
+    cursor += 1;
+    while (cursor < source.length) {
+      const character = source[cursor];
+      cursor += 1;
+      if (character === '"') {
+        try {
+          const value = JSON.parse(source.slice(start, cursor));
+          if (typeof value !== 'string') invalidJson();
+          return value;
+        } catch {
+          invalidJson();
+        }
+      }
+      if (character === '\\') {
+        if (cursor >= source.length) invalidJson();
+        cursor += 1;
+      } else if (character.charCodeAt(0) <= 0x1f) {
+        invalidJson();
+      }
+    }
+    invalidJson();
+  }
+
+  function parsePrimitive() {
+    const match = source.slice(cursor).match(
+      /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u,
+    );
+    if (!match) invalidJson();
+    cursor += match[0].length;
+  }
+
+  function parseArray() {
+    cursor += 1;
+    skipWhitespace();
+    if (source[cursor] === ']') {
+      cursor += 1;
+      return;
+    }
+    while (cursor < source.length) {
+      parseValue();
+      skipWhitespace();
+      if (source[cursor] === ']') {
+        cursor += 1;
+        return;
+      }
+      if (source[cursor] !== ',') invalidJson();
+      cursor += 1;
+      skipWhitespace();
+    }
+    invalidJson();
+  }
+
+  function parseObject() {
+    cursor += 1;
+    const keys = new Set();
+    skipWhitespace();
+    if (source[cursor] === '}') {
+      cursor += 1;
+      return;
+    }
+    while (cursor < source.length) {
+      const key = parseString();
+      if (keys.has(key)) {
+        throw new Error(`duplicate object key in ${fileName}`);
+      }
+      keys.add(key);
+      skipWhitespace();
+      if (source[cursor] !== ':') invalidJson();
+      cursor += 1;
+      parseValue();
+      skipWhitespace();
+      if (source[cursor] === '}') {
+        cursor += 1;
+        return;
+      }
+      if (source[cursor] !== ',') invalidJson();
+      cursor += 1;
+      skipWhitespace();
+    }
+    invalidJson();
+  }
+
+  function parseValue() {
+    skipWhitespace();
+    if (source[cursor] === '{') {
+      parseObject();
+      return;
+    }
+    if (source[cursor] === '[') {
+      parseArray();
+      return;
+    }
+    if (source[cursor] === '"') {
+      parseString();
+      return;
+    }
+    parsePrimitive();
+  }
+
+  parseValue();
+  skipWhitespace();
+  if (cursor !== source.length) invalidJson();
+}
+
 function readJson(filePath) {
   try {
-    return JSON.parse(readFileSync(filePath, 'utf8'));
+    const source = readFileSync(filePath, 'utf8');
+    assertNoDuplicateJsonKeys(source, filePath);
+    return JSON.parse(source);
   } catch (error) {
     throw new Error(
       `cannot read ${path.basename(filePath)}: ${error instanceof Error ? error.message : 'unknown error'}`,
@@ -21,9 +150,59 @@ function requireEqual(label, actual, expected) {
   }
 }
 
-function requirePassingTests(label, value) {
+function requireExactKeys(label, value, expectedKeys) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} must be an object with exactly the required keys`);
+  }
+  const actual = Object.keys(value).sort();
+  const expected = [...expectedKeys].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(`${label} must contain exactly the required keys`);
+  }
+}
+
+function requireExactLiteralObject(label, value, expected) {
+  requireExactKeys(label, value, Object.keys(expected));
+  for (const [key, expectedValue] of Object.entries(expected)) {
+    requireEqual(`${label}.${key}`, value[key], expectedValue);
+  }
+}
+
+function requireCanonicalUtcTimestamp(label, value) {
   if (
-    !value ||
+    typeof value !== 'string' ||
+    !/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/u.test(
+      value,
+    )
+  ) {
+    throw new Error(`${label} must be a canonical UTC timestamp`);
+  }
+  const milliseconds = Date.parse(value);
+  if (
+    !Number.isFinite(milliseconds) ||
+    new Date(milliseconds).toISOString().replace('.000Z', 'Z') !== value
+  ) {
+    throw new Error(`${label} must be a canonical UTC timestamp`);
+  }
+  return milliseconds;
+}
+
+const SEMANTIC_VERSION =
+  /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
+
+function requireSemanticVersion(label, value, prefix = '') {
+  if (
+    typeof value !== 'string' ||
+    !value.startsWith(prefix) ||
+    !SEMANTIC_VERSION.test(value.slice(prefix.length))
+  ) {
+    throw new Error(`${label} must be a semantic version`);
+  }
+}
+
+function requirePassingTests(label, value) {
+  requireExactKeys(label, value, ['passed', 'total']);
+  if (
     !Number.isSafeInteger(value.passed) ||
     !Number.isSafeInteger(value.total) ||
     value.total <= 0 ||
@@ -50,6 +229,148 @@ const REQUIRED_TEST_COUNTS = Object.freeze({
   package2_workerd_d1: 18,
   package2_dom: 5,
   package2_browser: 5,
+});
+
+const LOCAL_GATE_TOP_LEVEL_KEYS = Object.freeze([
+  'schema_version',
+  'package',
+  'scope',
+  'status',
+  'hosted_chatgpt_status',
+  'package0_status',
+  'source_binding',
+  'canonical_gate',
+  'assertions',
+  'remote_bindings',
+  'clean_clone_binding',
+  'external_account_mutations',
+]);
+
+const LOCAL_GATE_SOURCE_BINDING_KEYS = Object.freeze([
+  'public_package1_head',
+  'candidate_state',
+  'implementation_manifest_sha256',
+  'implementation_manifest_file_count',
+]);
+
+const LOCAL_GATE_CANONICAL_KEYS = Object.freeze([
+  'result_binding',
+  'command',
+  'started_at_utc',
+  'completed_at_utc',
+  'exit_code',
+  'node',
+  'npm',
+  'workerd',
+  'wrangler',
+  'tests',
+  'build',
+  'runtime_vulnerabilities',
+  'complete_graph_vulnerabilities',
+]);
+
+const LOCAL_GATE_ASSERTIONS = Object.freeze({
+  sealed_rrf_materialization: 'PASS',
+  deterministic_rrf_repeats: 100,
+  read_operation_zero_write: 'PASS',
+  evidence_token_fixed_vector_and_negative_matrix: 'PASS',
+  proposal_atomicity_and_fault_injection: 'PASS',
+  proposal_replay_collision_and_concurrency: 'PASS',
+  proposal_status: 'NOT_APPLIED',
+  initial_focus_browser_telemetry: 'PASS_UNTRUSTED',
+  initial_focus_live_dom_manifest: 'PASS',
+  initial_focus_one_graph_per_revision: 'PASS',
+  exact_webmcp_tool_count: 2,
+  webmcp_lifecycle_and_cancellation: 'PASS',
+  native_dialog_accessibility: 'PASS',
+  responsive_reflow_320_375_200_percent: 'PASS',
+  axe_serious_critical: 0,
+  runtime_hmac_secret_validation: 'PASS',
+  source_and_semantic_evidence_binding: 'PASS',
+});
+
+const BROWSER_TOP_LEVEL_KEYS = Object.freeze([
+  'schema_version',
+  'package',
+  'scope',
+  'status',
+  'verified_at_utc',
+  'source_manifest_sha256',
+  'engine',
+  'real_local_d1',
+  'remote_bindings',
+  'tests',
+  'journeys',
+  'axe',
+  'hosted_client_claim',
+]);
+
+const BROWSER_JOURNEYS = Object.freeze({
+  anonymous_bootstrap_and_revision1_review: 'PASS',
+  native_dialog_actual_initial_focus_and_escape_restore: 'PASS',
+  live_dom_manifest_matches_rendered_dialog: 'PASS',
+  deliberate_autofocus_divergence_rejected_without_client_repair: 'PASS',
+  background_inertness_while_modal: 'PASS',
+  background_pointer_activation_blocked: 'PASS',
+  configured_tab_and_shift_tab_wrap: 'PASS',
+  cancel_proposal_durable_after_reload: 'PASS',
+  proposal_visibly_not_applied: 'PASS',
+  page_and_open_dialog_controls_unobscured_at_320_and_375: 'PASS',
+  page_and_open_dialog_controls_two_hundred_percent_layout_zoom: 'PASS',
+  reduced_motion: 'PASS',
+});
+
+const SECURITY_TOP_LEVEL_KEYS = Object.freeze([
+  'schema_version',
+  'package',
+  'scope',
+  'status',
+  'verified_at_utc',
+  'source_manifest_sha256',
+  'source_manifest_file_count',
+  'controls',
+  'npm_audit',
+  'secret_scan',
+  'hosted_security_claim',
+  'secrets_recorded',
+]);
+
+const SECURITY_CONTROLS = Object.freeze({
+  server_resolved_session_and_workspace: true,
+  caller_identity_or_authority_inputs: false,
+  strict_post_json_origin_csrf_for_mutation: true,
+  bounded_request_and_response: true,
+  read_operation_product_writes: 0,
+  browser_telemetry_trust: 'untrusted-and-nonauthorizing',
+  browser_environment_claim_accepted_from_caller: false,
+  live_dom_manifest_captured: true,
+  observation_graphs_per_workspace_variant_revision: 1,
+  observation_replay_and_concurrency_converge: true,
+  evidence_token_key_is_private_session_bearer: true,
+  evidence_token_lifetime_seconds: 300,
+  evidence_token_future_skew_seconds: 30,
+  evidence_token_canonical_encoding: true,
+  retrieval_rerun_before_proposal: true,
+  unsupported_hostile_and_superseded_evidence_excluded: true,
+  retrieval_can_authorize_mutation: false,
+  proposal_status: 'proposed',
+  proposal_applies_revision: false,
+  proposal_batch_atomic: true,
+  proposal_guard_zero_writes: 0,
+  proposal_finalizer_database_enforced: true,
+  same_key_replay_and_changed_body_conflict: true,
+  duplicate_open_configuration_rejected: true,
+  webmcp_exact_tools: 2,
+  webmcp_exposes_approval_or_apply: false,
+  webmcp_exposes_csrf_or_session: false,
+  raw_session_token_persisted: false,
+  raw_csrf_token_persisted: false,
+  raw_identity_persisted: false,
+  secret_scan_policy_source_bound: true,
+  source_manifest_reviewable_utf8_only: true,
+  browser_test_toolchain_exactly_pinned: true,
+  runtime_hmac_secrets_exact_canonical_bytes: 32,
+  runtime_hmac_secrets_pairwise_distinct: true,
 });
 
 function requireExactTestInventory(value) {
@@ -83,36 +404,80 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   const gate = readJson(
     path.join(repositoryRoot, '.artifacts/test/package2-local-gate.json'),
   );
+  requireExactKeys('local gate', gate, LOCAL_GATE_TOP_LEVEL_KEYS);
+  requireEqual('local gate schema version', gate.schema_version, 1);
   requireEqual('local gate package', gate.package, 2);
+  requireEqual('local gate scope', gate.scope, 'local-vertical-slice');
   requireEqual('local gate status', gate.status, 'LOCAL_PASS');
   requireEqual('hosted ChatGPT status', gate.hosted_chatgpt_status, 'NOT_RUN');
   requireEqual('Package 0 status', gate.package0_status, 'INCONCLUSIVE');
+  requireExactKeys(
+    'local gate source binding',
+    gate.source_binding,
+    LOCAL_GATE_SOURCE_BINDING_KEYS,
+  );
+  requireEqual(
+    'public Package 1 head',
+    gate.source_binding.public_package1_head,
+    'e560e0998f24cda1c7c8c2740b67ece487b1ea52',
+  );
   requireEqual(
     'local gate source count',
-    gate.source_binding?.implementation_manifest_file_count,
+    gate.source_binding.implementation_manifest_file_count,
     manifest.file_count,
   );
   requireEqual(
     'local gate source digest',
-    gate.source_binding?.implementation_manifest_sha256,
+    gate.source_binding.implementation_manifest_sha256,
     manifest.aggregate_sha256,
   );
   requireEqual(
     'candidate state',
-    gate.source_binding?.candidate_state,
+    gate.source_binding.candidate_state,
     'pending-containing-commit',
+  );
+  requireExactKeys(
+    'canonical gate',
+    gate.canonical_gate,
+    LOCAL_GATE_CANONICAL_KEYS,
   );
   requireEqual(
     'canonical result binding',
-    gate.canonical_gate?.result_binding,
+    gate.canonical_gate.result_binding,
     'SOURCE_MANIFEST_PASS',
   );
-  requireEqual('canonical command', gate.canonical_gate?.command, 'npm run verify:package2');
-  requireEqual('canonical exit code', gate.canonical_gate?.exit_code, 0);
-  requireExactTestInventory(gate.canonical_gate?.tests);
-  requireEqual('production build', gate.canonical_gate?.build, 'PASS');
-  requireEqual('runtime vulnerabilities', gate.canonical_gate?.runtime_vulnerabilities, 0);
-  requireEqual('complete graph vulnerabilities', gate.canonical_gate?.complete_graph_vulnerabilities, 0);
+  requireEqual('canonical command', gate.canonical_gate.command, 'npm run verify:package2');
+  const canonicalStartedAt = requireCanonicalUtcTimestamp(
+    'canonical gate started_at_utc',
+    gate.canonical_gate.started_at_utc,
+  );
+  const canonicalCompletedAt = requireCanonicalUtcTimestamp(
+    'canonical gate completed_at_utc',
+    gate.canonical_gate.completed_at_utc,
+  );
+  if (canonicalCompletedAt < canonicalStartedAt) {
+    throw new Error(
+      'canonical gate completed_at_utc must not precede started_at_utc',
+    );
+  }
+  requireSemanticVersion('canonical gate node', gate.canonical_gate.node, 'v');
+  requireSemanticVersion('canonical gate npm', gate.canonical_gate.npm);
+  requireSemanticVersion('canonical gate workerd', gate.canonical_gate.workerd);
+  requireSemanticVersion('canonical gate wrangler', gate.canonical_gate.wrangler);
+  requireEqual('canonical exit code', gate.canonical_gate.exit_code, 0);
+  requireExactTestInventory(gate.canonical_gate.tests);
+  requireEqual('production build', gate.canonical_gate.build, 'PASS');
+  requireEqual('runtime vulnerabilities', gate.canonical_gate.runtime_vulnerabilities, 0);
+  requireEqual(
+    'complete graph vulnerabilities',
+    gate.canonical_gate.complete_graph_vulnerabilities,
+    0,
+  );
+  requireExactLiteralObject(
+    'local gate assertions',
+    gate.assertions,
+    LOCAL_GATE_ASSERTIONS,
+  );
   requireEqual('remote bindings', gate.remote_bindings, false);
   requireEqual(
     'tracked clean-clone binding',
@@ -129,9 +494,23 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   const browser = readJson(
     path.join(repositoryRoot, '.artifacts/browser/package2-local-journey.json'),
   );
+  requireExactKeys('browser receipt', browser, BROWSER_TOP_LEVEL_KEYS);
+  requireEqual('browser schema version', browser.schema_version, 1);
+  requireEqual('browser package', browser.package, 2);
+  requireEqual(
+    'browser scope',
+    browser.scope,
+    'built-local-worker-real-disposable-d1',
+  );
+  requireCanonicalUtcTimestamp('browser verified_at_utc', browser.verified_at_utc);
   requireEqual('browser source digest', browser.source_manifest_sha256, manifest.aggregate_sha256);
   requireEqual('browser status', browser.status, 'PASS');
-  requireEqual('browser engine', browser.engine, 'playwright-chromium-1234');
+  if (
+    typeof browser.engine !== 'string' ||
+    !/^playwright-chromium-(?:0|[1-9]\d*)$/u.test(browser.engine)
+  ) {
+    throw new Error('browser engine must identify a Playwright Chromium revision');
+  }
   requireEqual('browser real D1', browser.real_local_d1, true);
   requireEqual('browser remote bindings', browser.remote_bindings, false);
   requireExactPassingTests(
@@ -139,26 +518,58 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
     browser.tests,
     REQUIRED_TEST_COUNTS.package2_browser,
   );
-  requireEqual('browser axe serious', browser.axe?.serious, 0);
-  requireEqual('browser axe critical', browser.axe?.critical, 0);
+  requireExactLiteralObject('browser journeys', browser.journeys, BROWSER_JOURNEYS);
+  requireExactLiteralObject('browser axe', browser.axe, {
+    serious: 0,
+    critical: 0,
+  });
   requireEqual('browser hosted claim', browser.hosted_client_claim, 'NOT_RUN');
 
   const security = readJson(
     path.join(repositoryRoot, '.artifacts/security/package2-security.json'),
+  );
+  requireExactKeys('security receipt', security, SECURITY_TOP_LEVEL_KEYS);
+  requireEqual('security schema version', security.schema_version, 1);
+  requireEqual('security package', security.package, 2);
+  requireEqual('security scope', security.scope, 'local-implementation-and-tests');
+  requireCanonicalUtcTimestamp(
+    'security verified_at_utc',
+    security.verified_at_utc,
   );
   requireEqual('security source count', security.source_manifest_file_count, manifest.file_count);
   requireEqual('security source digest', security.source_manifest_sha256, manifest.aggregate_sha256);
   requireEqual('security status', security.status, 'PASS');
   requireEqual('security hosted claim', security.hosted_security_claim, 'NOT_RUN');
   requireEqual('security secrets recorded', security.secrets_recorded, false);
-  requireEqual('security npm runtime vulnerabilities', security.npm_audit?.runtime, 0);
-  requireEqual('security npm complete vulnerabilities', security.npm_audit?.complete, 0);
-  requireEqual('security gitleaks', security.secret_scan?.gitleaks, 'PASS');
-  requireEqual('security raw marker scan', security.secret_scan?.raw_marker_scan, 'PASS');
+  requireExactLiteralObject('security controls', security.controls, SECURITY_CONTROLS);
+  requireExactLiteralObject('security npm audit', security.npm_audit, {
+    runtime: 0,
+    complete: 0,
+  });
+  requireExactKeys('security secret scan', security.secret_scan, [
+    'tool',
+    'version',
+    'gitleaks',
+    'raw_marker_scan',
+    'reachable_history',
+    'working_tree',
+  ]);
+  requireEqual('security secret scan tool', security.secret_scan.tool, 'gitleaks');
+  requireSemanticVersion(
+    'security secret scan version',
+    security.secret_scan.version,
+  );
+  requireEqual('security gitleaks', security.secret_scan.gitleaks, 'PASS');
+  requireEqual('security raw marker scan', security.secret_scan.raw_marker_scan, 'PASS');
   requireEqual(
-    'reviewable source text',
-    security.controls?.source_manifest_reviewable_utf8_only,
-    true,
+    'security reachable-history scan',
+    security.secret_scan.reachable_history,
+    'PASS',
+  );
+  requireEqual(
+    'security working-tree scan',
+    security.secret_scan.working_tree,
+    'PASS',
   );
 
   const markdown = readFileSync(
