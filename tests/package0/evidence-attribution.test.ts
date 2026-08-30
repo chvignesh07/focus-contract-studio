@@ -151,3 +151,86 @@ test('product evidence distinguishes historical tracked proof from post-commit c
     /post-commit verification[^\n]+outside the repository/i,
   );
 });
+
+test('Markdown evidence separates consistency, live checkout proof, and reviewed Sites receipts', async () => {
+  const [runbook, bootstrap, hardening] = await Promise.all([
+    readFile(
+      new URL('docs/evidence/PACKAGE0_EXTERNAL_RUNBOOK.md', repositoryUrl),
+      'utf8',
+    ),
+    readFile(
+      new URL('docs/evidence/BOOTSTRAP_PROBES.md', repositoryUrl),
+      'utf8',
+    ),
+    readFile(
+      new URL('docs/evidence/PACKAGE0_SECURITY_HARDENING.md', repositoryUrl),
+      'utf8',
+    ),
+  ]);
+
+  assert.match(
+    runbook,
+    /no standalone Codex CLI management view[\s\S]+ChatGPT desktop or web/i,
+  );
+  assert.match(
+    runbook,
+    /structural manifest consistency[\s\S]+CONSISTENCY_PASS[\s\S]+never hosted or Stage 1 completion/i,
+  );
+  assert.match(
+    runbook,
+    /live local Git\/hosting verification[\s\S]+actual `git rev-parse HEAD`[\s\S]+Package 0 verification/i,
+  );
+  assert.match(
+    runbook,
+    /PRE_CREATE[^\n]+128-bit non-secret evidence run ID[\s\S]+POST_CREATE[^\n]+reuses/i,
+  );
+  assert.match(
+    runbook,
+    /POST_CREATE[^\n]+valid non-empty string[^\n]+without recording its value/i,
+  );
+  assert.match(
+    runbook,
+    /independently reviewed[\s\S]+sanitized Sites-tool receipts/i,
+  );
+  assert.match(
+    runbook,
+    /maximum supported page size[^\n]+50[\s\S]+cursor exhaustion[\s\S]+case-insensitive exact/i,
+  );
+  assert.match(
+    runbook,
+    /user-confirmed selected account\/workspace[\s\S]+immediately before `create_site`/i,
+  );
+  assert.match(
+    runbook,
+    /no deployment tool was invoked[\s\S]+no deployment ID or status[\s\S]+current live URL remains absent/i,
+  );
+  assert.match(
+    runbook,
+    /never claim a numerical deployment count/i,
+  );
+  assert.match(
+    runbook,
+    /same authoritative `create_site` response[\s\S]+authoritative Sites or provider evidence[\s\S]+INCONCLUSIVE/i,
+  );
+  assert.match(
+    runbook,
+    /forbidden in URLs, Git configuration, credential helpers, files, shell history, evidence, logs, commits, and user-visible output/i,
+  );
+  assert.match(
+    runbook,
+    /final cross-plane binding[\s\S]+recomputes all six[\s\S]+actual checkout HEAD[\s\S]+15 minutes/i,
+  );
+  assert.match(
+    runbook,
+    /post-create local receipt[^\n]+before push[^\n]+does not require the not-yet-created final manifest/i,
+  );
+
+  assert.match(
+    bootstrap,
+    /Read-only pre-Stage-1 owner inventory[^\n]+limit `50`[^\n]+zero items[^\n]+INCONCLUSIVE[^\n]+not Stage 1 proof or authorization/i,
+  );
+  assert.match(
+    hardening,
+    /Stage 1 evidence contract hardening[\s\S]+runtime product behavior was not changed/i,
+  );
+});

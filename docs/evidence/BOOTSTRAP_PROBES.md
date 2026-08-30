@@ -11,6 +11,8 @@ Each row uses only `PASS`, `FAIL`, `INCONCLUSIVE`, `NOT_RUN`, or `NOT_APPLICABLE
 
 Every tracked local PASS fact and row below is point-in-time historical evidence at its explicitly named source commit, never an implicit current-HEAD claim. In particular, the local gate, clean checkout, minimal request, browser, D1, Cloudflare, WebMCP, build, lint, typecheck, and security measurements are **historical local evidence, not current HEAD proof, and the original Package 0 set covers commit `382a4d1ef02cf437bd765602c55ac0fc0d43146c`**, with the later hosted-probe hardening row explicitly scoped to `c3da446`. The four source-sensitive tracked artifacts named by `PACKAGE0_EXTERNAL_RUNBOOK.json` carry the same machine-readable scope. Their original measurements are preserved. Every later source commit requires a new complete gate and unique no-hardlinks clone after the commit; that current-HEAD result is recorded outside the repository and reported at handoff to avoid a self-referential committed SHA.
 
+Stage 1 now has three deliberately separate proof planes: structural manifest consistency, live local checkout verification, and independently reviewed sanitized Sites receipts. `CONSISTENCY_PASS`, `LOCAL_VERIFICATION_PASS`, and `RECEIPT_CONSISTENCY_PASS` describe only their named plane; none alone is hosted or Stage 1 completion proof. A final `EVIDENCE_BOUND` verifier recomputes all cross-plane hashes, binds lineage to the actual checkout, and rejects stale/replayed runs, but likewise does not turn sanitized receipts into hosted truth by itself.
+
 ## Generated stack facts
 
 | Fact | Observed value | Result | Source / procedure |
@@ -34,6 +36,7 @@ Every tracked local PASS fact and row below is point-in-time historical evidence
 
 | Probe | Environment / date | Frozen procedure and expected result | Result | Evidence |
 |---|---|---|---:|---|
+| Read-only pre-Stage-1 owner inventory | ChatGPT desktop Sites surface, 2026-08-30 | A separate observation requested authenticated `role=owner` inventory with limit `50`; it returned zero items, zero case-insensitive exact title/slug matches, and no next cursor | INCONCLUSIVE | Ephemeral context only: no sanitized hash-bound receipt was preserved, no user-confirmed account/workspace was captured immediately before creation, and the observation is not Stage 1 proof or authorization |
 | Isolated Git custody | Local filesystem, 2026-08-29 | New target absent; initialize `main`; first commit contains only the 17 generated scaffold files | PASS | Commit `a00d754` (`chore: preserve untouched OpenAI Sites scaffold`) |
 | Authority import | Local filesystem, 2026-08-29 | 43/43 imported files byte-equal to read-only source; 26 mandatory paths; 10 JSON files; zero broken local links; eight v2 hashes | PASS | `docs/evidence/AUTHORITY_VALIDATION.json`; `npm run test:package0:authority` |
 | Apache-2.0 / repo contract / README | Local checkout | Root `LICENSE`, `AGENTS.md`, `README.md`, and registered evidence tree exist | PASS | Historical direct inspection at `382a4d1`; later HEADs require fresh post-commit proof |
@@ -66,7 +69,7 @@ Every tracked local PASS fact and row below is point-in-time historical evidence
 
 ## Current primary sources
 
-- [OpenAI Sites documentation](https://learn.chatgpt.com/docs/sites), rechecked 2026-08-30. It confirms that Site creation persists `project_id`, saved versions and deployments are separate, every deployment is production, new Sites begin owner-limited, HTTP/HTTPS are supported, and runtime secrets are configured outside `.openai/hosting.json`.
+- [OpenAI Sites documentation](https://learn.chatgpt.com/docs/sites), rechecked 2026-08-30. It confirms there is no standalone Codex CLI Sites management view: ChatGPT desktop/web handles creation, save, deployment, and management, while Codex CLI edits and tests local source. It also confirms that Site creation persists `project_id`, saved versions and deployments are separate, every deployment is production, new Sites begin owner-limited, HTTP/HTTPS are supported, and runtime secrets are configured outside `.openai/hosting.json`.
 - [OpenAI Site tools documentation](https://learn.chatgpt.com/docs/webmcp), accessed 2026-08-29. It names the ChatGPT desktop built-in browser, ChatGPT Work/Codex, GPT-5.6 Sol/Terra, and top-level imperative registration as the current supported path.
 - [WebMCP draft](https://webmachinelearning.github.io/webmcp/), snapshot dated 2026-08-26, for registration and invocation abort semantics.
 - [Cloudflare Workers Vitest integration](https://developers.cloudflare.com/workers/testing/vitest-integration/) and [D1 Worker API](https://developers.cloudflare.com/d1/worker-api/d1-database/), accessed 2026-08-29.

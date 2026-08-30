@@ -44,6 +44,16 @@ The point-in-time `c3da446` green runs passed 18/18 hosted-handler tests, 9/9 ho
 
 This evidence does not establish Sites deployment behavior, owner-only access, hosted environment propagation, managed D1 semantics, real edge logs, optional identity, or supported ChatGPT Site-tool behavior. Those rows remain `NOT_RUN` and Package 0 cannot pass until the separately approved external checkpoints supply them.
 
+## Stage 1 evidence contract hardening
+
+The Stage 1 contract now separates structural manifest consistency, live local Git/hosting verification, and independently reviewed sanitized Sites-tool receipts. The structural validator returns only `CONSISTENCY_PASS`; it cannot elevate caller-authored booleans or a synthetic all-`a` SHA into hosted proof. The live verifier reads the actual branch, HEAD, clean state, remotes, and project-ID state, rejects a missing, null, blank, or non-string post-create `project_id` without recording a valid value, runs `npm run verify:package0`, and detects checkout changes during the gate. The receipt validator enforces authenticated owner inventory shape and timing, one continuous execution owner/surface/run ID, exact same-response source association, authoritative private-visibility evidence, non-persistent per-command credential handling, observable save-only evidence, sanitization, and independent hash-bound review.
+
+Independent review found that the first separated design still allowed arbitrary manifest receipt hashes, cross-plane SHA disagreement, replayable old receipts, and an impossible post-create/final-manifest order. Those findings were reproduced before remediation. `PRE_CREATE` now generates a non-secret random 128-bit evidence run ID, `POST_CREATE` reuses it before push without requiring the future final manifest, and a final binding verifier runs only after the Sites receipts and manifest validate. It recomputes all six hashes, binds saved/pushed/manifest/post-receipt SHAs to the actual current checkout, reruns the live Package 0 gate, enforces ordered timestamps, limits the evidence run to four hours, and rejects final binding more than 15 minutes after the last review. Its `EVIDENCE_BOUND` result still does not independently prove hosted facts or Stage 1 completion.
+
+No authoritative numerical deployment-count interface is currently exposed, so the contract forbids a numerical zero claim. It instead requires directly reviewed evidence that no deployment tool was invoked, no deployment ID or status was produced, the saved version carries the exact pushed SHA, and the current live URL remains absent after save-only. Missing association, privacy, authentication, lineage, review, or absent-live-URL proof produces `INCONCLUSIVE` or a validator failure; it never degrades into operator assertion.
+
+This change hardens evidence and future operator procedure only; **runtime product behavior was not changed**. No Sites lifecycle action, credential operation, repository push, package/save/deploy action, environment change, hosted D1 or identity probe, publication, or Package 1 work was performed.
+
 ## Protected-surface recheck
 
 - **[Empirical]** The 95-file read-only planning workspace aggregate remains `291d5c548322b707a75878aa5d4ce34444af9cb486801231f9c7091e068c5da0`, exactly matching the Package 0 baseline.

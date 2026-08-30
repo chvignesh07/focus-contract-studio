@@ -42,6 +42,8 @@ Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a propo
 - `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
 - `docs/evidence/ADVERSARIAL_REVIEW_1.md` — Package 0 finding dispositions and external boundary.
 
+Stage 1 evidence is intentionally split into structural consistency, live checkout verification, and independently reviewed sanitized Sites receipts. A final binding verifier recomputes receipt hashes and binds the saved lineage to the actual checkout; every local result still states that it does not independently prove hosted facts or Stage 1 completion. The exact future single-owner sequence and commands are in the external runbook.
+
 Local success is not a claim that the Site is deployed, public, or callable from ChatGPT. Those claims require their named hosted and real-client `PASS` evidence.
 
 ## License

@@ -1,20 +1,17 @@
+import { realpathSync } from 'node:fs';
 import { readFile, realpath } from 'node:fs/promises';
-import {
-  isAbsolute,
-  relative,
-  resolve,
-  sep,
-} from 'node:path';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 type CheckpointResult = {
   id: string;
-  result: 'NOT_RUN' | 'PASS';
+  result: 'NOT_OBSERVED' | 'RECORDED';
 };
 
 export type Stage1EvidenceManifest = {
   schemaVersion: number;
   status: string;
+  evidenceRunId: string;
   target: {
     siteName: string;
     siteSlug: string;
@@ -27,63 +24,31 @@ export type Stage1EvidenceManifest = {
     requiredEvidence: CheckpointResult[];
     stopAfter: string;
   };
-  observations: {
-    inventoryBeforeCreate: {
-      completed: boolean;
-      unambiguous: boolean;
-      comparison: string;
-      caseInsensitiveTitleMatchCount: number;
-      caseInsensitiveSlugMatchCount: number;
-      combinedUniqueMatchCount: number;
-    };
-    custodyBeforeCreate: {
-      approvedHeadFullSha: string;
-      branch: string;
-      workingTreeClean: boolean;
-      package0GatePassed: boolean;
-      cleanCheckoutPassed: boolean;
-      gitRemoteCount: number;
-      hostingProjectIdPresent: boolean;
-      siteAlreadyCreatedForCheckout: boolean;
-    };
-    createOperation: {
-      attemptCount: number;
-      exactTargetUsed: boolean;
-      projectIdReturned: boolean;
-      projectIdPersisted: boolean;
-      persistedProjectIdMatchesCreateResponse: boolean;
-    };
-    repositoryBeforePush: {
-      returnedBySameCreateOperation: boolean;
-      sitesManagedRepositoryVerified: boolean;
-      privateVisibilityVerified: boolean;
-      projectAssociationVerified: boolean;
-      defaultBranch: string;
-      pushOccurredOnlyAfterVerification: boolean;
-      persistedGitRemoteCount: number;
-      sourceCredentialRecorded: boolean;
-    };
-    postCreation: {
-      workingTreeClean: boolean;
-      package0GatePassed: boolean;
-      cleanCheckoutPassed: boolean;
-    };
-    lineage: Record<string, string>;
-    deployment: {
-      count: number;
-    };
-    sensitiveOrPrivateValuesRecorded: boolean;
+  evidenceReferences: {
+    inventoryReceiptSha256: string;
+    preCreationLocalReceiptSha256: string;
+    createAndRepositoryReceiptSha256: string;
+    postCreationLocalReceiptSha256: string;
+    saveOnlyReceiptSha256: string;
+    independentReviewBundleSha256: string;
+  };
+  lineage: Record<string, string>;
+  declarations: {
+    containsSensitiveOrPrivateValues: boolean;
+    numericalDeploymentCountClaimed: boolean;
   };
 };
 
 export type Stage1EvidenceSummary = {
-  status: 'PASS';
+  status: 'CONSISTENCY_PASS';
+  evidenceRunId: string;
   siteName: string;
   siteSlug: string;
   branch: string;
-  inventoryMatchCount: 0;
-  deploymentCount: 0;
+  receiptReferenceCount: 6;
   sourceSha: string;
+  hostedFactsVerified: false;
+  stage1Complete: false;
 };
 
 export class Stage1EvidenceValidationError extends Error {
@@ -124,24 +89,27 @@ function assertExactKeys(
   }
 }
 
-function assertTrue(value: unknown, code: string): void {
-  if (value !== true) fail(code);
-}
-
 function assertFalse(value: unknown, code: string): void {
   if (value !== false) fail(code);
 }
 
-function assertZero(value: unknown, code: string): void {
-  if (!Number.isInteger(value) || value !== 0) fail(code);
-}
-
-function assertOne(value: unknown, code: string): void {
-  if (!Number.isInteger(value) || value !== 1) fail(code);
-}
-
 function assertFullSha(value: unknown, code: string): asserts value is string {
   if (typeof value !== 'string' || !/^[0-9a-f]{40}$/.test(value)) {
+    fail(code);
+  }
+}
+
+function assertSha256(value: unknown, code: string): asserts value is string {
+  if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) {
+    fail(code);
+  }
+}
+
+function assertEvidenceRunId(
+  value: unknown,
+  code: string,
+): asserts value is string {
+  if (typeof value !== 'string' || !/^[0-9a-f]{32}$/.test(value)) {
     fail(code);
   }
 }
@@ -156,7 +124,7 @@ function asStringArray(value: unknown, code: string): string[] {
 function assertCheckpointResults(
   value: unknown,
   expectedIds: string[],
-  expectedResult: 'NOT_RUN' | 'PASS',
+  expectedResult: 'NOT_OBSERVED' | 'RECORDED',
   code: string,
 ): void {
   if (!Array.isArray(value) || value.length !== expectedIds.length) fail(code);
@@ -196,8 +164,8 @@ export function validateStage1EvidenceManifest(
   const contract = asRecord(runbook.stage1Contract, 'RUNBOOK_CONTRACT_MISSING');
   const targetContract = asRecord(contract.target, 'RUNBOOK_TARGET_MISSING');
   const validatorContract = asRecord(
-    contract.evidenceValidator,
-    'RUNBOOK_VALIDATOR_MISSING',
+    contract.consistencyValidator,
+    'RUNBOOK_CONSISTENCY_VALIDATOR_MISSING',
   );
   const evidenceAssertions = asRecord(
     contract.evidenceAssertions,
@@ -206,10 +174,6 @@ export function validateStage1EvidenceManifest(
   const fullShaEquality = asRecord(
     evidenceAssertions.fullShaEquality,
     'RUNBOOK_SHA_ASSERTION_MISSING',
-  );
-  const deploymentAssertion = asRecord(
-    evidenceAssertions.deploymentCount,
-    'RUNBOOK_DEPLOYMENT_ASSERTION_MISSING',
   );
   const stages = runbook.stages;
   if (!Array.isArray(stages) || stages.length === 0) {
@@ -223,16 +187,26 @@ export function validateStage1EvidenceManifest(
   const manifest = asRecord(manifestValue, 'MANIFEST_INVALID');
   assertExactKeys(
     manifest,
-    ['schemaVersion', 'status', 'target', 'checkpoints', 'observations'],
+    [
+      'schemaVersion',
+      'status',
+      'evidenceRunId',
+      'target',
+      'checkpoints',
+      'evidenceReferences',
+      'lineage',
+      'declarations',
+    ],
     'MANIFEST_SCHEMA_NOT_ALLOWLISTED',
   );
-  if (manifest.schemaVersion !== 1) fail('MANIFEST_SCHEMA_VERSION_INVALID');
+  if (manifest.schemaVersion !== 3) fail('MANIFEST_SCHEMA_VERSION_INVALID');
   if (
-    validatorContract.requiredResult !== 'PASS' ||
+    validatorContract.requiredResult !== 'CONSISTENCY_PASS' ||
     manifest.status !== validatorContract.requiredResult
   ) {
-    fail('MANIFEST_STATUS_NOT_PASS');
+    fail('MANIFEST_STATUS_NOT_CONSISTENCY_PASS');
   }
+  assertEvidenceRunId(manifest.evidenceRunId, 'EVIDENCE_RUN_ID_INVALID');
 
   const target = asRecord(manifest.target, 'TARGET_INVALID');
   assertExactKeys(
@@ -263,25 +237,25 @@ export function validateStage1EvidenceManifest(
   assertCheckpointResults(
     checkpoints.preconditions,
     asStringArray(stage.preconditions, 'RUNBOOK_PRECONDITIONS_INVALID'),
-    'PASS',
+    'RECORDED',
     'PRECONDITIONS_INCOMPLETE_OR_OUT_OF_ORDER',
   );
   assertCheckpointResults(
     checkpoints.actions,
     asStringArray(stage.actions, 'RUNBOOK_ACTIONS_INVALID'),
-    'PASS',
+    'RECORDED',
     'ACTIONS_INCOMPLETE_OR_OUT_OF_ORDER',
   );
   assertCheckpointResults(
     checkpoints.forbiddenActions,
     asStringArray(stage.forbiddenActions, 'RUNBOOK_FORBIDDEN_ACTIONS_INVALID'),
-    'NOT_RUN',
-    'FORBIDDEN_ACTION_RECORDED',
+    'NOT_OBSERVED',
+    'FORBIDDEN_ACTION_OBSERVED',
   );
   assertCheckpointResults(
     checkpoints.requiredEvidence,
     asStringArray(stage.requiredEvidence, 'RUNBOOK_EVIDENCE_INVALID'),
-    'PASS',
+    'RECORDED',
     'REQUIRED_EVIDENCE_INCOMPLETE_OR_OUT_OF_ORDER',
   );
   if (
@@ -291,168 +265,32 @@ export function validateStage1EvidenceManifest(
     fail('STOP_AFTER_MISMATCH');
   }
 
-  const observations = asRecord(manifest.observations, 'OBSERVATIONS_INVALID');
+  const evidenceReferences = asRecord(
+    manifest.evidenceReferences,
+    'EVIDENCE_REFERENCES_INVALID',
+  );
+  const receiptKeys = [
+    'inventoryReceiptSha256',
+    'preCreationLocalReceiptSha256',
+    'createAndRepositoryReceiptSha256',
+    'postCreationLocalReceiptSha256',
+    'saveOnlyReceiptSha256',
+    'independentReviewBundleSha256',
+  ];
   assertExactKeys(
-    observations,
-    [
-      'inventoryBeforeCreate',
-      'custodyBeforeCreate',
-      'createOperation',
-      'repositoryBeforePush',
-      'postCreation',
-      'lineage',
-      'deployment',
-      'sensitiveOrPrivateValuesRecorded',
-    ],
-    'OBSERVATION_SCHEMA_NOT_ALLOWLISTED',
+    evidenceReferences,
+    receiptKeys,
+    'EVIDENCE_REFERENCE_SCHEMA_NOT_ALLOWLISTED',
   );
-
-  const inventory = asRecord(
-    observations.inventoryBeforeCreate,
-    'INVENTORY_INVALID',
-  );
-  assertExactKeys(
-    inventory,
-    [
-      'completed',
-      'unambiguous',
-      'comparison',
-      'caseInsensitiveTitleMatchCount',
-      'caseInsensitiveSlugMatchCount',
-      'combinedUniqueMatchCount',
-    ],
-    'INVENTORY_SCHEMA_NOT_ALLOWLISTED',
-  );
-  assertTrue(inventory.completed, 'INVENTORY_INCOMPLETE');
-  assertTrue(inventory.unambiguous, 'INVENTORY_AMBIGUOUS');
-  if (inventory.comparison !== 'case_insensitive_exact_match') {
-    fail('INVENTORY_COMPARISON_INVALID');
+  const receiptHashes = receiptKeys.map((key) => evidenceReferences[key]);
+  for (const receiptHash of receiptHashes) {
+    assertSha256(receiptHash, 'EVIDENCE_REFERENCE_SHA256_INVALID');
   }
-  assertZero(
-    inventory.caseInsensitiveTitleMatchCount,
-    'SITE_TITLE_MATCH_EXISTS',
-  );
-  assertZero(inventory.caseInsensitiveSlugMatchCount, 'SITE_SLUG_MATCH_EXISTS');
-  assertZero(inventory.combinedUniqueMatchCount, 'SITE_MATCH_EXISTS');
-
-  const custody = asRecord(
-    observations.custodyBeforeCreate,
-    'CUSTODY_INVALID',
-  );
-  assertExactKeys(
-    custody,
-    [
-      'approvedHeadFullSha',
-      'branch',
-      'workingTreeClean',
-      'package0GatePassed',
-      'cleanCheckoutPassed',
-      'gitRemoteCount',
-      'hostingProjectIdPresent',
-      'siteAlreadyCreatedForCheckout',
-    ],
-    'CUSTODY_SCHEMA_NOT_ALLOWLISTED',
-  );
-  assertFullSha(custody.approvedHeadFullSha, 'APPROVED_HEAD_INVALID');
-  if (custody.branch !== targetContract.branch) fail('BRANCH_NOT_MAIN');
-  assertTrue(custody.workingTreeClean, 'WORKING_TREE_DIRTY');
-  assertTrue(custody.package0GatePassed, 'PACKAGE0_GATE_NOT_PASSED');
-  assertTrue(custody.cleanCheckoutPassed, 'CLEAN_CHECKOUT_NOT_PASSED');
-  assertZero(custody.gitRemoteCount, 'PREEXISTING_GIT_REMOTE');
-  assertFalse(custody.hostingProjectIdPresent, 'PREEXISTING_PROJECT_ID');
-  assertFalse(
-    custody.siteAlreadyCreatedForCheckout,
-    'SITE_ALREADY_CREATED_FOR_CHECKOUT',
-  );
-
-  const createOperation = asRecord(
-    observations.createOperation,
-    'CREATE_OPERATION_INVALID',
-  );
-  assertExactKeys(
-    createOperation,
-    [
-      'attemptCount',
-      'exactTargetUsed',
-      'projectIdReturned',
-      'projectIdPersisted',
-      'persistedProjectIdMatchesCreateResponse',
-    ],
-    'CREATE_OPERATION_SCHEMA_NOT_ALLOWLISTED',
-  );
-  assertOne(createOperation.attemptCount, 'CREATE_ATTEMPT_COUNT_INVALID');
-  assertTrue(createOperation.exactTargetUsed, 'CREATE_TARGET_MISMATCH');
-  assertTrue(createOperation.projectIdReturned, 'PROJECT_ID_NOT_RETURNED');
-  assertTrue(createOperation.projectIdPersisted, 'PROJECT_ID_NOT_PERSISTED');
-  assertTrue(
-    createOperation.persistedProjectIdMatchesCreateResponse,
-    'PROJECT_ID_PERSISTENCE_MISMATCH',
-  );
-
-  const repository = asRecord(
-    observations.repositoryBeforePush,
-    'REPOSITORY_INVALID',
-  );
-  assertExactKeys(
-    repository,
-    [
-      'returnedBySameCreateOperation',
-      'sitesManagedRepositoryVerified',
-      'privateVisibilityVerified',
-      'projectAssociationVerified',
-      'defaultBranch',
-      'pushOccurredOnlyAfterVerification',
-      'persistedGitRemoteCount',
-      'sourceCredentialRecorded',
-    ],
-    'REPOSITORY_SCHEMA_NOT_ALLOWLISTED',
-  );
-  assertTrue(
-    repository.returnedBySameCreateOperation,
-    'REPOSITORY_NOT_FROM_CREATE_OPERATION',
-  );
-  assertTrue(
-    repository.sitesManagedRepositoryVerified,
-    'REPOSITORY_NOT_VERIFIED_AS_SITES_MANAGED',
-  );
-  assertTrue(
-    repository.privateVisibilityVerified,
-    'REPOSITORY_PRIVACY_NOT_VERIFIED',
-  );
-  assertTrue(
-    repository.projectAssociationVerified,
-    'REPOSITORY_ASSOCIATION_NOT_VERIFIED',
-  );
-  if (repository.defaultBranch !== targetContract.branch) {
-    fail('REPOSITORY_BRANCH_NOT_MAIN');
+  if (new Set(receiptHashes).size !== receiptHashes.length) {
+    fail('EVIDENCE_REFERENCE_REUSED');
   }
-  assertTrue(
-    repository.pushOccurredOnlyAfterVerification,
-    'PUSH_PRECEDED_REPOSITORY_VERIFICATION',
-  );
-  assertZero(repository.persistedGitRemoteCount, 'GIT_REMOTE_PERSISTED');
-  assertFalse(
-    repository.sourceCredentialRecorded,
-    'SOURCE_CREDENTIAL_RECORDED',
-  );
 
-  const postCreation = asRecord(
-    observations.postCreation,
-    'POST_CREATION_INVALID',
-  );
-  assertExactKeys(
-    postCreation,
-    ['workingTreeClean', 'package0GatePassed', 'cleanCheckoutPassed'],
-    'POST_CREATION_SCHEMA_NOT_ALLOWLISTED',
-  );
-  assertTrue(postCreation.workingTreeClean, 'POST_CREATION_TREE_DIRTY');
-  assertTrue(postCreation.package0GatePassed, 'POST_CREATION_GATE_NOT_PASSED');
-  assertTrue(
-    postCreation.cleanCheckoutPassed,
-    'POST_CREATION_CLEAN_CHECKOUT_NOT_PASSED',
-  );
-
-  const lineage = asRecord(observations.lineage, 'LINEAGE_INVALID');
+  const lineage = asRecord(manifest.lineage, 'LINEAGE_INVALID');
   const shaOperands = asStringArray(
     fullShaEquality.operands,
     'RUNBOOK_SHA_OPERANDS_INVALID',
@@ -466,25 +304,37 @@ export function validateStage1EvidenceManifest(
     fail('LINEAGE_SHA_MISMATCH');
   }
 
-  const deployment = asRecord(observations.deployment, 'DEPLOYMENT_INVALID');
-  assertExactKeys(deployment, ['count'], 'DEPLOYMENT_SCHEMA_NOT_ALLOWLISTED');
-  if (deploymentAssertion.expected !== 0) {
-    fail('RUNBOOK_DEPLOYMENT_ASSERTION_INVALID');
-  }
-  assertZero(deployment.count, 'DEPLOYMENT_COUNT_NOT_ZERO');
+  const declarations = asRecord(
+    manifest.declarations,
+    'DECLARATIONS_INVALID',
+  );
+  assertExactKeys(
+    declarations,
+    [
+      'containsSensitiveOrPrivateValues',
+      'numericalDeploymentCountClaimed',
+    ],
+    'DECLARATION_SCHEMA_NOT_ALLOWLISTED',
+  );
   assertFalse(
-    observations.sensitiveOrPrivateValuesRecorded,
+    declarations.containsSensitiveOrPrivateValues,
     'SENSITIVE_OR_PRIVATE_VALUE_RECORDED',
+  );
+  assertFalse(
+    declarations.numericalDeploymentCountClaimed,
+    'UNSUPPORTED_NUMERICAL_DEPLOYMENT_COUNT_CLAIMED',
   );
 
   return {
-    status: 'PASS',
+    status: 'CONSISTENCY_PASS',
+    evidenceRunId: manifest.evidenceRunId,
     siteName: target.siteName as string,
     siteSlug: target.siteSlug as string,
     branch: target.branch as string,
-    inventoryMatchCount: 0,
-    deploymentCount: 0,
+    receiptReferenceCount: 6,
     sourceSha: shaValues[0] as string,
+    hostedFactsVerified: false,
+    stage1Complete: false,
   };
 }
 
@@ -523,12 +373,17 @@ async function runCli(): Promise<void> {
       error instanceof Stage1EvidenceValidationError
         ? error.code
         : 'EVIDENCE_MANIFEST_READ_OR_PARSE_FAILED';
-    process.stderr.write(`${JSON.stringify({ status: 'FAIL', code })}\n`);
+    process.stderr.write(
+      `${JSON.stringify({ status: 'CONSISTENCY_FAIL', code })}\n`,
+    );
     process.exitCode = 1;
   }
 }
 
 const modulePath = fileURLToPath(import.meta.url);
-if (process.argv[1] && resolve(process.argv[1]) === modulePath) {
+if (
+  process.argv[1] &&
+  realpathSync(resolve(process.argv[1])) === realpathSync(modulePath)
+) {
   void runCli();
 }
