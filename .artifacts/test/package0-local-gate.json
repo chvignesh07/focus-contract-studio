@@ -1,6 +1,11 @@
 {
   "artifact": "package0-local-gate",
   "date_utc": "2026-08-30T03:52:38Z",
+  "evidence_scope": "HISTORICAL_LOCAL",
+  "verified_source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "is_current_head_evidence": false,
+  "current_head_must_be_reverified": true,
+  "historical_reason": "Subsequent source commits require a fresh post-commit gate.",
   "command": "npm run verify:package0",
   "exit_code": 0,
   "checks": {
@@ -18,5 +23,5 @@
     "complete_graph_moderate_local_only": 4
   },
   "result": "PASS",
-  "limitation": "This is local candidate evidence. A clean-checkout rerun and every hosted/real-client row have separate gates."
+  "limitation": "This is historical local candidate evidence for the verified source commit only. It is not current-HEAD proof; every subsequent HEAD, clean checkout, and hosted/real-client row has a separate gate."
 }

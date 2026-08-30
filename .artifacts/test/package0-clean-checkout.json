@@ -1,6 +1,11 @@
 {
   "artifact": "package0-clean-checkout",
   "date_utc": "2026-08-30T03:54:55Z",
+  "evidence_scope": "HISTORICAL_LOCAL",
+  "verified_source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "is_current_head_evidence": false,
+  "current_head_must_be_reverified": true,
+  "historical_reason": "Subsequent source commits require a fresh post-commit gate.",
   "source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
   "clone": {
     "path": "<TEMP_DIRECTORY>/fcs-package0-clean-verify.vVEKDq",
@@ -28,5 +33,5 @@
     "body_sha256": "a7b5f8584098b3f50d79b2526abde88605efd03f6cf771c049d7f05436634d8e"
   },
   "result": "PASS",
-  "limitation": "This proves local reproducibility of the named source commit. It does not substitute for Sites hosting or a supported ChatGPT call."
+  "limitation": "This historical artifact proves local reproducibility of the named source commit only. It is not current-HEAD evidence and does not substitute for Sites hosting or a supported ChatGPT call."
 }

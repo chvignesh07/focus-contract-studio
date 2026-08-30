@@ -1,6 +1,11 @@
 {
   "artifact": "package0-local-browser",
   "date_utc": "2026-08-30T03:50:37Z",
+  "evidence_scope": "HISTORICAL_LOCAL",
+  "verified_source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "is_current_head_evidence": false,
+  "current_head_must_be_reverified": true,
+  "historical_reason": "Subsequent source commits require a fresh post-commit browser run.",
   "server": "built Worker via wrangler dev and dist/server/wrangler.json",
   "browser": "Playwright CLI headed Chromium",
   "checks": {
@@ -23,5 +28,5 @@
     "contains_private_account_data": false
   },
   "result": "PASS",
-  "limitation": "This validates the ordinary local browser journey only. It does not substitute for OpenAI Sites hosting or a supported ChatGPT Site-tools call. The first 320x568 run exposed clipped final controls; the responsive flow fix was rebuilt and the final rerun proved the status bottom at 507 CSS pixels inside a 568-pixel viewport."
+  "limitation": "This historical artifact validates the ordinary local browser journey for the verified source commit only. It is not current-HEAD evidence and does not substitute for OpenAI Sites hosting or a supported ChatGPT Site-tools call. The first 320x568 run exposed clipped final controls; the responsive flow fix was rebuilt and the final rerun proved the status bottom at 507 CSS pixels inside a 568-pixel viewport."
 }

@@ -1,6 +1,11 @@
 {
   "artifact": "package0-local-request",
   "date_utc": "2026-08-30T03:50:37Z",
+  "evidence_scope": "HISTORICAL_LOCAL",
+  "verified_source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "is_current_head_evidence": false,
+  "current_head_must_be_reverified": true,
+  "historical_reason": "Subsequent source commits require a fresh post-commit request.",
   "target": "http://127.0.0.1:4173/",
   "request_count": 1,
   "status": 200,
@@ -15,5 +20,6 @@
   "header_sha256": "d8b9d91143690da2d090467586c11058b32dfa1b75589b205ad3dc64354c22e1",
   "body_sha256": "cd50cde388e96c2c0e1bc25db3a394bc15f1079e086366a48501c43ae456083f",
   "result": "PASS",
-  "sensitive_material_retained": false
+  "sensitive_material_retained": false,
+  "limitation": "This historical local request proves the verified source commit only. It is not current-HEAD evidence and does not substitute for Sites hosting or a supported ChatGPT call."
 }
