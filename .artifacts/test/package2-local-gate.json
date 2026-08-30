@@ -8,14 +8,14 @@
   "source_binding": {
     "public_package1_head": "e560e0998f24cda1c7c8c2740b67ece487b1ea52",
     "candidate_state": "uncommitted-package2-diff",
-    "implementation_manifest_sha256": "440d1e937acbfee9682771926a902d005dc425668d04e7adf6419d22439a669e",
-    "implementation_manifest_file_count": 95
+    "implementation_manifest_sha256": "52202140de046c9af9ec83ac7ba964d0f4550c0947aec5e6a7d4a94be72b6faa",
+    "implementation_manifest_file_count": 97
   },
   "canonical_gate": {
     "result_binding": "SOURCE_MANIFEST_PASS",
     "command": "npm run verify:package2",
-    "started_at_utc": "2026-08-30T20:32:03Z",
-    "completed_at_utc": "2026-08-30T20:32:53Z",
+    "started_at_utc": "2026-08-30T21:07:21Z",
+    "completed_at_utc": "2026-08-30T21:08:09Z",
     "exit_code": 0,
     "node": "v22.22.3",
     "npm": "10.9.8",
@@ -23,9 +23,9 @@
     "wrangler": "4.116.0",
     "tests": {
       "package0": { "passed": 80, "total": 80 },
-      "package1_node": { "passed": 9, "total": 9 },
+      "package1_node": { "passed": 10, "total": 10 },
       "package1_workerd_d1": { "passed": 59, "total": 59 },
-      "package2_node": { "passed": 34, "total": 34 },
+      "package2_node": { "passed": 36, "total": 36 },
       "package2_workerd_d1": { "passed": 18, "total": 18 },
       "package2_dom": { "passed": 5, "total": 5 },
       "package2_browser": { "passed": 5, "total": 5 }

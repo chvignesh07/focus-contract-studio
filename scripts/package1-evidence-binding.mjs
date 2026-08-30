@@ -19,15 +19,17 @@ function requireEqual(label, actual, expected) {
   }
 }
 
-function requirePassingTests(label, value) {
+function requireExactPassingTests(label, value, expectedTotal) {
   if (
     !value ||
     !Number.isSafeInteger(value.passed) ||
     !Number.isSafeInteger(value.total) ||
-    value.total <= 0 ||
-    value.passed !== value.total
+    value.passed !== expectedTotal ||
+    value.total !== expectedTotal
   ) {
-    throw new Error(`${label} must record a positive all-passing test count`);
+    throw new Error(
+      `${label} must record exactly ${expectedTotal}/${expectedTotal} passing tests`,
+    );
   }
 }
 
@@ -77,17 +79,20 @@ export function verifyPackage1EvidenceBinding(repositoryRoot) {
     'npm run verify:package1',
   );
   requireEqual('local gate exit code', localGate.canonical_gate?.exit_code, 0);
-  requirePassingTests(
+  requireExactPassingTests(
     'Package 0 regressions',
     localGate.canonical_gate?.package0_tests,
+    80,
   );
-  requirePassingTests(
+  requireExactPassingTests(
     'Package 1 Node tests',
     localGate.canonical_gate?.package1_node_tests,
+    10,
   );
-  requirePassingTests(
+  requireExactPassingTests(
     'Package 1 Workerd/D1 tests',
     localGate.canonical_gate?.package1_workerd_d1_tests,
+    59,
   );
   requireEqual('local gate build', localGate.canonical_gate?.build, 'PASS');
   requireEqual(

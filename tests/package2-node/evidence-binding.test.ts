@@ -118,3 +118,63 @@ test('Package 2 evidence rejects forged all-passing totals', () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /package0 exact test count/u);
 });
+
+test('Package 2 evidence rejects cross-artifact count and source-binding drift', () => {
+  const cases = [
+    {
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/browser/package2-local-journey.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.tests = { passed: 1, total: 1 };
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /browser tests exact test count/u,
+    },
+    {
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/security/package2-security.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.source_manifest_file_count = 1;
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /security source count/u,
+    },
+    {
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.canonical_gate.result_binding = 'CONSISTENCY_PASS';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /canonical result binding/u,
+    },
+    {
+      mutate(root: string) {
+        const file = path.join(root, '.artifacts/test/package2-local-gate.json');
+        const value = JSON.parse(readFileSync(file, 'utf8'));
+        value.source_binding.candidate_state = 'synthetic-committed-state';
+        writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+      },
+      expected: /candidate state/u,
+    },
+    {
+      mutate(root: string) {
+        const file = path.join(root, 'docs/evidence/PACKAGE2_VERIFICATION.md');
+        const markdown = readFileSync(file, 'utf8').replace(
+          '| Package 1 Node regressions | `10/10 PASS` |',
+          '| Package 1 Node regressions | `1/1 PASS` |',
+        );
+        writeFileSync(file, markdown);
+      },
+      expected: /Markdown Package 1 Node regressions count/u,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const root = fixture();
+    testCase.mutate(root);
+    const result = run(root);
+    assert.notEqual(result.status, 0, `${result.stdout}${result.stderr}`);
+    assert.match(result.stderr, testCase.expected);
+  }
+});

@@ -109,3 +109,43 @@ test('Package 1 evidence consistency rejects semantic result tampering', (t) => 
     assert.match(result.stderr, /^CONSISTENCY_FAIL /u);
   }
 });
+
+test('Package 1 evidence rejects forged smaller all-passing test totals', (t) => {
+  const cases = [
+    {
+      field: 'package0_tests',
+      markdownRow: '| Package 0 regressions | `80/80 PASS`',
+    },
+    {
+      field: 'package1_node_tests',
+      markdownRow: '| Package 1 Node tests | `10/10 PASS`',
+    },
+    {
+      field: 'package1_workerd_d1_tests',
+      markdownRow: '| Package 1 Workerd/D1 tests | `59/59 PASS`',
+    },
+  ] as const;
+
+  for (const testCase of cases) {
+    const root = evidenceFixture(t);
+    const gatePath = path.join(root, '.artifacts/test/package1-local-gate.json');
+    const gate = JSON.parse(readFileSync(gatePath, 'utf8'));
+    gate.canonical_gate[testCase.field] = { passed: 1, total: 1 };
+    writeFileSync(gatePath, `${JSON.stringify(gate, null, 2)}\n`);
+
+    const markdownPath = path.join(root, 'docs/evidence/PACKAGE1_VERIFICATION.md');
+    const markdown = readFileSync(markdownPath, 'utf8').replace(
+      testCase.markdownRow,
+      testCase.markdownRow.replace(/\d+\/\d+/u, '1/1'),
+    );
+    writeFileSync(markdownPath, markdown);
+
+    const result = runVerifier(root);
+    assert.notEqual(
+      result.status,
+      0,
+      `${testCase.field} accepted forged 1/1 evidence\n${result.stdout}${result.stderr}`,
+    );
+    assert.match(result.stderr, /^CONSISTENCY_FAIL /u);
+  }
+});

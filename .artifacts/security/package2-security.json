@@ -3,9 +3,9 @@
   "package": 2,
   "scope": "local-implementation-and-tests",
   "status": "PASS",
-  "verified_at_utc": "2026-08-30T20:32:53Z",
-  "source_manifest_sha256": "440d1e937acbfee9682771926a902d005dc425668d04e7adf6419d22439a669e",
-  "source_manifest_file_count": 95,
+  "verified_at_utc": "2026-08-30T21:08:09Z",
+  "source_manifest_sha256": "52202140de046c9af9ec83ac7ba964d0f4550c0947aec5e6a7d4a94be72b6faa",
+  "source_manifest_file_count": 97,
   "controls": {
     "server_resolved_session_and_workspace": true,
     "caller_identity_or_authority_inputs": false,

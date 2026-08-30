@@ -33,11 +33,20 @@ function requirePassingTests(label, value) {
   }
 }
 
+function requireExactPassingTests(label, value, expectedTotal) {
+  requirePassingTests(label, value);
+  if (value.passed !== expectedTotal || value.total !== expectedTotal) {
+    throw new Error(
+      `${label} exact test count must be ${expectedTotal}/${expectedTotal}`,
+    );
+  }
+}
+
 const REQUIRED_TEST_COUNTS = Object.freeze({
   package0: 80,
-  package1_node: 9,
+  package1_node: 10,
   package1_workerd_d1: 59,
-  package2_node: 34,
+  package2_node: 36,
   package2_workerd_d1: 18,
   package2_dom: 5,
   package2_browser: 5,
@@ -53,10 +62,7 @@ function requireExactTestInventory(value) {
     throw new Error('canonical test inventory must contain exactly the required suites');
   }
   for (const [label, total] of Object.entries(REQUIRED_TEST_COUNTS)) {
-    requirePassingTests(label, value[label]);
-    if (value[label].passed !== total || value[label].total !== total) {
-      throw new Error(`${label} exact test count must be ${total}/${total}`);
-    }
+    requireExactPassingTests(label, value[label], total);
   }
 }
 
@@ -91,6 +97,16 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
     gate.source_binding?.implementation_manifest_sha256,
     manifest.aggregate_sha256,
   );
+  requireEqual(
+    'candidate state',
+    gate.source_binding?.candidate_state,
+    'uncommitted-package2-diff',
+  );
+  requireEqual(
+    'canonical result binding',
+    gate.canonical_gate?.result_binding,
+    'SOURCE_MANIFEST_PASS',
+  );
   requireEqual('canonical command', gate.canonical_gate?.command, 'npm run verify:package2');
   requireEqual('canonical exit code', gate.canonical_gate?.exit_code, 0);
   requireExactTestInventory(gate.canonical_gate?.tests);
@@ -118,7 +134,11 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   requireEqual('browser engine', browser.engine, 'playwright-chromium-1234');
   requireEqual('browser real D1', browser.real_local_d1, true);
   requireEqual('browser remote bindings', browser.remote_bindings, false);
-  requirePassingTests('browser tests', browser.tests);
+  requireExactPassingTests(
+    'browser tests',
+    browser.tests,
+    REQUIRED_TEST_COUNTS.package2_browser,
+  );
   requireEqual('browser axe serious', browser.axe?.serious, 0);
   requireEqual('browser axe critical', browser.axe?.critical, 0);
   requireEqual('browser hosted claim', browser.hosted_client_claim, 'NOT_RUN');
@@ -126,6 +146,7 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   const security = readJson(
     path.join(repositoryRoot, '.artifacts/security/package2-security.json'),
   );
+  requireEqual('security source count', security.source_manifest_file_count, manifest.file_count);
   requireEqual('security source digest', security.source_manifest_sha256, manifest.aggregate_sha256);
   requireEqual('security status', security.status, 'PASS');
   requireEqual('security hosted claim', security.hosted_security_claim, 'NOT_RUN');
@@ -158,6 +179,21 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   }
   if (!markdown.includes('| Package 0 hosted exit gate | `INCONCLUSIVE` |')) {
     throw new Error('Package 2 Markdown must preserve the Package 0 blocker');
+  }
+  const markdownTestRows = {
+    package0: 'Package 0 regressions',
+    package1_node: 'Package 1 Node regressions',
+    package1_workerd_d1: 'Package 1 Workerd/D1 regressions',
+    package2_node: 'Package 2 Node regressions',
+    package2_workerd_d1: 'Package 2 Workerd/D1 regressions',
+    package2_dom: 'Package 2 DOM regressions',
+    package2_browser: 'Package 2 built-Worker Playwright journeys',
+  };
+  for (const [suite, label] of Object.entries(markdownTestRows)) {
+    const total = REQUIRED_TEST_COUNTS[suite];
+    if (!markdown.includes(`| ${label} | \`${total}/${total} PASS\` |`)) {
+      throw new Error(`Markdown ${label} count must be ${total}/${total}`);
+    }
   }
 
   return { fileCount: manifest.file_count, sha256: manifest.aggregate_sha256 };

@@ -56,6 +56,28 @@ test('Package 2 binds its secret-scan policy and exact browser-test toolchain', 
   }
 });
 
+test('Package 2 binds the current Package 1 evidence verifier and its regression', () => {
+  const value = JSON.parse(readFileSync(manifest, 'utf8')) as {
+    source_roots: string[];
+    files: Array<{ path: string }>;
+  };
+  const requiredPaths = [
+    'scripts/package1-evidence-binding.mjs',
+    'tests/package1-node/evidence-binding.test.ts',
+  ];
+
+  for (const requiredPath of requiredPaths) {
+    assert.ok(
+      value.source_roots.includes(requiredPath),
+      `${requiredPath} must be a Package 2 source root`,
+    );
+    assert.ok(
+      value.files.some((file) => file.path === requiredPath),
+      `${requiredPath} must be hash-bound in the Package 2 manifest`,
+    );
+  }
+});
+
 test('Package 2 source files are reviewable UTF-8 without raw control bytes', () => {
   const value = JSON.parse(readFileSync(manifest, 'utf8')) as {
     files: Array<{ path: string }>;

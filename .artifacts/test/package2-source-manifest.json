@@ -15,11 +15,13 @@
     "package-lock.json",
     "package.json",
     "playwright.config.ts",
+    "scripts/package1-evidence-binding.mjs",
     "scripts/package1-frozen-source-verifier.mjs",
     "scripts/package2-evidence-binding.mjs",
     "scripts/package2-local-server.mjs",
     "scripts/package2-source-manifest.mjs",
     "tests/package1-node/source-manifest.test.ts",
+    "tests/package1-node/evidence-binding.test.ts",
     "tests/package1/schema-constraints.test.ts",
     "tests/package1/seed-reset.test.ts",
     "tests/package1/migrations.test.ts",
@@ -34,8 +36,8 @@
     "vitest.package2.config.ts",
     "wrangler.package2.jsonc"
   ],
-  "file_count": 95,
-  "aggregate_sha256": "440d1e937acbfee9682771926a902d005dc425668d04e7adf6419d22439a669e",
+  "file_count": 97,
+  "aggregate_sha256": "52202140de046c9af9ec83ac7ba964d0f4550c0947aec5e6a7d4a94be72b6faa",
   "files": [
     {
       "path": ".gitignore",
@@ -270,12 +272,16 @@
       "sha256": "e6bff9917d9d3ccab152a4701aa53ec983c54f83bb2e808a49542e0384e8bb38"
     },
     {
+      "path": "scripts/package1-evidence-binding.mjs",
+      "sha256": "db56afb240114be17a6d7e0ebb3db93d20d47cce3ac394239bd79c9e9cb107cc"
+    },
+    {
       "path": "scripts/package1-frozen-source-verifier.mjs",
       "sha256": "106842cb6ab16b0fb2727b8ee6d078db7c97514bf7653a3c616b12a7f130bfa0"
     },
     {
       "path": "scripts/package2-evidence-binding.mjs",
-      "sha256": "7171dab2bdef89b81b7d436a6166db981c8390c5d102e4ed69d96620f97d0d2c"
+      "sha256": "a53fa47ef73b1446aabb89d94a3b5bdf6583c8acb32bf2ef984f63bf76d0c184"
     },
     {
       "path": "scripts/package2-local-server.mjs",
@@ -283,7 +289,11 @@
     },
     {
       "path": "scripts/package2-source-manifest.mjs",
-      "sha256": "6f68cd5e4bec901527edb5c473c637b542ac836c0877c529c487fc4ed5e21de8"
+      "sha256": "763512c190704d7bc00d76e25c5d637ada667f926fb568e9b421dd8d783a2230"
+    },
+    {
+      "path": "tests/package1-node/evidence-binding.test.ts",
+      "sha256": "bad53b24adac161ff1a116084824e638528cb6b5a59c52ba6adda828e2bf1292"
     },
     {
       "path": "tests/package1-node/source-manifest.test.ts",
@@ -319,7 +329,7 @@
     },
     {
       "path": "tests/package2-node/evidence-binding.test.ts",
-      "sha256": "ccbcdc2d6eb672dff54b43a6a63d327ddb48265d8095724adeb37fd6eb371517"
+      "sha256": "1719b06c21d04d5d58092335cef2b0748fdda41d3b366eb40bddb1cee2784288"
     },
     {
       "path": "tests/package2-node/evidence-token.test.ts",
@@ -347,7 +357,7 @@
     },
     {
       "path": "tests/package2-node/source-manifest.test.ts",
-      "sha256": "e019e7b58f0de81a0738bebe975e41b9a3ea2ff6a196e4475d37d12984ab905a"
+      "sha256": "62fd0daad54ff70784ea027f768f5c4f1a111db5b162cbb44976fceff4c60d90"
     },
     {
       "path": "tests/package2-node/webmcp-contract.test.ts",
