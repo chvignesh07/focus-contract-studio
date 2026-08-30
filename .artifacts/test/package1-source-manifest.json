@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "algorithm": "sha256",
+  "source_roots": [
+    "app/api/session",
+    "db/env.d.ts",
+    "db/schema.ts",
+    "drizzle",
+    "drizzle.config.ts",
+    "lib",
+    "package-lock.json",
+    "package.json",
+    "scripts/package1-evidence-binding.mjs",
+    "scripts/package1-source-manifest.mjs",
+    "tests/package1",
+    "tests/package1-node",
+    "vitest.package1.config.ts",
+    "wrangler.package1.jsonc"
+  ],
+  "file_count": 42,
+  "aggregate_sha256": "44b42d3031ce2e25b2ef0c6c93582aea0824889a8384681c857832d95a7724fe",
+  "files": [
+    {
+      "path": "app/api/session/bootstrap/route.ts",
+      "sha256": "e1461d4f63607baa0ff8009230225c19620582b61f194a95aabe15a5b959321d"
+    },
+    {
+      "path": "app/api/session/reset/route.ts",
+      "sha256": "449aab31db777b8ff9d16b90361a5daafb89a6d7c321755af66e010d24e2f428"
+    },
+    {
+      "path": "db/env.d.ts",
+      "sha256": "287e256856005377d75d353c93e627861a595d24f9b2fbc1d4e043239c19623e"
+    },
+    {
+      "path": "db/schema.ts",
+      "sha256": "60a456ed4f5924cf6d7c07db50784b765131e6ff3a0ca21af93ab1975ccbc2b3"
+    },
+    {
+      "path": "drizzle.config.ts",
+      "sha256": "085317bb3b416af08871a7fd75112756f7058c3a25ce9037b5bf987367ce3f27"
+    },
+    {
+      "path": "drizzle/0001_package1_domain.sql",
+      "sha256": "6a639c80d3d96d892dfb5c5e57962f432822f7f000324177e6b4f3f9b1eff4fc"
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "sha256": "b6bcaac763b95c2e20f3e6a313940a63cbbcf3f48839e268cb32039944637eb6"
+    },
+    {
+      "path": "lib/domain/focus-configuration.ts",
+      "sha256": "e5114dffd285e52cbedfffd295548866d2b418582421d07f7adbb71304e3bddb"
+    },
+    {
+      "path": "lib/domain/workspace-seed.ts",
+      "sha256": "42b44b0f5e8287981dc1799ce6830dfa7ca1ad81bd25c34d377afd6d9bc97420"
+    },
+    {
+      "path": "lib/server/admission.ts",
+      "sha256": "ffa6c59ded0ee2a4b9ed28aa54dd2d8a2ae3b0b9578602f925f9e5ccad873c44"
+    },
+    {
+      "path": "lib/server/crypto.ts",
+      "sha256": "b14d8d1cb992d3eeb586f98f03fe525c161eb90b9079282248b8fb2e9f00d15f"
+    },
+    {
+      "path": "lib/server/errors.ts",
+      "sha256": "3ed90ac356860790f6020b0de4f6e14abc00c40f470ce40d3deadeb81161806f"
+    },
+    {
+      "path": "lib/server/http.ts",
+      "sha256": "b71853459b8cbee507adae3a1705fbd427a83429873974e0bd18a92ce85ca9bf"
+    },
+    {
+      "path": "lib/server/query-inventory.ts",
+      "sha256": "44173ad3fa0af852f81982094e6f6a0c72713c00ce5311fb0b6c00ad75821b3e"
+    },
+    {
+      "path": "lib/server/request-security.ts",
+      "sha256": "a79c883784e9a0ec6fefaa10ce123189e30da08a745da5e6d3b3944b1c89009a"
+    },
+    {
+      "path": "lib/server/runtime-config.ts",
+      "sha256": "c0d0c922ee0b930c6f32a891aa7a74bd338df965c4778bb784f05da5440d6a3f"
+    },
+    {
+      "path": "lib/server/session.ts",
+      "sha256": "fe5d958a49bb55d2d8c6249e1b2796762e4b60abd08772cd7723f89315c7b6e3"
+    },
+    {
+      "path": "lib/server/workspaces.ts",
+      "sha256": "f16f3823a83045c8dbf7234fe77ab0fc19559cbde0eb483bfe699baa121bb0c0"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "ef7b926a7aa485feef8baf84a1c953240d96ce42aec09d362e2134ac2c9a83dd"
+    },
+    {
+      "path": "package.json",
+      "sha256": "6671c73c427a4bebc9031ac8be2d2f19b4546e3b55da5202f740c6d3e8ed2642"
+    },
+    {
+      "path": "scripts/package1-evidence-binding.mjs",
+      "sha256": "8b79dc4c25671dc5caf37b2d790581fc6b262a4e8e12a242d8b2358365efa4d2"
+    },
+    {
+      "path": "scripts/package1-source-manifest.mjs",
+      "sha256": "56ffe231fd4493821ad97cdaaa8f5c88b2c6f385ba8a12428c0990fb27fbdeb4"
+    },
+    {
+      "path": "tests/package1-node/drizzle-schema.test.ts",
+      "sha256": "181998e68c33b014f08ace7fddee43c5fa9bf18b62b934049959500e456270c2"
+    },
+    {
+      "path": "tests/package1-node/evidence-binding.test.ts",
+      "sha256": "9c58c78589eecf0a49c34f1f654f1a67cb016d3fdcb500fb3ad6803430129fe9"
+    },
+    {
+      "path": "tests/package1-node/identity-disabled.test.ts",
+      "sha256": "47ff8571cc37b9b3844607e4be973cef9207b4a9eb430db3e6236489b2d08e24"
+    },
+    {
+      "path": "tests/package1-node/migration-additive.test.ts",
+      "sha256": "45fbc6ca2ce9b1a2295b006a0df82bc422866d83eeb85757652b05dba76cbcff"
+    },
+    {
+      "path": "tests/package1-node/source-manifest.test.ts",
+      "sha256": "faf1def7b1aea5d105804ea33af76fa87c41eee785c8be121b1663d91ca30f9b"
+    },
+    {
+      "path": "tests/package1/admission.test.ts",
+      "sha256": "a6d2284a246b8ab4331e657ca02c0aadde8a796286e98bb0ac1e15c2283495c5"
+    },
+    {
+      "path": "tests/package1/cleanup-privacy-identity.test.ts",
+      "sha256": "40c44ab2dcedf18909579698c93516f28425150c7d5ee233e174760c26e33c8d"
+    },
+    {
+      "path": "tests/package1/cloudflare-test.d.ts",
+      "sha256": "725e70beece2018feaea5bfafdca19c5858ab3f7fa1e75e079fa7d826ecaf2c6"
+    },
+    {
+      "path": "tests/package1/d1-vitest-setup.ts",
+      "sha256": "4c242a6c49412944c7bc8d7b2beccbd6cbf1d8b528f1902e75a69e13f2b84a89"
+    },
+    {
+      "path": "tests/package1/migrations.test.ts",
+      "sha256": "babd9a129df369e2ae67dd801af4936c40225689aeffcca31c7d77ff22fae3e6"
+    },
+    {
+      "path": "tests/package1/query-inventory.test.ts",
+      "sha256": "8930f325e6e02823fb4fca6eaba667ca743071cbe7a2d39201d2d147ba90802f"
+    },
+    {
+      "path": "tests/package1/query-plans.test.ts",
+      "sha256": "4bbf910d1d975e0b2d47cfe0907c3dab37e124fabe04183ae04192e2864866d1"
+    },
+    {
+      "path": "tests/package1/request-security.test.ts",
+      "sha256": "16704b35d87f5b19a438767d439d9e19aec536149c30ce4ec32a40b6bc7738dd"
+    },
+    {
+      "path": "tests/package1/routes.test.ts",
+      "sha256": "32b73db1f1d536f1a36c7de84a438c1c835a47c009ee490057000b1535af8f2e"
+    },
+    {
+      "path": "tests/package1/schema-constraints.test.ts",
+      "sha256": "dc716a62d9d604749db661c580b8e3fc99436838b394167c5a921c19655c4f37"
+    },
+    {
+      "path": "tests/package1/seed-reset.test.ts",
+      "sha256": "cc90988ef35f986394c0221c05694b4ac2d21212cf409799d8abe48b3b3ad7ae"
+    },
+    {
+      "path": "tests/package1/session.test.ts",
+      "sha256": "6fda085b4bde63764b47deaaada789319cae84d37a155cd0f3305dabe3a58531"
+    },
+    {
+      "path": "tests/package1/workspace-isolation.test.ts",
+      "sha256": "3f1377d458dfcddf552e4faef9817b6a44007dbe7414741f152b6f5593e8c9ac"
+    },
+    {
+      "path": "vitest.package1.config.ts",
+      "sha256": "cf64196cdee0b98226e8aef4a4dd16bdea138b9e17eb7a7f33e3bd6efc6952ad"
+    },
+    {
+      "path": "wrangler.package1.jsonc",
+      "sha256": "710f6237961d7d67dd24a76496998f174526f868a7abc54e8f1b93c5e6f87de4"
+    }
+  ]
+}

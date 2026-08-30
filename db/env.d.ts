@@ -1,6 +1,11 @@
 declare namespace Cloudflare {
   interface Env {
     DB: D1Database;
+    FCS_CSRF_HMAC_SECRET?: string;
+    FCS_EVIDENCE_HMAC_SECRET?: string;
+    FCS_PUBLIC_ORIGIN?: string;
+    FCS_RATE_LIMIT_HMAC_SECRET?: string;
+    FCS_SESSION_HMAC_SECRET?: string;
     PACKAGE0_D1_OPERATOR_TOKEN_SHA256?: string;
     PACKAGE0_HOSTED_D1_CLEANUP_ENABLED?: string;
     PACKAGE0_HOSTED_D1_CLEANUP_WINDOW_EXPIRES_AT?: string;

@@ -11,7 +11,6 @@
     "start": "WRANGLER_SEND_METRICS=false WRANGLER_WRITE_LOGS=false WRANGLER_LOG_PATH=.wrangler/logs MINIFLARE_REGISTRY_PATH=.wrangler/registry wrangler dev --config dist/server/wrangler.json",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
     "test:package0:authority": "node --experimental-strip-types --test tests/package0/authority-import.test.ts",
     "test:package0:publication": "node --experimental-strip-types --test tests/package0/publication-safety.test.ts",
     "test:package0:webmcp": "node --experimental-strip-types --test tests/package0/webmcp-lifecycle.test.ts",
@@ -20,14 +19,21 @@
     "test:package0:d1": "node --experimental-strip-types --test tests/package0/d1-probe.test.ts tests/package0/d1-hosted-probe.test.ts",
     "test:package0:cloudflare": "vitest run --config vitest.package0.config.ts",
     "test:package0": "npm run test:package0:authority && npm run test:package0:publication && npm run test:package0:webmcp && npm run test:package0:runbook && npm run test:package0:hosted && npm run test:package0:d1 && npm run test:package0:cloudflare",
+    "test:package1:node": "node --experimental-strip-types --test tests/package1-node/*.test.ts",
+    "test:package1:d1": "vitest run --config vitest.package1.config.ts",
+    "test:package1": "npm run test:package1:node && npm run test:package1:d1",
+    "verify:package1:source-binding": "node scripts/package1-source-manifest.mjs",
+    "verify:package1:evidence-binding": "node scripts/package1-evidence-binding.mjs",
     "audit:package0": "npm audit --omit=dev && npm audit --audit-level=high",
-    "verify:package0": "npm run typecheck && npm run lint && npm run test:package0 && npm run build && npm run audit:package0"
+    "verify:package0": "npm run typecheck && npm run lint && npm run test:package0 && npm run build && npm run audit:package0",
+    "verify:package1": "npm run typecheck && npm run lint && npm run verify:package1:source-binding && npm run test:package0 && npm run test:package1 && npm run build && npm run audit:package0 && npm run verify:package1:evidence-binding"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
     "next": "16.3.3",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.49.0",
@@ -42,7 +48,6 @@
     "@vitejs/plugin-rsc": "0.5.34",
     "@vitest/runner": "4.1.0",
     "@vitest/snapshot": "4.1.0",
-    "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
     "eslint-config-next": "16.3.3",
     "react-server-dom-webpack": "19.2.8",
