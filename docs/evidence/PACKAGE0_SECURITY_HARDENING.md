@@ -1,8 +1,9 @@
 # Package 0 Local Security Hardening
 
 Evidence date: **2026-08-30 EDT**
-Scope result: **PASS — local regressions only**
-Hosted and supported-client result: **NOT_RUN**
+Package 0 overall result: **INCONCLUSIVE**
+Local security scope result: **PASS**
+Hosted/release result: **NOT_RUN**
 
 ## Reproduced root causes
 

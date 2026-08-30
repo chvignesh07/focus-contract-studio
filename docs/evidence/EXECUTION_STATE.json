@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "authority_revision": "2.0",
+  "scope": "EXECUTION_STATUS_ONLY",
+  "imported_authority_modified": false,
+  "historical_intake_state": {
+    "path": "START_HERE.md",
+    "classification": "HISTORICAL_INTAKE_STATE"
+  },
+  "packages": {
+    "package0": {
+      "overall_result": "INCONCLUSIVE",
+      "local_result": "PASS",
+      "hosted_supported_chatgpt_evidence": "NOT_RUN"
+    },
+    "package1": {
+      "local_public_source_slice": "PASS"
+    },
+    "package2": {
+      "local_public_source_slice": "PASS"
+    },
+    "package3": {
+      "authorization": "NOT_AUTHORIZED"
+    }
+  }
+}

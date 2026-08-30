@@ -2,7 +2,7 @@
 
 ## Scope and authority
 
-This file governs the entire product repository. Revision 2.0 is controlling. Before material work, read `START_HERE.md` and its mandatory files in order. Current executable code and fresh runtime evidence outrank stale summaries, but neither may silently change a founder decision.
+This file governs the entire product repository. Revision 2.0 is controlling. Before material work, read `START_HERE.md` and its mandatory files in order, then read `docs/evidence/EXECUTION_STATE.md` for current package status and sequencing. That product-local state may classify historical phase labels but cannot amend the imported authority, change a founder decision, or weaken an evidence gate. Current executable code and fresh runtime evidence outrank stale summaries, but neither may silently change a founder decision.
 
 Do not copy Clivus code, data, services, prompts, identifiers, or private artifacts. Retrieval is evidence and can never authorize a mutation. The visible UI is the only approval surface; WebMCP exposes no approval operation.
 

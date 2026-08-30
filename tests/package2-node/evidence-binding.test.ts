@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
-  cpSync,
   copyFileSync,
   mkdirSync,
   mkdtempSync,
@@ -12,8 +11,6 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-
-import { PACKAGE2_SOURCE_ROOTS } from '../../scripts/package2-source-manifest.mjs';
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -29,24 +26,21 @@ function run(root = repositoryRoot) {
 
 function fixture() {
   const root = mkdtempSync(path.join(tmpdir(), 'fcs-package2-evidence-'));
-  for (const relative of PACKAGE2_SOURCE_ROOTS) {
-    const target = path.join(root, relative);
-    mkdirSync(path.dirname(target), { recursive: true });
-    cpSync(path.join(repositoryRoot, relative), target, {
-      recursive: true,
-      dereference: true,
-    });
-  }
-  for (const relative of [
-    '.artifacts/test/package2-source-manifest.json',
-    '.artifacts/test/package2-local-gate.json',
-    '.artifacts/browser/package2-local-journey.json',
-    '.artifacts/security/package2-security.json',
-    'docs/evidence/PACKAGE2_VERIFICATION.md',
-  ]) {
+  const inventory = spawnSync('git', ['-C', repositoryRoot, 'ls-files', '-z'], {
+    encoding: 'utf8',
+  });
+  assert.equal(inventory.status, 0, inventory.stderr);
+  for (const relative of inventory.stdout.split('\0').filter(Boolean)) {
     const target = path.join(root, relative);
     mkdirSync(path.dirname(target), { recursive: true });
     copyFileSync(path.join(repositoryRoot, relative), target);
+  }
+  for (const args of [
+    ['init', '--quiet'],
+    ['add', '--force', '--all'],
+  ]) {
+    const result = spawnSync('git', ['-C', root, ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
   }
   const manifest = JSON.parse(
     readFileSync(

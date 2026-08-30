@@ -1,12 +1,12 @@
 # Package 2 Local Verification
 
-<!-- package2-source-binding file_count=97 sha256=52202140de046c9af9ec83ac7ba964d0f4550c0947aec5e6a7d4a94be72b6faa -->
+<!-- package2-source-binding file_count=229 sha256=346ea6e7ceed95c7733ba2c17ff5e7ce9eb5080b68474baf9d6696ee1df386d4 -->
 
 Status: **LOCAL PACKAGE 2 PASS; HOSTED CHATGPT NOT RUN**
 
 Package 2 implements the smallest complete Revision 2 vertical slice: an anonymous user can inspect the implemented Delete-first revision, rehearse the native Delete Account dialog, see the browser-reported first focus, retrieve the sealed D001 Cancel precedent, and durably create a Cancel-focused proposal that remains visibly `NOT APPLIED` after reload. Retrieval stages evidence only; no Package 2 route or tool approves or applies a configuration. The persisted browser report is explicitly untrusted telemetry, not a verifier receipt, and it cannot authorize any proposal, approval, or application.
 
-This is source-bound local evidence. The tracked artifacts cannot self-reference their containing commit, so the verifier binds them to 97 implementation, configuration, security-policy, and test files with aggregate SHA-256 `52202140de046c9af9ec83ac7ba964d0f4550c0947aec5e6a7d4a94be72b6faa`. The canonical gate recomputes that manifest and requires the exact seven-suite inventory and totals; omissions, additions, changed totals, altered status, audit results, remote-binding claims, external-action claims, or hosted claims fail closed. The tracked artifact truthfully marks the containing-commit clean clone as pending because a commit cannot prove its own future clone; the final handoff supplies that independent post-commit evidence.
+This is source-bound local evidence. The verifier binds 229 of 234 tracked repository files with aggregate SHA-256 `346ea6e7ceed95c7733ba2c17ff5e7ce9eb5080b68474baf9d6696ee1df386d4`. The only exclusions are five exact self-referential evidence files: the manifest itself, the local-gate/browser/security receipts that embed its identity, and this Markdown summary. The Package 2 evidence binder independently checks all four receipts plus this marker. Historical Package 0/1 receipts, evidence structure, authority, fixtures, probes, tests, and every other tracked file remain source-bound. The canonical gate recomputes that closed Git inventory and requires the exact seven-suite inventory and totals; a newly tracked input, omission, addition, changed total, altered status, audit result, remote-binding claim, external-action claim, or hosted claim fails closed. The tracked artifact truthfully marks the containing-commit clean clone as pending because a commit cannot prove its own future clone; the final handoff supplies that independent post-commit evidence.
 
 ## Result matrix
 
@@ -16,7 +16,7 @@ This is source-bound local evidence. The tracked artifacts cannot self-reference
 | Package 0 regressions | `80/80 PASS` |
 | Package 1 Node regressions | `10/10 PASS` |
 | Package 1 Workerd/D1 regressions | `59/59 PASS` |
-| Package 2 Node regressions | `36/36 PASS` |
+| Package 2 Node regressions | `42/42 PASS` |
 | Package 2 Workerd/D1 regressions | `18/18 PASS` |
 | Package 2 DOM regressions | `5/5 PASS` |
 | Package 2 built-Worker Playwright journeys | `5/5 PASS` |
@@ -28,7 +28,7 @@ This is source-bound local evidence. The tracked artifacts cannot self-reference
 
 All Worker/D1 tests and browser journeys use local disposable databases with remote bindings disabled. No Sites save, deployment, hosted D1 mutation, hosted identity probe, Devpost action, or Package 3 work is represented here.
 
-Canonical gate interval: `2026-08-30T21:07:21Z` through `2026-08-30T21:08:09Z`, exit `0`, using Node `v22.22.3`, npm `10.9.8`, Workerd `1.20260730.1`, and Wrangler `4.116.0`.
+Canonical gate interval: `2026-08-30T21:45:06Z` through `2026-08-30T21:45:57Z`, exit `0`, using Node `v22.22.3`, npm `10.9.8`, Workerd `1.20260730.1`, and Wrangler `4.116.0`.
 
 ## Frozen retrieval and proposal integrity
 

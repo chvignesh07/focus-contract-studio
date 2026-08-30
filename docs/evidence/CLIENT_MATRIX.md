@@ -1,7 +1,7 @@
 # Client Matrix
 
 Evidence ID: `E-021`  
-Package 0 status: **NOT_RUN**  
+Package 0 status: **INCONCLUSIVE**
 Release identity: source commit, Sites version, and deployed URL are not yet established.
 
 | Client / surface | Required setup | Result | Exact evidence / limitation |

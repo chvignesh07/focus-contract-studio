@@ -46,7 +46,7 @@ const REQUIRED_TEST_COUNTS = Object.freeze({
   package0: 80,
   package1_node: 10,
   package1_workerd_d1: 59,
-  package2_node: 36,
+  package2_node: 42,
   package2_workerd_d1: 18,
   package2_dom: 5,
   package2_browser: 5,
@@ -100,7 +100,7 @@ export function verifyPackage2EvidenceBinding(repositoryRoot) {
   requireEqual(
     'candidate state',
     gate.source_binding?.candidate_state,
-    'uncommitted-package2-diff',
+    'pending-containing-commit',
   );
   requireEqual(
     'canonical result binding',

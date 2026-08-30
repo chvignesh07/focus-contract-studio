@@ -1,42 +1,45 @@
 import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { lstatSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-export const PACKAGE2_SOURCE_ROOTS = Object.freeze([
-  '.gitleaks.toml',
-  '.gitignore',
-  '.openai/hosting.json',
-  'app',
-  'db',
-  'drizzle',
-  'eslint.config.mjs',
-  'lib',
-  'next.config.ts',
-  'package-lock.json',
-  'package.json',
-  'playwright.config.ts',
-  'scripts/package1-evidence-binding.mjs',
-  'scripts/package1-frozen-source-verifier.mjs',
-  'scripts/package2-evidence-binding.mjs',
-  'scripts/package2-local-server.mjs',
-  'scripts/package2-source-manifest.mjs',
-  'tests/package1-node/source-manifest.test.ts',
-  'tests/package1-node/evidence-binding.test.ts',
-  'tests/package1/schema-constraints.test.ts',
-  'tests/package1/seed-reset.test.ts',
-  'tests/package1/migrations.test.ts',
-  'tests/package2',
-  'tests/package2-browser',
-  'tests/package2-dom',
-  'tests/package2-node',
-  'tsconfig.json',
-  'vite.config.ts',
-  'vitest.dom.config.ts',
-  'vitest.package1.config.ts',
-  'vitest.package2.config.ts',
-  'wrangler.package2.jsonc',
+export const PACKAGE2_SOURCE_EXCLUSIONS = Object.freeze([
+  Object.freeze({
+    match: 'EXACT_PATH',
+    value: '.artifacts/browser/package2-local-journey.json',
+    classification: 'SELF_REFERENTIAL_EVIDENCE',
+    reason:
+      'The generated browser receipt embeds this source digest and is independently checked by the Package 2 evidence binder.',
+  }),
+  Object.freeze({
+    match: 'EXACT_PATH',
+    value: '.artifacts/security/package2-security.json',
+    classification: 'SELF_REFERENTIAL_EVIDENCE',
+    reason:
+      'The generated security receipt embeds this source count and digest and is independently checked by the Package 2 evidence binder.',
+  }),
+  Object.freeze({
+    match: 'EXACT_PATH',
+    value: '.artifacts/test/package2-local-gate.json',
+    classification: 'SELF_REFERENTIAL_EVIDENCE',
+    reason:
+      'The generated local-gate receipt embeds this source count and digest and is independently checked by the Package 2 evidence binder.',
+  }),
+  Object.freeze({
+    match: 'EXACT_PATH',
+    value: '.artifacts/test/package2-source-manifest.json',
+    classification: 'SELF_REFERENTIAL_EVIDENCE',
+    reason: 'The generated source manifest cannot include its own bytes.',
+  }),
+  Object.freeze({
+    match: 'EXACT_PATH',
+    value: 'docs/evidence/PACKAGE2_VERIFICATION.md',
+    classification: 'SELF_REFERENTIAL_EVIDENCE',
+    reason:
+      'The Package 2 verification summary embeds this manifest file count and digest and is checked by the Package 2 evidence binder.',
+  }),
 ]);
 
 function sha256(value) {
@@ -57,42 +60,69 @@ function assertReviewableSource(relativePath, bytes) {
 
 function assertSafeRelativePath(relativePath) {
   if (
+    typeof relativePath !== 'string' ||
     path.isAbsolute(relativePath) ||
     relativePath === '' ||
     relativePath === '.' ||
-    relativePath.split('/').includes('..')
+    relativePath.split('/').includes('..') ||
+    /[\u0000-\u001f\u007f]/u.test(relativePath)
   ) {
     throw new Error(`unsafe source path: ${relativePath}`);
   }
 }
 
-function collectFiles(repositoryRoot, relativePath, files) {
+function assertTrackedFile(repositoryRoot, relativePath) {
   assertSafeRelativePath(relativePath);
   const absolutePath = path.join(repositoryRoot, relativePath);
   const stat = lstatSync(absolutePath);
   if (stat.isSymbolicLink()) {
     throw new Error(`symbolic links are forbidden in the source manifest: ${relativePath}`);
   }
-  if (stat.isFile()) {
-    files.push(relativePath);
-    return;
-  }
-  if (!stat.isDirectory()) throw new Error(`unsupported source entry: ${relativePath}`);
-  for (const entry of readdirSync(absolutePath, { withFileTypes: true })) {
-    collectFiles(repositoryRoot, path.posix.join(relativePath, entry.name), files);
+  if (!stat.isFile()) {
+    throw new Error(`tracked source entry is not a regular file: ${relativePath}`);
   }
 }
 
+function trackedFiles(repositoryRoot) {
+  const result = spawnSync(
+    'git',
+    ['-C', repositoryRoot, 'ls-files', '--cached', '--full-name', '-z'],
+    { encoding: 'utf8' },
+  );
+  if (result.error) {
+    throw new Error(`cannot enumerate tracked source: ${result.error.message}`);
+  }
+  if (result.status !== 0) {
+    throw new Error(
+      `cannot enumerate tracked source: ${result.stderr.trim() || 'git ls-files failed'}`,
+    );
+  }
+  const files = result.stdout.split('\0').filter(Boolean);
+  if (files.length === 0) throw new Error('tracked source inventory is empty');
+  for (const relativePath of files) assertSafeRelativePath(relativePath);
+  files.sort();
+  if (new Set(files).size !== files.length) {
+    throw new Error('duplicate path in tracked source inventory');
+  }
+  return files;
+}
+
+function excludedBy(relativePath, exclusion) {
+  if (exclusion.match === 'EXACT_PATH') return relativePath === exclusion.value;
+  throw new Error(`unsupported source exclusion matcher: ${exclusion.match}`);
+}
+
+function isExcluded(relativePath) {
+  return PACKAGE2_SOURCE_EXCLUSIONS.some((exclusion) =>
+    excludedBy(relativePath, exclusion),
+  );
+}
+
 export function buildPackage2SourceManifest(repositoryRoot) {
-  const sourceFiles = [];
-  for (const sourceRoot of PACKAGE2_SOURCE_ROOTS) {
-    collectFiles(repositoryRoot, sourceRoot, sourceFiles);
-  }
-  sourceFiles.sort((left, right) => left.localeCompare(right, 'en'));
-  if (new Set(sourceFiles).size !== sourceFiles.length) {
-    throw new Error('duplicate source path in Package 2 manifest scope');
-  }
+  const tracked = trackedFiles(repositoryRoot);
+  const sourceFiles = tracked.filter((relativePath) => !isExcluded(relativePath));
   const files = sourceFiles.map((relativePath) => {
+    assertTrackedFile(repositoryRoot, relativePath);
     const bytes = readFileSync(path.join(repositoryRoot, relativePath));
     assertReviewableSource(relativePath, bytes);
     return { path: relativePath, sha256: sha256(bytes) };
@@ -101,10 +131,13 @@ export function buildPackage2SourceManifest(repositoryRoot) {
     files.map((file) => `${file.sha256}  ${file.path}\n`).join(''),
   );
   return {
-    schema_version: 1,
+    schema_version: 2,
     package: 2,
     algorithm: 'sha256',
-    source_roots: [...PACKAGE2_SOURCE_ROOTS],
+    inventory: 'ALL_GIT_TRACKED_FILES',
+    tracked_file_count: tracked.length,
+    excluded_file_count: tracked.length - sourceFiles.length,
+    exclusions: PACKAGE2_SOURCE_EXCLUSIONS.map((exclusion) => ({ ...exclusion })),
     file_count: files.length,
     aggregate_sha256: aggregate,
     files,

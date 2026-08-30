@@ -1,6 +1,8 @@
 # Package 0 External Checkpoint Runbook
 
-Status: **NOT_RUN — no external action is authorized or performed by this commit**
+Package 0 overall result: **INCONCLUSIVE**
+External checkpoints: **NOT_RUN**
+Authorization status: **no external action is authorized or performed by this commit**
 
 This product-owned runbook closes the local sequencing and recovery defects without changing the imported revision-2 authority pack. Its machine-readable contract is `PACKAGE0_EXTERNAL_RUNBOOK.json`.
 

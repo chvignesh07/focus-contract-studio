@@ -3,7 +3,7 @@
 Evidence ID: `E-004`  
 Authority revision: **2.0**  
 Probe date: **2026-08-29/30 EDT**  
-Overall result: **NOT_RUN — mandatory hosted and real-client rows await the external-action approval checkpoint**
+Overall result: **INCONCLUSIVE — mandatory hosted and real-client rows remain `NOT_RUN` and await separately approved execution**
 
 ## Evidence rule
 

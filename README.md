@@ -54,7 +54,7 @@ Local Package 2 completion does not resolve Package 0: supported ChatGPT tool ex
 
 ## Authority and safety
 
-Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a proposal but can never approve or authorize a mutation. No Clivus source code or private data is included. Hosted writes, deployment, credentials, publication, public pushes, and Devpost actions require explicit founder approval.
+Start with `START_HERE.md`; then read `docs/evidence/EXECUTION_STATE.md` for current package sequencing. Revision 2.0 controls product authority, and the execution-state document does not amend it. Retrieval can support a proposal but can never approve or authorize a mutation. No Clivus source code or private data is included. Hosted writes, deployment, credentials, publication, public pushes, and Devpost actions require explicit founder approval.
 
 ## Public source
 
@@ -63,12 +63,13 @@ The source repository is publicly and anonymously cloneable at [github.com/chvig
 ## Evidence
 
 - `docs/evidence/AUTHORITY_VALIDATION.json` — product-repository authority import validation.
+- `docs/evidence/EXECUTION_STATE.md` — current product-local package status and the narrow precedence over historical phase labels; JSON companion is machine-tested.
 - `docs/evidence/BOOTSTRAP_PROBES.md` — truthful Package 0 probe matrix.
 - `docs/evidence/PACKAGE0_SECURITY_HARDENING.md` — red/green evidence for the local D1 boundary repair.
 - `docs/evidence/PACKAGE0_EXTERNAL_RUNBOOK.md` — four separately approved external checkpoints; its JSON companion is machine-tested.
 - `docs/evidence/CLIENT_MATRIX.md` — real-client and conditional-client status.
 - `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
-- `docs/evidence/ADVERSARIAL_REVIEW_1.md` — Package 0 finding dispositions and external boundary.
+- `docs/evidence/PACKAGE0_ADVERSARIAL_REVIEW.md` — bounded Package 0 finding dispositions and external boundary; it is not the reserved release-candidate `E-018` review.
 - `docs/evidence/FOUNDER_EXECUTION_DECISION_2026-08-30.md` — scoped authorization to publish source and implement Packages 1/2 locally while preserving the unresolved hosted release blocker.
 - `.artifacts/release/public-repository.json` — sanitized public visibility, license, anonymous-access, and exact-SHA observations.
 - `docs/evidence/PACKAGE1_VERIFICATION.md` — Package 1 local exit-gate methods, results, and hosted limitations.
