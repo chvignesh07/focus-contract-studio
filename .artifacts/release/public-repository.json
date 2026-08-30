@@ -1,0 +1,34 @@
+{
+  "artifact": "public-repository-verification",
+  "observed_at_utc": "2026-08-30T17:22:19Z",
+  "scope": "Public source repository only; no Sites, hosted D1, identity, access, deployment, or Devpost action",
+  "repository": {
+    "name_with_owner": "chvignesh07/focus-contract-studio",
+    "url": "https://github.com/chvignesh07/focus-contract-studio",
+    "visibility": "PUBLIC",
+    "default_branch": "main",
+    "initial_pushed_commit": "61a9249e6ac2727986147a5476307271db4ee9be",
+    "creation_inventory_exact_case_insensitive_matches": 0
+  },
+  "checks": {
+    "authenticated_owner_match": "PASS",
+    "ordinary_non_force_push": "PASS",
+    "anonymous_repository_api": "PASS",
+    "anonymous_raw_license": "PASS",
+    "anonymous_credential_helper_disabled_clone": "PASS",
+    "anonymous_clone_head_matches_initial_push": "PASS",
+    "apache_2_0_detected_by_provider_license_endpoint": "PASS",
+    "local_and_public_license_sha256_match": "PASS",
+    "reachable_history_machine_path_scan": "PASS",
+    "gitleaks_8_30_1_reachable_history": "PASS",
+    "gitleaks_8_30_1_publishable_tree": "PASS"
+  },
+  "license": {
+    "spdx_id": "Apache-2.0",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  "credential_handling": "GitHub CLI OAuth stored in the operating-system keyring; no credential value was read into product evidence or source",
+  "result": "PASS",
+  "limitation": "This receipt proves public source custody and anonymous access for the named commit only. It does not prove a Sites version, deployment, hosted runtime, supported-client behavior, or Package 0 completion."
+}

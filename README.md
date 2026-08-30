@@ -34,6 +34,10 @@ The temporary hosted D1 probe is fail-closed. Its page checkbox is only a human 
 
 Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a proposal but can never approve or authorize a mutation. No Clivus source code or private data is included. Hosted writes, deployment, credentials, publication, public pushes, and Devpost actions require explicit founder approval.
 
+## Public source
+
+The source repository is publicly and anonymously cloneable at [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio). GitHub's authoritative license endpoint detects the root license as Apache-2.0. The sanitized initial-publication receipt is `.artifacts/release/public-repository.json`; it proves source custody and anonymous access only, never a Sites save or deployment.
+
 ## Evidence
 
 - `docs/evidence/AUTHORITY_VALIDATION.json` — product-repository authority import validation.
@@ -44,6 +48,7 @@ Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a propo
 - `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
 - `docs/evidence/ADVERSARIAL_REVIEW_1.md` — Package 0 finding dispositions and external boundary.
 - `docs/evidence/FOUNDER_EXECUTION_DECISION_2026-08-30.md` — scoped authorization to publish source and implement Packages 1/2 locally while preserving the unresolved hosted release blocker.
+- `.artifacts/release/public-repository.json` — sanitized public visibility, license, anonymous-access, and exact-SHA observations.
 
 Stage 1 evidence is intentionally split into structural consistency, live checkout verification, and independently reviewed sanitized Sites receipts. A final binding verifier recomputes receipt hashes and binds the saved lineage to the actual checkout; every local result still states that it does not independently prove hosted facts or Stage 1 completion. The exact future single-owner sequence and commands are in the external runbook.
 
