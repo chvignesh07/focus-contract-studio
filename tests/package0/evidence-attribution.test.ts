@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const repositoryUrl = new URL('../../', import.meta.url);
-const historicalCommit = '382a4d1ef02cf437bd765602c55ac0fc0d43146c';
+const historicalCommit = '79260347bca9a89258054b619cf488e978d47220';
 
 test('tracked local-gate artifacts are explicit historical evidence with measurements preserved', async () => {
   const runbook = JSON.parse(
@@ -144,7 +144,7 @@ test('product evidence distinguishes historical tracked proof from post-commit c
 
   assert.match(
     bootstrap,
-    /historical local evidence[^\n]+not current HEAD[^\n]+382a4d1ef02cf437bd765602c55ac0fc0d43146c/i,
+    /historical local evidence[^\n]+not current HEAD[^\n]+79260347bca9a89258054b619cf488e978d47220/i,
   );
   assert.match(
     hardening,

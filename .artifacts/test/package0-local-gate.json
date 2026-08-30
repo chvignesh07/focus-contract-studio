@@ -2,7 +2,7 @@
   "artifact": "package0-local-gate",
   "date_utc": "2026-08-30T03:52:38Z",
   "evidence_scope": "HISTORICAL_LOCAL",
-  "verified_source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "verified_source_commit": "79260347bca9a89258054b619cf488e978d47220",
   "is_current_head_evidence": false,
   "current_head_must_be_reverified": true,
   "historical_reason": "Subsequent source commits require a fresh post-commit gate.",

@@ -1,0 +1,26 @@
+title = "Focus Contract Studio secret scanning"
+minVersion = "8.30.0"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Revision 2 checklist phrases that describe token and API-shim tests, not credential values"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "match"
+regexes = [
+  '''token negative matrix''',
+  '''API shim''',
+]
+paths = ['''^docs/hackathon-build/checklist\.md$''']
+
+[[allowlists]]
+description = "Generated local build and dependency output is Git-ignored and is not publishable source"
+paths = [
+  '''^dist/''',
+  '''^\.next/''',
+  '''^\.vinext/''',
+  '''^\.wrangler/''',
+  '''^node_modules/''',
+]

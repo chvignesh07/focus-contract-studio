@@ -30,7 +30,7 @@
       ".artifacts/browser/package0-local-browser.json"
     ],
     "evidenceScope": "HISTORICAL_LOCAL",
-    "verifiedSourceCommit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+    "verifiedSourceCommit": "79260347bca9a89258054b619cf488e978d47220",
     "isCurrentHeadEvidence": false,
     "currentHeadVerificationPolicy": "record_post_commit_verification_outside_the_repository",
     "selfReferentialCommittedHeadClaimProhibited": true

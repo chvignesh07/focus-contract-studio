@@ -40,7 +40,7 @@ The failures were observed before their corresponding production changes. No ext
 
 ## Green evidence and remaining boundary
 
-The point-in-time `c3da446` green runs passed 18/18 hosted-handler tests, 9/9 hosted-D1 runner tests (15/15 including the direct D1 suite), and 2/2 then-current external-runbook tests. The tracked `382a4d1` local-gate and clean-checkout artifacts remain historical measurements, not current-HEAD proof. Complete current-HEAD and unique no-hardlinks post-commit verification must be recorded outside the repository and reported at handoff so this source document never fabricates a self-referential committed SHA.
+The point-in-time `2afb08c` green runs passed 18/18 hosted-handler tests, 9/9 hosted-D1 runner tests (15/15 including the direct D1 suite), and 2/2 then-current external-runbook tests. The tracked `7926034` local-gate and clean-checkout artifacts remain historical measurements, not current-HEAD proof. Complete current-HEAD and unique no-hardlinks post-commit verification must be recorded outside the repository and reported at handoff so this source document never fabricates a self-referential committed SHA.
 
 This evidence does not establish Sites deployment behavior, owner-only access, hosted environment propagation, managed D1 semantics, real edge logs, optional identity, or supported ChatGPT Site-tool behavior. Those rows remain `NOT_RUN` and Package 0 cannot pass until the separately approved external checkpoints supply them.
 

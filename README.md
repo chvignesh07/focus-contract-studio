@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Focus Contract Studio is a WebMCP-native accessibility review product. This repository is currently limited to **Package 0: repository custody, generated-runtime validation, and blocking platform probes**. Product feature implementation begins only after Package 0 passes and the founder authorizes Package 1.
+Focus Contract Studio is a WebMCP-native accessibility review product. Package 0 established repository custody and local platform probes; its mandatory hosted supported-client observation remains unresolved. On 2026-08-30, the founder authorized public source publication and local Package 1/2 implementation while keeping that hosted row as an explicit release blocker. This decision does not relabel Package 0 as passed and does not authorize Sites deployment or hosted mutation.
 
 ## Package 0 stack
 
@@ -19,6 +19,8 @@ npm run dev
 ```
 
 `verify:package0` runs typecheck, lint, authority/seal validation, WebMCP lifecycle and cancellation tests, direct fresh-D1 probes, the Cloudflare Workers Vitest compatibility probe with remote bindings disabled, a production build, and dependency audits that reject any runtime finding or any critical/high complete-graph finding. A separate minimal HTTP request is recorded in the bootstrap evidence because it requires a running local Worker.
+
+The Package 0 gate also scans the tracked tree and every reachable Git commit for machine-specific home and temporary-directory prefixes. Publishable evidence uses stable placeholders, so public source history does not disclose the development machine's local filesystem layout.
 
 The project-scoped `.npmrc` works around an npm 10.9.8 peer-placement crash for the Cloudflare Vitest pool. The affected Vitest packages remain exact direct dependencies; the lockfile remains authoritative.
 
@@ -41,6 +43,7 @@ Start with `START_HERE.md`. Revision 2.0 controls. Retrieval can support a propo
 - `docs/evidence/CLIENT_MATRIX.md` — real-client and conditional-client status.
 - `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
 - `docs/evidence/ADVERSARIAL_REVIEW_1.md` — Package 0 finding dispositions and external boundary.
+- `docs/evidence/FOUNDER_EXECUTION_DECISION_2026-08-30.md` — scoped authorization to publish source and implement Packages 1/2 locally while preserving the unresolved hosted release blocker.
 
 Stage 1 evidence is intentionally split into structural consistency, live checkout verification, and independently reviewed sanitized Sites receipts. A final binding verifier recomputes receipt hashes and binds the saved lineage to the actual checkout; every local result still states that it does not independently prove hosted facts or Stage 1 completion. The exact future single-owner sequence and commands are in the external runbook.
 
