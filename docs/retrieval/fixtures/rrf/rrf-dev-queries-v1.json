@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "suiteId": "fcs-rrf-dev-v1",
+  "queries": [
+    {
+      "id": "DEV-01",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "initial-focus",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "initial-focus-destructive",
+        "shapeTag": "reason-input-present",
+        "queryText": "standard destructive Delete Account dialog initial focus safe Cancel instead of Delete",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D001", "grade": 3}, {"id": "D003", "grade": 2}, {"id": "D029", "grade": 2}],
+        "forbidden": ["D004", "D005", "D006", "D007", "D008"],
+        "rationale": "The current exact standard decision should lead; broader safe-default decisions may support it."
+      }
+    },
+    {
+      "id": "DEV-02",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-danger-emphasis",
+        "behavior": "initial-focus",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "danger-warning-unacknowledged",
+        "shapeTag": "danger-copy-prominent",
+        "queryText": "danger emphasis warning unannounced initial focus dialog title before controls",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D002", "grade": 3}, {"id": "D003", "grade": 1}, {"id": "D029", "grade": 1}],
+        "forbidden": ["D004", "D005", "D006", "D007", "D008"],
+        "rationale": "The exact danger-warning exception should outrank broad safe-default guidance."
+      }
+    },
+    {
+      "id": "DEV-03",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "escape",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "escape-does-not-close",
+        "shapeTag": "no-irreversible-dispatch-yet",
+        "queryText": "Escape should close uncommitted Delete Account modal before destructive submission",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D009", "grade": 3}, {"id": "D012", "grade": 2}],
+        "forbidden": ["D010", "D011", "D031"],
+        "rationale": "The current delete-account rule should lead and the family default may support it."
+      }
+    },
+    {
+      "id": "DEV-04",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "return-focus",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "return-focus-lost",
+        "shapeTag": "trigger-remains-mounted",
+        "queryText": "return focus to still mounted Delete account trigger after modal closes",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D033", "grade": 3}, {"id": "D013", "grade": 2}, {"id": "D015", "grade": 2}],
+        "forbidden": ["D014", "D016"],
+        "rationale": "Exact-variant return behavior should lead current and family support."
+      }
+    },
+    {
+      "id": "DEV-05",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "forward-wrap",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "tab-escapes-dialog",
+        "shapeTag": "three-tabbable-controls",
+        "queryText": "Tab from final Delete button wraps to first control inside modal",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D017", "grade": 3}],
+        "forbidden": ["D019", "D021", "D030"],
+        "rationale": "The active both-variant forward-wrap decision is the exact eligible rule."
+      }
+    },
+    {
+      "id": "DEV-06",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-danger-emphasis",
+        "behavior": "backward-wrap",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "shift-tab-escapes-dialog",
+        "shapeTag": "danger-copy-prominent",
+        "queryText": "danger emphasis Shift Tab from first control wraps to final Delete control",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D020", "grade": 3}, {"id": "D018", "grade": 2}],
+        "forbidden": ["D032"],
+        "rationale": "Exact danger variant should outrank the current both-variant rule."
+      }
+    },
+    {
+      "id": "DEV-07",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "focus-order",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "focus-order-mismatch",
+        "shapeTag": "reason-input-present",
+        "queryText": "standard dialog reason input Cancel Delete visual focus order",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D022", "grade": 3}, {"id": "D024", "grade": 1}],
+        "forbidden": ["D025", "D026"],
+        "rationale": "The exact rendered shape and variant must lead the conditional two-control rule."
+      }
+    },
+    {
+      "id": "DEV-08",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-danger-emphasis",
+        "behavior": "focus-order",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "focus-order-mismatch",
+        "shapeTag": "danger-copy-prominent",
+        "queryText": "after title focus danger dialog tab order reason Cancel Delete",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "results",
+        "relevant": [{"id": "D023", "grade": 3}, {"id": "D024", "grade": 1}],
+        "forbidden": ["D025", "D026"],
+        "rationale": "The danger-variant decision is exact; the no-input condition is weak support only."
+      }
+    },
+    {
+      "id": "DEV-09",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "outside-click",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "outside-click-dismissal",
+        "shapeTag": "backdrop",
+        "queryText": "outside click backdrop dismissal",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "relevant": [],
+        "forbidden": ["D009", "D012"],
+        "rationale": "Outside-click behavior is outside the release contract and has no eligible record."
+      }
+    },
+    {
+      "id": "DEV-10",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "tooltip",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "escape",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "escape-does-not-close",
+        "shapeTag": "tooltip",
+        "queryText": "tooltip Escape close behavior",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "relevant": [],
+        "forbidden": ["D009", "D011", "D012"],
+        "rationale": "A different component family cannot borrow modal precedent."
+      }
+    },
+    {
+      "id": "DEV-11",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "initial-focus",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "mismatchTag": "policy-exception",
+        "shapeTag": "reason-input-present",
+        "queryText": "policy exception destructive Delete Account dialog initial focus Cancel or dialog title before destructive action",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "conflict",
+        "relevant": [{"id": "D027", "grade": 3}, {"id": "D028", "grade": 3}],
+        "forbidden": ["D004", "D005", "D006", "D007"],
+        "rationale": "Two current exact-context policy-exception decisions disagree and neither supersedes the other."
+      }
+    },
+    {
+      "id": "DEV-12",
+      "context": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variant": "delete-account-standard",
+        "behavior": "escape",
+        "intent": "informational",
+        "risk": "reversible",
+        "mismatchTag": "escape-does-not-close",
+        "shapeTag": "modal-open",
+        "queryText": "informational reversible dialog Escape behavior",
+        "asOf": "2026-08-29T00:00:00Z"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "relevant": [],
+        "forbidden": ["D009", "D010", "D011", "D031"],
+        "rationale": "Only a weak wildcard family default can survive, which must not meet the support gate."
+      }
+    }
+  ]
+}

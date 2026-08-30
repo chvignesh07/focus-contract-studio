@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://focus-contract-studio.invalid/schemas/rrf-corpus-v2.json",
+  "title": "Focus Contract Studio effective RRF corpus v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "corpusId", "asOf", "records"],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "corpusId": {"const": "fcs-rrf-corpus-v2"},
+    "asOf": {"type": "string", "format": "date-time"},
+    "records": {
+      "type": "array",
+      "minItems": 36,
+      "maxItems": 36,
+      "items": {"$ref": "#/definitions/record"}
+    }
+  },
+  "definitions": {
+    "shortKey": {"type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[a-zA-Z0-9*][a-zA-Z0-9._*|:-]*$"},
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target"],
+      "properties": {
+        "type": {"enum": ["applies-to"]},
+        "target": {"type": "string", "pattern": "^(context|variant|use-case|family):[a-z0-9|*-]+$", "maxLength": 180}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "workspaceKey", "product", "componentFamily", "useCase", "variants", "behavior", "intent", "risk", "outcomeKey", "status", "validFrom", "validTo", "supersedes", "hostile", "mismatchTags", "shapeTags", "relationships", "rationale", "tags"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^D[0-9]{3}$"},
+        "workspaceKey": {"$ref": "#/definitions/shortKey"},
+        "product": {"$ref": "#/definitions/shortKey"},
+        "componentFamily": {"$ref": "#/definitions/shortKey"},
+        "useCase": {"$ref": "#/definitions/shortKey"},
+        "variants": {"type": "array", "minItems": 1, "maxItems": 2, "uniqueItems": true, "items": {"$ref": "#/definitions/shortKey"}},
+        "behavior": {"$ref": "#/definitions/shortKey"},
+        "intent": {"$ref": "#/definitions/shortKey"},
+        "risk": {"$ref": "#/definitions/shortKey"},
+        "outcomeKey": {"$ref": "#/definitions/shortKey"},
+        "status": {"enum": ["active", "superseded", "rejected", "quarantined"]},
+        "validFrom": {"type": "string", "format": "date-time"},
+        "validTo": {"type": ["string", "null"], "format": "date-time"},
+        "supersedes": {"type": ["string", "null"], "pattern": "^D[0-9]{3}$"},
+        "hostile": {"type": "boolean"},
+        "mismatchTags": {"type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"$ref": "#/definitions/shortKey"}},
+        "shapeTags": {"type": "array", "minItems": 1, "maxItems": 5, "uniqueItems": true, "items": {"$ref": "#/definitions/shortKey"}},
+        "relationships": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/definitions/relationship"}},
+        "rationale": {"type": "string", "minLength": 1, "maxLength": 320},
+        "tags": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"$ref": "#/definitions/shortKey"}}
+      }
+    }
+  }
+}

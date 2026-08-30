@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "suiteId": "fcs-rrf-holdout-v2",
+  "queries": [
+    {
+      "id":"HOLD2-01",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"initial-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-button","mismatchTag":"initial-focus-destructive","shapeTag":"reason-input-present","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=initial-focus observed=delete-button mismatch=initial-focus-destructive shape=reason-input-present intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D001","grade":3},{"id":"D003","grade":2}],"forbidden":["D004","D005","D006","D007","D008"],"rationale":"Lexical family-only D029 must not displace exact D001 and supported D003."}
+    },
+    {
+      "id":"HOLD2-02",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"initial-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-button","mismatchTag":"danger-warning-unacknowledged","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=initial-focus observed=delete-button mismatch=danger-warning-unacknowledged shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D002","grade":3},{"id":"D003","grade":1}],"forbidden":["D004","D005","D006","D007","D008"],"rationale":"Lexical and explicit variant relation recover D002; family-only D029 is a distractor."}
+    },
+    {
+      "id":"HOLD2-03",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"escape","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"dialog-remains-open","mismatchTag":"escape-does-not-close","shapeTag":"no-irreversible-dispatch-yet","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=escape observed=dialog-remains-open mismatch=escape-does-not-close shape=no-irreversible-dispatch-yet intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D009","grade":3}],"forbidden":["D010","D011","D031"],"rationale":"Structured and use-case relation correct lexical family-only D012 overmatch."}
+    },
+    {
+      "id":"HOLD2-04",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"escape","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"dialog-remains-open","mismatchTag":"escape-does-not-close","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=escape observed=dialog-remains-open mismatch=escape-does-not-close shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D034","grade":3},{"id":"D009","grade":1}],"forbidden":["D010","D011","D031"],"rationale":"Lexical and structured signals correct the newer broad variant edge; family-only D012 is below support."}
+    },
+    {
+      "id":"HOLD2-05",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"return-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"page-body","mismatchTag":"return-focus-lost","shapeTag":"trigger-remains-mounted","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=return-focus observed=page-body mismatch=return-focus-lost shape=trigger-remains-mounted intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D033","grade":3},{"id":"D013","grade":2}],"forbidden":["D014","D016"],"rationale":"Exact D033 must lead keyword-heavy family-only D015 and supported D013."}
+    },
+    {
+      "id":"HOLD2-06",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"return-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"page-body","mismatchTag":"return-focus-lost","shapeTag":"trigger-remains-mounted","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=return-focus observed=page-body mismatch=return-focus-lost shape=trigger-remains-mounted intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D013","grade":3}],"forbidden":["D014","D016","D033"],"rationale":"Lexical and use-case edge recover D013 from unsupported family-only D015."}
+    },
+    {
+      "id":"HOLD2-07",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"forward-wrap","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"background-control","mismatchTag":"tab-escapes-dialog","shapeTag":"three-tabbable-controls","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=forward-wrap observed=background-control mismatch=tab-escapes-dialog shape=three-tabbable-controls intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D017","grade":3}],"forbidden":["D019","D030"],"rationale":"Keyword-heavy family-only D021 is corrected by structure and use-case relation."}
+    },
+    {
+      "id":"HOLD2-08",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"forward-wrap","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"background-control","mismatchTag":"tab-escapes-dialog","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=forward-wrap observed=background-control mismatch=tab-escapes-dialog shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D036","grade":3},{"id":"D017","grade":1}],"forbidden":["D019","D030"],"rationale":"Lexical and structured exactness correct the newer broad variant edge."}
+    },
+    {
+      "id":"HOLD2-09",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"backward-wrap","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-trigger","mismatchTag":"shift-tab-escapes-dialog","shapeTag":"three-tabbable-controls","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=backward-wrap observed=delete-trigger mismatch=shift-tab-escapes-dialog shape=three-tabbable-controls intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D035","grade":3},{"id":"D018","grade":1}],"forbidden":["D020","D032"],"rationale":"Exact lexical/structured D035 corrects newer broad variant edge D018."}
+    },
+    {
+      "id":"HOLD2-10",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"backward-wrap","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-trigger","mismatchTag":"shift-tab-escapes-dialog","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=backward-wrap observed=delete-trigger mismatch=shift-tab-escapes-dialog shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D020","grade":3},{"id":"D018","grade":1}],"forbidden":["D032","D035"],"rationale":"Explicit danger relation preserves D020 when lexical and structure favor broad D018."}
+    },
+    {
+      "id":"HOLD2-11",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"focus-order","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-cancel-reason","mismatchTag":"focus-order-mismatch","shapeTag":"reason-input-present","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=focus-order observed=delete-cancel-reason mismatch=focus-order-mismatch shape=reason-input-present intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D022","grade":3},{"id":"D024","grade":1}],"forbidden":["D023","D025","D026"],"rationale":"Lexical/structured three-control evidence corrects D024 variant edge."}
+    },
+    {
+      "id":"HOLD2-12",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"focus-order","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-cancel-reason","mismatchTag":"focus-order-mismatch","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=focus-order observed=delete-cancel-reason mismatch=focus-order-mismatch shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"results","relevant":[{"id":"D023","grade":3},{"id":"D024","grade":1}],"forbidden":["D022","D025","D026"],"rationale":"Lexical and danger variant edge recover D023 from structured distractor D024."}
+    },
+    {
+      "id":"HOLD2-13",
+      "context":{"workspaceKey":"unseeded-workspace","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"initial-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-button","mismatchTag":"initial-focus-destructive","shapeTag":"reason-input-present","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=initial-focus observed=delete-button mismatch=initial-focus-destructive shape=reason-input-present intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"abstain","relevant":[],"forbidden":["D001","D003","D007","D029"],"rationale":"No record from another workspace may leak."}
+    },
+    {
+      "id":"HOLD2-14",
+      "context":{"workspaceKey":"demo-seed","product":"unknown-product","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"initial-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-button","mismatchTag":"initial-focus-destructive","shapeTag":"reason-input-present","queryText":"product=unknown-product family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=initial-focus observed=delete-button mismatch=initial-focus-destructive shape=reason-input-present intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"abstain","relevant":[],"forbidden":["D001","D003","D008","D029"],"rationale":"Unsupported product stops before ranking."}
+    },
+    {
+      "id":"HOLD2-15",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"export-data","variant":"delete-account-standard","behavior":"return-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"page-body","mismatchTag":"return-focus-lost","shapeTag":"trigger-remains-mounted","queryText":"product=focus-contract-studio family=modal-dialog use_case=export-data variant=delete-account-standard behavior=return-focus observed=page-body mismatch=return-focus-lost shape=trigger-remains-mounted intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"abstain","relevant":[],"forbidden":["D013","D015","D016","D033"],"rationale":"Unsupported use case cannot borrow family evidence."}
+    },
+    {
+      "id":"HOLD2-16",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-danger-emphasis","behavior":"pointer-dismissal","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"backdrop-dismissed","mismatchTag":"backdrop-click","shapeTag":"danger-copy-prominent","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-danger-emphasis behavior=pointer-dismissal observed=backdrop-dismissed mismatch=backdrop-click shape=danger-copy-prominent intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"abstain","relevant":[],"forbidden":["D009","D012","D034"],"rationale":"Pointer behavior is unsupported."}
+    },
+    {
+      "id":"HOLD2-17",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-standard","behavior":"initial-focus","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-button","mismatchTag":"policy-exception","shapeTag":"reason-input-present","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-standard behavior=initial-focus observed=delete-button mismatch=policy-exception shape=reason-input-present intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"conflict","relevant":[{"id":"D027","grade":3},{"id":"D028","grade":3}],"forbidden":["D004","D005","D006","D007"],"rationale":"Exact active outcomes disagree without supersession."}
+    },
+    {
+      "id":"HOLD2-18",
+      "context":{"workspaceKey":"demo-seed","product":"focus-contract-studio","componentFamily":"modal-dialog","useCase":"delete-account","variant":"delete-account-compact","behavior":"focus-order","intent":"destructive-confirmation","risk":"irreversible","observedOutcomeKey":"delete-cancel","mismatchTag":"focus-order-mismatch","shapeTag":"two-tabbable-controls","queryText":"product=focus-contract-studio family=modal-dialog use_case=delete-account variant=delete-account-compact behavior=focus-order observed=delete-cancel mismatch=focus-order-mismatch shape=two-tabbable-controls intent=destructive-confirmation risk=irreversible","asOf":"2026-08-29T00:00:00Z"},
+      "expected":{"disposition":"abstain","relevant":[],"forbidden":["D022","D023","D024","D025","D026"],"rationale":"Unsupported variant stops before ranking."}
+    }
+  ]
+}

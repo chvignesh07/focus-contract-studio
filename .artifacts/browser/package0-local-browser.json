@@ -1,0 +1,27 @@
+{
+  "artifact": "package0-local-browser",
+  "date_utc": "2026-08-30T03:50:37Z",
+  "server": "built Worker via wrangler dev and dist/server/wrangler.json",
+  "browser": "Playwright CLI headed Chromium",
+  "checks": {
+    "desktop_1280x720_visual": "PASS",
+    "mobile_320x568_reflow_and_scroll": "PASS",
+    "mobile_max_scroll_css_px": 361,
+    "mobile_status_bottom_at_max_scroll_css_px": 507,
+    "semantic_heading_region_button_checkbox_status_snapshot": "PASS",
+    "keyboard_arm_and_control_focus_order": "PASS",
+    "ordinary_browser_webmcp_fallback": "PASS",
+    "probe_cookie_clear_by_keyboard": "PASS",
+    "local_spoof_is_explicit_failure": "PASS",
+    "d1_finalization_control_reachable": "PASS",
+    "console_after_final_normal_journey": "PASS"
+  },
+  "security_observation": "A caller-supplied authenticated-email header reaches the local Worker and is visibly marked as failure. This is expected local behavior and is not hosted anti-spoof evidence.",
+  "raw_artifacts": {
+    "committed": false,
+    "temporary_directory": "<TEMP_DIRECTORY>/fcs-package0-playwright-final.6XI1HL",
+    "contains_private_account_data": false
+  },
+  "result": "PASS",
+  "limitation": "This validates the ordinary local browser journey only. It does not substitute for OpenAI Sites hosting or a supported ChatGPT Site-tools call. The first 320x568 run exposed clipped final controls; the responsive flow fix was rebuilt and the final rerun proved the status bottom at 507 CSS pixels inside a 568-pixel viewport."
+}

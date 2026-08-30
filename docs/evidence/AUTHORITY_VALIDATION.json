@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "E-001",
+  "status": "PASS",
+  "validatedAt": "2026-08-30T02:56:44Z",
+  "authorityRevision": "2.0",
+  "sourceWorkspace": "<LOCAL_USER_HOME>/.codex/.chatgpt-projects/g-p-6a90380a060c81919a66d43b45388fba",
+  "sourceWorkspaceBaselineSha256": "291d5c548322b707a75878aa5d4ce34444af9cb486801231f9c7091e068c5da0",
+  "importedPackSha256": "0777f7cf34de0032a299b38bf630c74be120317a282ce1cd7290a466159c107f",
+  "checks": {
+    "importedFiles": { "status": "PASS", "observed": 43, "expected": 43 },
+    "sourceByteComparison": { "status": "PASS", "mismatches": 0 },
+    "mandatoryPaths": { "status": "PASS", "observed": 26, "expected": 26 },
+    "jsonSyntax": { "status": "PASS", "observed": 10, "expected": 10 },
+    "markdownLocalLinks": { "status": "PASS", "broken": 0 },
+    "sealedV2Hashes": { "status": "PASS", "observed": 8, "expected": 8 }
+  },
+  "command": "node scripts/verify-authority-import.mjs --source <LOCAL_USER_HOME>/.codex/.chatgpt-projects/g-p-6a90380a060c81919a66d43b45388fba",
+  "errors": [],
+  "limits": [
+    "This validates the imported revision-2 authority bytes and mechanical structure only.",
+    "It is not product, hosted, client, accessibility, security, release, or submission evidence."
+  ]
+}

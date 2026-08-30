@@ -1,0 +1,75 @@
+# Package 0 Bootstrap Probes
+
+Evidence ID: `E-004`  
+Authority revision: **2.0**  
+Probe date: **2026-08-29/30 EDT**  
+Overall result: **NOT_RUN — mandatory hosted and real-client rows await the external-action approval checkpoint**
+
+## Evidence rule
+
+Each row uses only `PASS`, `FAIL`, `INCONCLUSIVE`, `NOT_RUN`, or `NOT_APPLICABLE`. Local/shim proof never substitutes for hosted or real-client proof. Raw cookies, identity headers, credentials, account data, and private browser data are never recorded.
+
+## Generated stack facts
+
+| Fact | Observed value | Result | Source / procedure |
+|---|---|---:|---|
+| Generator | `@openai/create-sites@0.2.0`; integrity `sha512-ur8VHz0TZ68aUC5EXm2X2ky33UBIPx3f741nc+HmyX/SpOZGkAw8UszuHUda4G8p4gErTUtdQQ18Dftys8ZS6A==` | PASS | npm registry metadata, 2026-08-29 |
+| Command/options | `npm create --yes @openai/sites@0.2.0 . -- --yes --add-ons d1,auth --install --package-manager npm`; actual help exposed `--add-ons`, `--yes`, `--install`, `--no-install`, `--list-add-ons`, `--json`, and `--package-manager` | PASS | Actual pinned CLI help and scaffold run |
+| Runtime | Node `v22.22.3`; npm `10.9.8`; macOS arm64 | PASS | `node --version`, `npm --version`, `process.platform/arch` |
+| Untouched generated framework | Vinext `1.0.0-beta.3`, Next `16.2.6`, React `19.2.6`, Vite `8.0.13` | PASS | First-commit `package.json` and lockfile at `a00d754` |
+| Verified local framework | Vinext `1.0.0-beta.8`, Next `16.3.3`, React/React DOM/RSC `19.2.8`, Vite `8.2.2` | PASS | Exact direct pins and lockfile after security remediation; full gate passed |
+| Untouched generated Cloudflare family | Vite plugin `1.37.1`, Wrangler `4.92.0`, Workers types `4.20260515.1`, Miniflare/workerd generation `20260515` | PASS | First-commit lockfile at `a00d754` |
+| Verified local Cloudflare family | Vite plugin `1.49.0`, Vitest pool `0.19.1`, Wrangler `4.116.0`, Workers types `5.20260730.1`, Miniflare `4.20260730.0`, workerd `1.20260730.1` | PASS | Exact direct pins; stable mutually compatible family; local D1 compatibility test passed |
+| Bindings | `.openai/hosting.json` declares D1 binding `DB`; R2 is absent; generated auth helper exists | PASS | Direct scaffold inspection |
+| D1 identity | Local scaffold uses the generator placeholder UUID; no hosted database ID is claimed | PASS | `vite.config.ts` inspection |
+| Auth authority | Generated helper reads email/full-name plus an undocumented user-id header; optional product sign-in remains disabled until hosted probes pass | PASS | `app/chatgpt-auth.ts` inspection against current Sites docs |
+| npm peer behavior | npm 10.9.8 crashes with `Cannot read properties of null (reading 'edgesOut')` for the Cloudflare Vitest peer cycle; exact direct Vitest peers plus project-scoped `legacy-peer-deps=true` resolve reproducibly | PASS | Isolated reproduction in `<TEMP_DIRECTORY>/fcs-npm-peer-probe-20260830-0248`, then exact install |
+| Built Worker preview | The preserved `0.2.0` script `vinext start` serves static routes through Node but fails on native `cloudflare:workers` imports. Current Sites `0.3.0` uses `wrangler dev --config dist/server/wrangler.json`; adopting that observed command runs the built Worker with local D1. | PASS | Browser first reproduced `ERR_UNSUPPORTED_ESM_URL_SCHEME`; current-template comparison and Workerd rerun served `/`, favicon, assets, and the probe route |
+| Test compatibility date | Remediated workerd rejects `2026-08-29` and reports `2026-08-06` as its newest supported date; the disposable test Worker uses `2026-08-06` | PASS | Boundary run failed before tests; rerun passed after test-only date alignment |
+| Dependency security | Runtime audit: zero vulnerabilities. Full graph: four moderate findings, all in `drizzle-kit -> @esbuild-kit/* -> esbuild`; no critical/high findings. The local Drizzle generator is never exposed as a network service. | PASS | `npm audit --omit=dev` exit 0; full `npm audit` exit 1 with four moderate findings; exact assessment in `.artifacts/security/package0-npm-audit-summary.json` |
+
+## Probe matrix
+
+| Probe | Environment / date | Frozen procedure and expected result | Result | Evidence |
+|---|---|---|---:|---|
+| Isolated Git custody | Local filesystem, 2026-08-29 | New target absent; initialize `main`; first commit contains only the 17 generated scaffold files | PASS | Commit `a00d754` (`chore: preserve untouched OpenAI Sites scaffold`) |
+| Authority import | Local filesystem, 2026-08-29 | 43/43 imported files byte-equal to read-only source; 26 mandatory paths; 10 JSON files; zero broken local links; eight v2 hashes | PASS | `docs/evidence/AUTHORITY_VALIDATION.json`; `npm run test:package0:authority` |
+| Apache-2.0 / repo contract / README | Local checkout | Root `LICENSE`, `AGENTS.md`, `README.md`, and registered evidence tree exist | PASS | Direct file inspection; final clean-checkout gate will reverify |
+| Install | Local checkout | Project-scoped locked dependency installation completes | PASS | Pinned generator install plus exact compatibility dependencies; clean `npm ci` remains in the clean-checkout row |
+| Typecheck | Local checkout | `npm run typecheck` exits 0 | PASS | Fresh run required in final aggregate gate |
+| Lint | Local checkout | `npm run lint` exits 0 | PASS | Fresh run required in final aggregate gate |
+| Production build | Local checkout | `npm run build` exits 0 using generated Vinext build | PASS | Five-stage Vinext/Vite build; fresh run required in final aggregate gate |
+| Minimal local Worker request | Patched built Worker under Wrangler/Workerd, `127.0.0.1:4173` | Start `dist/server/wrangler.json`; require HTTP 200 plus expected page content, not status alone | PASS | 28,522-byte HTML contained `Focus Contract Studio`, `Package 0`, locked D1 copy, and finalization control; body SHA-256 `cd50cde388e96c2c0e1bc25db3a394bc15f1079e086366a48501c43ae456083f`; `.artifacts/test/package0-local-request.json` |
+| Fresh D1 migration and prepared query | Miniflare `4.20260730.0` | Non-persistent fresh database; apply up migration; prepared insert/select returns exact row; schema is `STRICT` | PASS | `npm run test:package0:d1` |
+| D1 constraints | Same | Unique, foreign-key, and check violations all reject | PASS | `tests/package0/d1-probe.test.ts` |
+| D1 transactional batch rollback | Same | Later unique error rejects batch and earlier insert leaves count zero | PASS | `tests/package0/d1-probe.test.ts` |
+| D1 zero-row / guarded row count | Same | D1 reports `success:true`, `meta.changes=0`; application rejects zero; application also rejects changes greater than one | PASS | `tests/package0/d1-probe.test.ts` |
+| Disposable D1 rollback | Same | Down migration removes both probe tables | PASS | `tests/package0/d1-probe.test.ts` |
+| Hosted-probe D1 safety, local runner | Non-persistent Miniflare + HTTP handler | Refuse pre-existing reserved tables; exactly one concurrent request acquires a durable gate; repeat rejects; forced cleanup failure recovers; forged token rejects; flag must be off before finalization; expired token-authorized `RUNNING` gate recovers only after a 120-second lease; final schema count is zero | PASS | 11 hosted-handler tests + 10 D1 tests; `tests/package0/hosted-request-handler.test.ts`; `tests/package0/d1-hosted-probe.test.ts`; independent re-review found no open high/medium blocker |
+| Cloudflare Vitest compatibility | workerd `1.20260730.1` via `@cloudflare/vitest-pool-workers@0.19.1` | Fresh local D1 under Vitest `4.1.0`; `remoteBindings:false`; parsed migration applied; prepared query passes | PASS | `npm run test:package0:cloudflare` |
+| Imperative top-level Site-tool registration | Node contract shim + compiled top-level React client | Register through `document.modelContext.registerTool` in the top-level page; unsupported browsers keep the human page usable | PASS | `app/package0-site-tool-probe.tsx`; typecheck/build |
+| Registration abort / duplicate cleanup | Node contract shim | Abort removes tool; reinstall aborts previous registration and leaves one tool | PASS | `npm run test:package0:webmcp` |
+| Execute cancellation | Node contract shim | Invocation signal cancellation rejects with `AbortError` | PASS | `npm run test:package0:webmcp` |
+| Bounded output | Node contract shim | Deterministic snapshot result is at most 1,500 characters | PASS | `npm run test:package0:webmcp` |
+| Local browser fallback and probe controls | Built Workerd preview; headed Chromium; 1,280×720 and 320×568 | Semantic snapshot, visual inspection, mobile scroll reachability, keyboard focus/arming/finalization/cleanup, explicit local spoof failure, unsupported-WebMCP fallback, and clean normal-journey console | PASS | Initial final-control clipping at 320×568 was fixed; final max scroll 361 CSS px and status bottom 507 within a 568-pixel viewport; `.artifacts/browser/package0-local-browser.json`; raw screenshots/snapshots retained outside Git |
+| Hosted owner/public access modes | OpenAI Sites production deployment | Observe owner-only and public access behavior without assuming saved-version isolation | NOT_RUN | Requires explicit approval before Sites account writes/deployment |
+| Hosted cookie attributes | Exact deployed Site | Observe names/values only ephemerally; record attributes without storing cookie material | NOT_RUN | Requires explicit approval before owner-only deployment |
+| Auth header anti-spoofing | Exact deployed Site | Attempt ordinary request-header spoof and prove the trusted authenticated-email input cannot be caller-forged | NOT_RUN | Requires explicit approval; optional auth remains disabled |
+| Repeat-sign-in byte stability | Exact deployed Site, two fresh sign-ins | HMAC exact validated email bytes and compare digests; never store raw identity | NOT_RUN | Requires explicit approval; optional auth remains disabled |
+| Hosted disposable D1 | Managed D1 bound to exact owner-only Site version | First prove owner-only access; enable both server latches for one approved window; run once; prove repeat rejection; disable mutation; immediately use the 15-minute HttpOnly token to finalize work plus durable gate; verify zero probe schema without touching pre-existing data | NOT_RUN | Requires explicit approval immediately before hosted D1 mutation; local guard tests do not substitute for managed D1 evidence |
+| Supported ChatGPT call | Latest ChatGPT desktop built-in browser; GPT-5.6 Sol or Terra | Discover and call `fcs_package0_probe` on the exact live page; record bounded non-sensitive result and client/build | NOT_RUN | Mandatory exit-gate proof; requires external account/browser action approval |
+| Chrome conditional path | Chrome 149+ origin trial or isolated local flag | Top-level origin-isolated page; `tools` policy defaults to self; inspect/call tool without claiming release support | NOT_RUN | Conditional only; official path refreshed 2026-08-29; no browser/profile change made |
+| Clean-checkout verification | Fresh local clone | `npm ci`, `npm run verify:package0`, minimal Worker request, clean Git state | NOT_RUN | Pending after evidence/source commit |
+| Protected-surface integrity | Read-only planning/global surfaces | End digests/metadata equal pre-mutation baseline | PASS | Planning workspace 95-file aggregate and global AGENTS/config/agents/skills/plugins digests match exactly; credential metadata unchanged without reading content; `.artifacts/security/package0-protected-surfaces.json` |
+
+## Current primary sources
+
+- [OpenAI Sites documentation](https://learn.chatgpt.com/docs/sites), accessed 2026-08-29.
+- [OpenAI Site tools documentation](https://learn.chatgpt.com/docs/webmcp), accessed 2026-08-29. It names the ChatGPT desktop built-in browser, ChatGPT Work/Codex, GPT-5.6 Sol/Terra, and top-level imperative registration as the current supported path.
+- [WebMCP draft](https://webmachinelearning.github.io/webmcp/), snapshot dated 2026-08-26, for registration and invocation abort semantics.
+- [Cloudflare Workers Vitest integration](https://developers.cloudflare.com/workers/testing/vitest-integration/) and [D1 Worker API](https://developers.cloudflare.com/d1/worker-api/d1-database/), accessed 2026-08-29.
+- [Chrome WebMCP documentation](https://developer.chrome.com/docs/ai/webmcp) and [tool security guidance](https://developer.chrome.com/docs/ai/webmcp/secure-tools), accessed 2026-08-29. Current path is an origin trial from Chrome 149 or a local-development flag.
+
+## Exit-gate truth
+
+Package 0 is not passed while any mandatory hosted or supported-ChatGPT row remains `NOT_RUN`, `FAIL`, or `INCONCLUSIVE`. Optional sign-in must remain disabled unless both identity rows pass. Chrome is conditional and must not be claimed beyond its exact tested row.

@@ -1,0 +1,40 @@
+{
+  "artifact": "package0-protected-surfaces",
+  "date_utc": "2026-08-30T03:52:38Z",
+  "planning_workspace": {
+    "path": "<LOCAL_USER_HOME>/.codex/.chatgpt-projects/g-p-6a90380a060c81919a66d43b45388fba",
+    "file_count": 95,
+    "baseline_sha256": "291d5c548322b707a75878aa5d4ce34444af9cb486801231f9c7091e068c5da0",
+    "final_sha256": "291d5c548322b707a75878aa5d4ce34444af9cb486801231f9c7091e068c5da0",
+    "result": "PASS"
+  },
+  "global_surfaces": {
+    "codex_agents_md": {
+      "baseline_sha256": "ebebe50233c2c3698cf32fa28b0f4913737ede69b4d769823655b483ccbd2b88",
+      "final_sha256": "ebebe50233c2c3698cf32fa28b0f4913737ede69b4d769823655b483ccbd2b88"
+    },
+    "codex_config_toml": {
+      "baseline_sha256": "ecf87fcc018a25b7d2cd46ba0df4f2dfe7b0299f075cff40657bfb45961574f5",
+      "final_sha256": "ecf87fcc018a25b7d2cd46ba0df4f2dfe7b0299f075cff40657bfb45961574f5"
+    },
+    "agents_aggregate": {
+      "baseline_sha256": "aa7f9f878a8e3b59b7de7f8885c9f833a31109a7ec100540da8340421fff6942",
+      "final_sha256": "aa7f9f878a8e3b59b7de7f8885c9f833a31109a7ec100540da8340421fff6942"
+    },
+    "skills_aggregate": {
+      "baseline_sha256": "ad1e0d004dadb9d1ffaff1634fcabe87a56cd4052b5990b968c8d35213a2a8de",
+      "final_sha256": "ad1e0d004dadb9d1ffaff1634fcabe87a56cd4052b5990b968c8d35213a2a8de"
+    },
+    "plugins_aggregate": {
+      "baseline_sha256": "cf1bd42aa2db3e404a343dee11065dff413e0aa18d7c816d586d51b452a95ce0",
+      "final_sha256": "cf1bd42aa2db3e404a343dee11065dff413e0aa18d7c816d586d51b452a95ce0"
+    },
+    "credential_metadata_only": {
+      "baseline": "<LOCAL_USER_HOME>/.codex/auth.json|4081|100600|1788057106|1788057106|70724632",
+      "final": "<LOCAL_USER_HOME>/.codex/auth.json|4081|100600|1788057106|1788057106|70724632"
+    },
+    "result": "PASS"
+  },
+  "method": "SHA-256 over sorted per-file SHA-256 lines for aggregate roots; direct SHA-256 for named files; metadata-only stat for the credential file. No credential content was read or retained.",
+  "result": "PASS"
+}

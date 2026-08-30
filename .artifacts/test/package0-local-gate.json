@@ -1,0 +1,22 @@
+{
+  "artifact": "package0-local-gate",
+  "date_utc": "2026-08-30T03:52:38Z",
+  "command": "npm run verify:package0",
+  "exit_code": 0,
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "authority_import_tests": 1,
+    "webmcp_tests": 6,
+    "hosted_handler_tests": 11,
+    "d1_tests": 10,
+    "cloudflare_vitest_tests": 1,
+    "build": "PASS",
+    "runtime_audit_vulnerabilities": 0,
+    "complete_graph_critical": 0,
+    "complete_graph_high": 0,
+    "complete_graph_moderate_local_only": 4
+  },
+  "result": "PASS",
+  "limitation": "This is local candidate evidence. A clean-checkout rerun and every hosted/real-client row have separate gates."
+}

@@ -8,35 +8,51 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
-    "start": "vinext start",
+    "start": "WRANGLER_SEND_METRICS=false WRANGLER_WRITE_LOGS=false WRANGLER_LOG_PATH=.wrangler/logs MINIFLARE_REGISTRY_PATH=.wrangler/registry wrangler dev --config dist/server/wrangler.json",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "test:package0:authority": "node --experimental-strip-types --test tests/package0/authority-import.test.ts",
+    "test:package0:webmcp": "node --experimental-strip-types --test tests/package0/webmcp-lifecycle.test.ts",
+    "test:package0:hosted": "node --experimental-strip-types --test tests/package0/hosted-request-handler.test.ts",
+    "test:package0:d1": "node --experimental-strip-types --test tests/package0/d1-probe.test.ts tests/package0/d1-hosted-probe.test.ts",
+    "test:package0:cloudflare": "vitest run --config vitest.package0.config.ts",
+    "test:package0": "npm run test:package0:authority && npm run test:package0:webmcp && npm run test:package0:hosted && npm run test:package0:d1 && npm run test:package0:cloudflare",
+    "audit:package0": "npm audit --omit=dev && npm audit --audit-level=high",
+    "verify:package0": "npm run typecheck && npm run lint && npm run test:package0 && npm run build && npm run audit:package0"
   },
   "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "drizzle-orm": "0.45.2"
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.37.1",
-    "@cloudflare/workers-types": "4.20260515.1",
-    "@openai/sites-vite-plugin": "^0.1.0 || ^0.2.0",
+    "@cloudflare/vite-plugin": "1.49.0",
+    "@cloudflare/vitest-pool-workers": "0.19.1",
+    "@cloudflare/workers-types": "5.20260730.1",
+    "@openai/sites-vite-plugin": "0.2.0",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
-    "@vitejs/plugin-rsc": "0.5.26",
+    "@vitejs/plugin-rsc": "0.5.34",
+    "@vitest/runner": "4.1.0",
+    "@vitest/snapshot": "4.1.0",
+    "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
-    "react-server-dom-webpack": "19.2.6",
+    "eslint-config-next": "16.3.3",
+    "react-server-dom-webpack": "19.2.8",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "vinext": "1.0.0-beta.3",
-    "vite": "8.0.13",
-    "wrangler": "4.92.0",
-    "drizzle-kit": "0.31.10"
+    "vinext": "1.0.0-beta.8",
+    "vite": "8.2.2",
+    "vitest": "4.1.0",
+    "wrangler": "4.116.0"
+  },
+  "overrides": {
+    "undici": "7.29.0"
   },
   "type": "module"
 }

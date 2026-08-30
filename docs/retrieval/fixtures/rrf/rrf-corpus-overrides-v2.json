@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "baseCorpusId": "fcs-rrf-corpus-v1",
+  "effectiveCorpusId": "fcs-rrf-corpus-v2",
+  "materializer": "whole-field-replace-v1",
+  "overrides": [
+    {
+      "id": "D002",
+      "replace": {
+        "mismatchTags": ["*"],
+        "shapeTags": ["reason-input-present"]
+      }
+    },
+    {
+      "id": "D003",
+      "replace": {
+        "mismatchTags": ["initial-focus-destructive", "danger-warning-unacknowledged"],
+        "shapeTags": ["destructive-and-safe-actions", "danger-copy-prominent"]
+      }
+    },
+    {
+      "id": "D009",
+      "replace": {
+        "validFrom": "2026-08-27T00:00:00Z",
+        "relationships": [
+          {"type": "applies-to", "target": "use-case:delete-account"},
+          {"type": "applies-to", "target": "variant:delete-account-danger-emphasis"}
+        ]
+      }
+    },
+    {
+      "id": "D012",
+      "replace": {
+        "rationale": "Delete Account modal with no irreversible dispatch yet remains open on Escape; modal dismissal precedent applies.",
+        "tags": ["family-default", "escape-close", "delete-account", "no-irreversible-dispatch-yet", "remains-open"]
+      }
+    },
+    {
+      "id": "D013",
+      "replace": {
+        "mismatchTags": ["*"],
+        "shapeTags": ["modal-open"],
+        "tags": ["return-trigger", "context-preserved", "danger-emphasis", "page-body", "trigger-remains-mounted"]
+      }
+    },
+    {
+      "id": "D015",
+      "replace": {
+        "rationale": "Standard Delete Account trigger remains mounted after close; return focus from page body to the opening trigger and preserve context.",
+        "tags": ["return-trigger", "family-support", "standard", "trigger-remains-mounted", "page-body"]
+      }
+    },
+    {
+      "id": "D017",
+      "replace": {
+        "validFrom": "2026-08-27T00:00:00Z",
+        "relationships": [
+          {"type": "applies-to", "target": "use-case:delete-account"},
+          {"type": "applies-to", "target": "variant:delete-account-danger-emphasis"}
+        ]
+      }
+    },
+    {
+      "id": "D018",
+      "replace": {
+        "validFrom": "2026-08-27T00:00:00Z",
+        "shapeTags": ["three-tabbable-controls", "danger-copy-prominent"],
+        "relationships": [
+          {"type": "applies-to", "target": "use-case:delete-account"},
+          {"type": "applies-to", "target": "variant:delete-account-standard"}
+        ]
+      }
+    },
+    {
+      "id": "D020",
+      "replace": {
+        "mismatchTags": ["*"],
+        "shapeTags": ["three-tabbable-controls"],
+        "tags": ["backward-wrap", "danger-emphasis", "danger-copy-prominent", "delete-trigger"]
+      }
+    },
+    {
+      "id": "D021",
+      "replace": {
+        "workspaceKey": "demo-seed",
+        "product": "focus-contract-studio",
+        "componentFamily": "modal-dialog",
+        "useCase": "delete-account",
+        "variants": ["both"],
+        "behavior": "forward-wrap",
+        "intent": "destructive-confirmation",
+        "risk": "irreversible",
+        "outcomeKey": "allow-exit",
+        "status": "active",
+        "validFrom": "2026-08-26T00:00:00Z",
+        "validTo": null,
+        "supersedes": null,
+        "hostile": false,
+        "mismatchTags": ["*"],
+        "shapeTags": ["modal-open"],
+        "relationships": [{"type": "applies-to", "target": "family:modal-dialog"}],
+        "rationale": "Observed background control after Tab.",
+        "tags": ["focus-contract-studio", "delete-account-standard", "forward-wrap", "background-control", "tab-escapes-dialog", "three-tabbable-controls", "destructive-confirmation", "irreversible", "modal-dialog"]
+      }
+    },
+    {
+      "id": "D023",
+      "replace": {
+        "mismatchTags": ["*"],
+        "shapeTags": ["reason-input-present", "three-tabbable-controls"],
+        "tags": ["visual-order", "danger-emphasis", "danger-copy-prominent", "delete-cancel-reason"]
+      }
+    },
+    {
+      "id": "D024",
+      "replace": {
+        "validFrom": "2026-08-27T00:00:00Z",
+        "mismatchTags": ["focus-order-mismatch"],
+        "shapeTags": ["no-reason-input", "two-tabbable-controls", "danger-copy-prominent"],
+        "relationships": [
+          {"type": "applies-to", "target": "use-case:delete-account"},
+          {"type": "applies-to", "target": "variant:delete-account-standard"}
+        ]
+      }
+    },
+    {
+      "id": "D029",
+      "replace": {
+        "rationale": "Observed Delete button focus in a reason input present standard destructive confirmation; safe initial action precedent applies.",
+        "tags": ["safe-default", "supporting-rule", "reason-input-present", "observed-delete-button", "standard"]
+      }
+    }
+  ]
+}

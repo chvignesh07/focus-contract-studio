@@ -1,0 +1,32 @@
+{
+  "artifact": "package0-independent-review",
+  "date_utc": "2026-08-30T03:50:37Z",
+  "scope": "Package 0 local candidate, hosted-probe safety, evidence truth, and blocking code defects",
+  "reviewers": [
+    {
+      "role": "adversarial correctness reviewer",
+      "findings_fixed": [
+        "identity observation could appear passing without both required proofs",
+        "minimal Worker request evidence became stale after the route/start correction",
+        "a failed durable-gate state transition could strand RUNNING state"
+      ],
+      "closure_evidence": "Explicit identity configuration/MAC result states, a rebuilt Workerd request artifact, and token-bound RUNNING recovery only after a 120-second lease; forced failure regression passes."
+    },
+    {
+      "role": "security and reachability reviewer",
+      "findings_fixed": [
+        "initial destructive D1 cleanup could clobber pre-existing reserved tables",
+        "client-side arming did not provide durable one-shot or concurrency control",
+        "identity-key absence was not explicit in the result contract"
+      ],
+      "closure_evidence": "Fail-closed schema preflight, durable atomic gate, exact-one concurrent admission, token-bound cleanup recovery, owner-only server latch, and explicit identity configuration/MAC fields all have regressions."
+    }
+  ],
+  "open_high_findings": 0,
+  "open_medium_findings": 0,
+  "external_limitations": [
+    "Sites owner-only/public access behavior is not statically provable.",
+    "Hosted cookie/header/D1 behavior and a supported ChatGPT call remain NOT_RUN until approved."
+  ],
+  "result": "PASS"
+}

@@ -1,0 +1,46 @@
+{
+  "plugin": "devpost-hackathon",
+  "version": 2,
+  "hackathon": {
+    "slug": "webmcp",
+    "name": "The WebMCP Challenge",
+    "url": "https://webmcp.devpost.com",
+    "selected": true,
+    "source": "known"
+  },
+  "participant": {
+    "name": "",
+    "display_name": "Vignesh"
+  },
+  "project": {
+    "name": "Focus Contract Studio",
+    "summary": "A WebMCP-native, human-governed studio that preserves dialog-focus decisions as revisioned precedent, stages unapplied proposals, binds approval to an exact revision, and verifies the resulting live behavior.",
+    "ai_usage": "ChatGPT reasons over page-bound WebMCP tools; the application uses no model API. D1-backed RRF retrieves scoped precedent but never authorizes mutation.",
+    "codex_usage": "Codex performs the documented autonomous build, tests, security checks, benchmark, deployment, and two adversarial review passes."
+  },
+  "current_stage": "build-project",
+  "completed_stages": [
+    "start-hackathon",
+    "review",
+    "resources"
+  ],
+  "rules_acknowledged": true,
+  "learning": {
+    "status": "active",
+    "current_step": "checklist",
+    "completed_steps": [
+      "onboard",
+      "scope",
+      "prd",
+      "spec",
+      "checklist"
+    ],
+    "plan_file": "docs/hackathon-build/spec.md",
+    "checklist_file": "docs/hackathon-build/checklist.md"
+  },
+  "submission": {
+    "draft_file": "devpost-submission.md",
+    "status": "drafting"
+  },
+  "next_command": "build-project"
+}

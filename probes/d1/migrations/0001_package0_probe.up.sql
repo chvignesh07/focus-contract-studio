@@ -1,0 +1,3 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE package0_parent (id INTEGER PRIMARY KEY, slug TEXT NOT NULL UNIQUE) STRICT;
+CREATE TABLE package0_child (id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL REFERENCES package0_parent(id), score INTEGER NOT NULL CHECK (score > 0)) STRICT;

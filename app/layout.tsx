@@ -13,7 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Untitled site',
+  title: 'Focus Contract Studio — Package 0',
+  description: 'Focus Contract Studio bootstrap verification surface.',
+  icons: { icon: '/favicon.svg' },
 };
 
 export default function RootLayout({

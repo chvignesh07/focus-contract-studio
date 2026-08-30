@@ -1,0 +1,45 @@
+{
+  "artifact": "package0-npm-audit-summary",
+  "date_utc": "2026-08-30T03:08:00Z",
+  "runtime": {
+    "command": "npm audit --omit=dev",
+    "exit_code": 0,
+    "critical": 0,
+    "high": 0,
+    "moderate": 0,
+    "low": 0,
+    "result": "PASS"
+  },
+  "complete_graph": {
+    "command": "npm audit",
+    "exit_code": 1,
+    "critical": 0,
+    "high": 0,
+    "moderate": 4,
+    "low": 0,
+    "path": "drizzle-kit -> @esbuild-kit/esm-loader -> @esbuild-kit/core-utils -> esbuild <=0.24.2",
+    "advisory": "GHSA-67mh-4wv8-2f99",
+    "reachability": "The finding requires access to the local esbuild development server. Focus Contract Studio does not expose or invoke drizzle-kit in its Worker or Site-tool path.",
+    "resolution": "Do not apply npm's breaking downgrade to drizzle-kit 0.18.1. Retest when Drizzle publishes a compatible stable toolchain that removes @esbuild-kit; block any workflow that serves drizzle-kit/esbuild on a reachable interface until then.",
+    "result": "PASS"
+  },
+  "remediation": {
+    "runtime": [
+      "next@16.3.3",
+      "react@19.2.8",
+      "react-dom@19.2.8",
+      "react-server-dom-webpack@19.2.8"
+    ],
+    "local_toolchain": [
+      "vinext@1.0.0-beta.8",
+      "vite@8.2.2",
+      "@vitejs/plugin-rsc@0.5.34",
+      "@cloudflare/vite-plugin@1.49.0",
+      "@cloudflare/vitest-pool-workers@0.19.1",
+      "wrangler@4.116.0",
+      "@cloudflare/workers-types@5.20260730.1",
+      "undici@7.29.0 override"
+    ],
+    "alpha_runtime_adopted": false
+  }
+}

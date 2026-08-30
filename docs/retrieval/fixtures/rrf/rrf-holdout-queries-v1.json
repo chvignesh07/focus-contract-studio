@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "suiteId": "fcs-rrf-holdout-v1",
+  "queries": [
+    {
+      "id": "HOLD-01",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "initial-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "initial-focus-destructive", "shapeTag": "reason-input-present", "queryText": "observed Delete receives focus but standard irreversible confirmation needs safe initial action", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D001", "grade": 3}, {"id": "D003", "grade": 2}, {"id": "D029", "grade": 2}], "forbidden": ["D004", "D005", "D006", "D007", "D008"], "rationale": "Exact current standard safe-focus precedent should lead."}
+    },
+    {
+      "id": "HOLD-02",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "initial-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "danger-warning-unacknowledged", "shapeTag": "danger-copy-prominent", "queryText": "announce irreversible warning before navigating controls in danger variant", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D002", "grade": 3}, {"id": "D003", "grade": 1}, {"id": "D029", "grade": 1}], "forbidden": ["D004", "D005", "D006", "D007", "D008"], "rationale": "Warning-first exception must outrank the broad safe default."}
+    },
+    {
+      "id": "HOLD-03",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "escape", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "escape-does-not-close", "shapeTag": "no-irreversible-dispatch-yet", "queryText": "dismiss pending destructive modal with Escape without dispatch", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D009", "grade": 3}, {"id": "D012", "grade": 2}], "forbidden": ["D010", "D011", "D031"], "rationale": "Current use-case decision should lead the modal family default."}
+    },
+    {
+      "id": "HOLD-04",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "escape", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "escape-does-not-close", "shapeTag": "danger-copy-prominent", "queryText": "danger copy does not alter Escape dismissal before submit", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D034", "grade": 3}, {"id": "D009", "grade": 2}, {"id": "D012", "grade": 1}], "forbidden": ["D010", "D011", "D031"], "rationale": "Exact danger variant should lead broader current guidance."}
+    },
+    {
+      "id": "HOLD-05",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "return-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "return-focus-lost", "shapeTag": "trigger-remains-mounted", "queryText": "restore keyboard location to opener after standard dialog dismissal", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D033", "grade": 3}, {"id": "D013", "grade": 2}, {"id": "D015", "grade": 2}], "forbidden": ["D014", "D016"], "rationale": "Exact variant and current use-case return rules are relevant."}
+    },
+    {
+      "id": "HOLD-06",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "return-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "return-focus-lost", "shapeTag": "trigger-remains-mounted", "queryText": "after closing danger Delete dialog preserve context at opening trigger", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D013", "grade": 3}, {"id": "D015", "grade": 2}], "forbidden": ["D014", "D016", "D033"], "rationale": "Both-variant current decisions apply; standard-only D033 must be excluded."}
+    },
+    {
+      "id": "HOLD-07",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "forward-wrap", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "tab-escapes-dialog", "shapeTag": "three-tabbable-controls", "queryText": "keep forward keyboard traversal contained after last destructive control", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D017", "grade": 3}], "forbidden": ["D019", "D021", "D030", "D036"], "rationale": "Current both-variant wrap rule applies; danger-only and ineligible records do not."}
+    },
+    {
+      "id": "HOLD-08",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "forward-wrap", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "tab-escapes-dialog", "shapeTag": "danger-copy-prominent", "queryText": "danger variant Tab from Delete cycles to first input", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D036", "grade": 3}, {"id": "D017", "grade": 2}], "forbidden": ["D019", "D021", "D030"], "rationale": "Exact danger variant leads the both-variant focus-trap rule."}
+    },
+    {
+      "id": "HOLD-09",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "backward-wrap", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "shift-tab-escapes-dialog", "shapeTag": "three-tabbable-controls", "queryText": "standard Shift Tab at first field cycles backward to Delete", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D035", "grade": 3}, {"id": "D018", "grade": 2}], "forbidden": ["D020", "D032"], "rationale": "Exact standard variant leads the current both-variant rule."}
+    },
+    {
+      "id": "HOLD-10",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "backward-wrap", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "shift-tab-escapes-dialog", "shapeTag": "danger-copy-prominent", "queryText": "backward traversal remains trapped in danger confirmation", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D020", "grade": 3}, {"id": "D018", "grade": 2}], "forbidden": ["D032", "D035"], "rationale": "Danger-specific backward wrap should lead; standard-only must not leak."}
+    },
+    {
+      "id": "HOLD-11",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "focus-order", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "focus-order-mismatch", "shapeTag": "reason-input-present", "queryText": "three visible controls follow reason safe action destructive action order", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D022", "grade": 3}, {"id": "D024", "grade": 1}], "forbidden": ["D023", "D025", "D026"], "rationale": "Exact standard three-control record is primary; conditional no-input record is weak only."}
+    },
+    {
+      "id": "HOLD-12",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "focus-order", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "focus-order-mismatch", "shapeTag": "danger-copy-prominent", "queryText": "programmatic title announcement then reason Cancel Delete tab sequence", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "results", "relevant": [{"id": "D023", "grade": 3}, {"id": "D024", "grade": 1}], "forbidden": ["D022", "D025", "D026"], "rationale": "Exact danger order is primary; standard-only must not leak."}
+    },
+    {
+      "id": "HOLD-13",
+      "context": {"workspaceKey": "unseeded-workspace", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "initial-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "initial-focus-destructive", "shapeTag": "reason-input-present", "queryText": "private workspace safe initial focus", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "abstain", "relevant": [], "forbidden": ["D001", "D003", "D007", "D029"], "rationale": "No record exists for this workspace; no other workspace may leak."}
+    },
+    {
+      "id": "HOLD-14",
+      "context": {"workspaceKey": "demo-seed", "product": "unknown-product", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "initial-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "initial-focus-destructive", "shapeTag": "reason-input-present", "queryText": "unknown product destructive dialog focus", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "abstain", "relevant": [], "forbidden": ["D001", "D003", "D008", "D029"], "rationale": "Product scope is exact, including a similarly worded wrong-product record."}
+    },
+    {
+      "id": "HOLD-15",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "export-data", "variant": "delete-account-standard", "behavior": "return-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "return-focus-lost", "shapeTag": "trigger-remains-mounted", "queryText": "export data modal return focus", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "abstain", "relevant": [], "forbidden": ["D013", "D015", "D016", "D033"], "rationale": "No exact export-data record exists; family-only evidence must not satisfy the support gate."}
+    },
+    {
+      "id": "HOLD-16",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-danger-emphasis", "behavior": "pointer-dismissal", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "backdrop-click", "shapeTag": "danger-copy-prominent", "queryText": "backdrop pointer click dismissal of danger dialog", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "abstain", "relevant": [], "forbidden": ["D009", "D012", "D034"], "rationale": "Pointer dismissal is outside the frozen behavior set."}
+    },
+    {
+      "id": "HOLD-17",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-standard", "behavior": "initial-focus", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "policy-exception", "shapeTag": "reason-input-present", "queryText": "unresolved policy exception choose Cancel versus dialog title for initial focus", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "conflict", "relevant": [{"id": "D027", "grade": 3}, {"id": "D028", "grade": 3}], "forbidden": ["D004", "D005", "D006", "D007"], "rationale": "Current exact-scope decisions disagree with no supersession edge."}
+    },
+    {
+      "id": "HOLD-18",
+      "context": {"workspaceKey": "demo-seed", "product": "focus-contract-studio", "componentFamily": "modal-dialog", "useCase": "delete-account", "variant": "delete-account-compact", "behavior": "focus-order", "intent": "destructive-confirmation", "risk": "irreversible", "mismatchTag": "focus-order-mismatch", "shapeTag": "two-tabbable-controls", "queryText": "compact variant control order", "asOf": "2026-08-29T00:00:00Z"},
+      "expected": {"disposition": "abstain", "relevant": [], "forbidden": ["D022", "D023", "D024", "D025", "D026"], "rationale": "The release has no compact variant and must not generalize silently."}
+    }
+  ]
+}

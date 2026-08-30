@@ -1,0 +1,57 @@
+{
+  "benchmarkId": "fcs-rrf-benchmark-v2",
+  "algorithmId": "rrf-k60-v2",
+  "prefilterId": "focus-eligibility-v2",
+  "lexicalId": "eligible-ts-bm25-v1",
+  "phase": "pre-seal-calibration",
+  "generatedAt": "2026-08-29T17:23:40Z",
+  "generatedBy": "reference-evaluator-v2.mjs",
+  "referenceEvaluatorSha256": "b9d027f8c3a1aeff248c72e811062cec1ff8340419d9c625af3fe4857a97fa7a",
+  "effectiveCorpusDigest": "5e944319b6898b9a843a4c4885a89cc81a418c7444d21624df94694d5c872724",
+  "fixtureHashes": {
+    "rrf-corpus-v1.json": "5f0ca4d31b80b5cb270a1ddd14e2a6f98596a516acf84634e27ba522a179eaa3",
+    "rrf-corpus-overrides-v2.json": "783fdd1507de009707e6a7f6fb5cd01412896bb21f55682f7dfcb8ef160ce9cb",
+    "rrf-dev-queries-v2.json": "1bb9c02a4b5c9c20fa34e53ff85de86ea41c0425e35335cb295bdf182575298d",
+    "rrf-holdout-queries-v2.json": "ff3d45dbf976582a23a7354ae84ffb67b83ea4029b2fa20cb2dc506c762629f0",
+    "rrf-corpus-schema-v2.json": "546d4ea2524cd04c4ff3520eb01d7091d25ecaa2bd60401f5c7232ac8ec56802",
+    "rrf-query-suite-schema-v2.json": "d2db025ee29fd28282ae06d7e15b1db291a2831e2905a940f43cb121a3c6ee3e"
+  },
+  "dev": {
+    "queryCount": 12,
+    "positiveCases": 8,
+    "dispositionCorrect": 12,
+    "forbiddenAppearances": 0,
+    "meanNdcgAt3": {"lexical": 0.824102, "structured": 0.885657, "relationship": 0.963726, "rrf": 0.963726},
+    "mrrAt3": {"lexical": 0.75, "structured": 0.8125, "relationship": 0.9375, "rrf": 0.9375},
+    "recallAt3": {"lexical": 1, "structured": 1, "relationship": 1, "rrf": 1}
+  },
+  "holdoutFeasibility": {
+    "queryCount": 18,
+    "positiveCases": 12,
+    "dispositionCorrect": 18,
+    "forbiddenAppearances": 0,
+    "meanNdcgAt3": {"lexical": 0.851662, "structured": 0.893016, "relationship": 0.90327, "rrf": 0.975817},
+    "mrrAt3": {"lexical": 0.791667, "structured": 0.833333, "relationship": 0.833333, "rrf": 0.958333},
+    "recallAt3": {"lexical": 1, "structured": 1, "relationship": 1, "rrf": 1},
+    "strongestSingleMeanNdcgAt3": 0.90327,
+    "predictedRrfLiftOverStrongest": 0.072547,
+    "note": "This one-time pre-implementation run proves gate feasibility and freezes the public procedural holdout. It is not the release holdout result."
+  },
+  "determinism": {
+    "repetitions": 100,
+    "byteIdentical": true,
+    "digest": "bbbb6a153f944098e1662bfb260f7c27a2a54827c5d647f1fbd387e415c41ee5"
+  },
+  "preSealGates": {
+    "counts": true,
+    "queryTextExact": true,
+    "noForbiddenAppearances": true,
+    "allDispositions": true,
+    "everySingleRankerImperfectOnHoldout": true,
+    "strongestSingleBelowPoint95": true,
+    "predictedRrfLiftAtLeastPoint05": true,
+    "predictedRrfQuality": true,
+    "deterministic": true
+  },
+  "overall": "PASS"
+}

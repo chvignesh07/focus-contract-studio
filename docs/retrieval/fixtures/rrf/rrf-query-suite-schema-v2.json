@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://focus-contract-studio.invalid/schemas/rrf-query-suite-v2.json",
+  "title": "Focus Contract Studio RRF query suite v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "suiteId", "queries"],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "suiteId": {"enum": ["fcs-rrf-dev-v2", "fcs-rrf-holdout-v2"]},
+    "queries": {"type": "array", "minItems": 12, "maxItems": 18, "items": {"$ref": "#/definitions/query"}}
+  },
+  "definitions": {
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspaceKey", "product", "componentFamily", "useCase", "variant", "behavior", "intent", "risk", "observedOutcomeKey", "mismatchTag", "shapeTag", "queryText", "asOf"],
+      "properties": {
+        "workspaceKey": {"type": "string", "minLength": 1, "maxLength": 80},
+        "product": {"type": "string", "minLength": 1, "maxLength": 80},
+        "componentFamily": {"type": "string", "minLength": 1, "maxLength": 80},
+        "useCase": {"type": "string", "minLength": 1, "maxLength": 80},
+        "variant": {"type": "string", "minLength": 1, "maxLength": 80},
+        "behavior": {"type": "string", "minLength": 1, "maxLength": 80},
+        "intent": {"type": "string", "minLength": 1, "maxLength": 80},
+        "risk": {"type": "string", "minLength": 1, "maxLength": 80},
+        "observedOutcomeKey": {"type": "string", "minLength": 1, "maxLength": 80},
+        "mismatchTag": {"type": "string", "minLength": 1, "maxLength": 80},
+        "shapeTag": {"type": "string", "minLength": 1, "maxLength": 80},
+        "queryText": {"type": "string", "minLength": 1, "maxLength": 640},
+        "asOf": {"type": "string", "format": "date-time"}
+      }
+    },
+    "relevant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "grade"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^D[0-9]{3}$"},
+        "grade": {"type": "integer", "minimum": 1, "maximum": 3}
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disposition", "relevant", "forbidden", "rationale"],
+      "properties": {
+        "disposition": {"enum": ["results", "abstain", "conflict"]},
+        "relevant": {"type": "array", "maxItems": 5, "items": {"$ref": "#/definitions/relevant"}},
+        "forbidden": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^D[0-9]{3}$"}},
+        "rationale": {"type": "string", "minLength": 1, "maxLength": 320}
+      }
+    },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "context", "expected"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^(DEV2|HOLD2)-[0-9]{2}$"},
+        "context": {"$ref": "#/definitions/context"},
+        "expected": {"$ref": "#/definitions/expected"}
+      }
+    }
+  }
+}
