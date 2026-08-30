@@ -1,0 +1,32 @@
+{
+  "artifact": "package0-clean-checkout",
+  "date_utc": "2026-08-30T03:54:55Z",
+  "source_commit": "382a4d1ef02cf437bd765602c55ac0fc0d43146c",
+  "clone": {
+    "path": "<TEMP_DIRECTORY>/fcs-package0-clean-verify.vVEKDq",
+    "mode": "git clone --no-hardlinks",
+    "branch": "main",
+    "status_after_verification": "clean"
+  },
+  "commands": {
+    "npm_ci": "PASS",
+    "npm_run_verify_package0": "PASS",
+    "minimal_worker_request": "PASS"
+  },
+  "minimal_worker_request": {
+    "target": "http://127.0.0.1:4174/",
+    "request_count": 1,
+    "status": 200,
+    "body_bytes": 28522,
+    "expected_content": [
+      "Focus Contract Studio",
+      "Package 0",
+      "D1 probe locked",
+      "Finalize D1 cleanup"
+    ],
+    "header_sha256": "d8b9d91143690da2d090467586c11058b32dfa1b75589b205ad3dc64354c22e1",
+    "body_sha256": "a7b5f8584098b3f50d79b2526abde88605efd03f6cf771c049d7f05436634d8e"
+  },
+  "result": "PASS",
+  "limitation": "This proves local reproducibility of the named source commit. It does not substitute for Sites hosting or a supported ChatGPT call."
+}
