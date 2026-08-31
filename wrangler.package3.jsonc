@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "focus-contract-studio-package3-local-test",
+  "compatibility_date": "2026-08-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "focus-contract-studio-package3-local-test",
+      "database_id": "00000000-0000-4000-8000-000000000004",
+      "migrations_dir": "drizzle"
+    }
+  ]
+}

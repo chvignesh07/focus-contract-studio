@@ -10,8 +10,15 @@ import type {
   InitialFocusTargetId,
 } from '../lib/domain/initial-focus-manifest';
 import type { ActiveFocusReviewResult } from '../lib/server/active-focus-review';
-import { DeleteAccountDialog } from './delete-account-dialog';
-import { WebMcpTools } from './webmcp-tools';
+import {
+  Package2ToolRegistry,
+  type ModelContextLike,
+} from '../lib/webmcp/register';
+import {
+  DeleteAccountDialog,
+  type CapturedFocusRehearsal,
+  type FocusRehearsalBinding,
+} from './delete-account-dialog';
 
 type BootstrapResult = {
   ok: true;
@@ -34,6 +41,73 @@ type ProposalResult = {
   ok: true;
   contractVersion: 'fcs-webmcp-v2';
   proposal: ProposalView;
+};
+
+type StartRehearsalResult = {
+  ok: true;
+  rehearsal: FocusRehearsalBinding & { state: 'recording' };
+};
+
+type FinalizeRehearsalResult = {
+  ok: true;
+  rehearsal: {
+    rehearsalSessionId: string;
+    implementedRevision: number;
+    eventCount: number;
+    state: 'finalized';
+  };
+};
+
+type VerificationView = {
+  receiptId: string;
+  implementedRevision: number;
+  environment: 'browser' | 'playwright';
+  verifierVersion: 'focus-event-verifier-v1';
+  overallResult: 'pass' | 'fail';
+  manifest: {
+    dialogName: string;
+    dialogDescription: string;
+    role: string;
+    ariaModal: boolean;
+    open: boolean;
+  };
+  manifestDigest8: string;
+  eventDigest8: string;
+  checks: Array<{
+    behavior:
+      | 'initialFocus'
+      | 'focusOrder'
+      | 'trapTab'
+      | 'trapShiftTab'
+      | 'escapeAction'
+      | 'returnFocus';
+    result: 'pass' | 'fail' | 'not_observed';
+    evidenceSequences: number[];
+  }>;
+  idempotentReplay: boolean;
+};
+
+type VerifyRehearsalResult = {
+  ok: true;
+  verification: VerificationView;
+};
+
+type ToolState = 'registered' | 'unsupported' | 'error';
+type ToolDocument = Document & { modelContext?: ModelContextLike };
+
+const toolCopy: Record<ToolState, string> = {
+  registered: 'Two bounded Site tools are registered for this page.',
+  unsupported: 'Site tools are unavailable here. The complete review still works on this page.',
+  error: 'Site tools could not be registered. The complete review still works on this page.',
+};
+
+const checkLabels: Record<VerificationView['checks'][number]['behavior'], string> = {
+  initialFocus: 'Initial focus',
+  focusOrder: 'Focus order',
+  trapTab: 'Forward Tab wrap',
+  trapShiftTab: 'Backward Shift+Tab wrap',
+  escapeAction: 'Escape action',
+  returnFocus: 'Return focus',
 };
 
 type PageState =
@@ -102,6 +176,9 @@ export function FocusContractStudio() {
   const [activity, setActivity] = useState('No proposal has changed the implemented revision.');
   const [proposalBusy, setProposalBusy] = useState(false);
   const [recoveringProposal, setRecoveringProposal] = useState(false);
+  const [rehearsalBusy, setRehearsalBusy] = useState(false);
+  const [verification, setVerification] = useState<VerificationView | null>(null);
+  const [toolState, setToolState] = useState<ToolState>('unsupported');
   const pendingProposalKey = useRef<string | null>(null);
 
   useEffect(() => {
@@ -138,6 +215,30 @@ export function FocusContractStudio() {
     })();
     return () => controller.abort();
   }, []);
+
+  const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
+  useEffect(() => {
+    if (!toolCsrfToken) return;
+    const modelContext = (document as ToolDocument).modelContext;
+    if (typeof modelContext?.registerTool !== 'function') return;
+    const registry = new Package2ToolRegistry({
+      csrfToken: toolCsrfToken,
+      fetcher: window.fetch.bind(window),
+    });
+    let mounted = true;
+    void registry
+      .install(modelContext)
+      .then(() => {
+        if (mounted) setToolState('registered');
+      })
+      .catch(() => {
+        if (mounted) setToolState('error');
+      });
+    return () => {
+      mounted = false;
+      registry.dispose();
+    };
+  }, [toolCsrfToken]);
 
   if (page.kind === 'loading') {
     return (
@@ -201,6 +302,82 @@ export function FocusContractStudio() {
       setProposal(refreshed.proposal);
     } catch (error) {
       setActivity(error instanceof Error ? error.message : 'The observation was not saved.');
+    }
+  }
+
+  async function startCompleteRehearsal(): Promise<FocusRehearsalBinding> {
+    setVerification(null);
+    setActivity('Starting one bounded raw browser rehearsal…');
+    const result = await jsonResponse<StartRehearsalResult>(
+      await fetch('/api/rehearsals/start', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-fcs-csrf': csrfToken,
+        },
+        body: JSON.stringify({ environment: 'browser' }),
+        credentials: 'same-origin',
+        cache: 'no-store',
+      }),
+      'The raw rehearsal could not be started.',
+    );
+    setActivity(
+      'Rehearsal recording is active. Complete forward wrap, backward wrap, then Escape.',
+    );
+    return result.rehearsal;
+  }
+
+  async function finalizeCompleteRehearsal(capture: CapturedFocusRehearsal) {
+    setRehearsalBusy(true);
+    setActivity('Freezing allowlisted browser facts without typed values…');
+    try {
+      const result = await jsonResponse<FinalizeRehearsalResult>(
+        await fetch(`/api/rehearsals/${capture.rehearsalSessionId}/finalize`, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-fcs-csrf': csrfToken,
+          },
+          body: JSON.stringify({
+            manifest: capture.manifest,
+            events: capture.events,
+          }),
+          credentials: 'same-origin',
+          cache: 'no-store',
+        }),
+        'The raw rehearsal could not be finalized.',
+      );
+      setActivity(
+        `Raw rehearsal finalized with ${result.rehearsal.eventCount} allowlisted events. Running independent verification…`,
+      );
+      const verified = await jsonResponse<VerifyRehearsalResult>(
+        await fetch('/api/verifications', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-fcs-csrf': csrfToken,
+          },
+          body: JSON.stringify({
+            rehearsalSessionId: result.rehearsal.rehearsalSessionId,
+            implementedRevision: result.rehearsal.implementedRevision,
+          }),
+          credentials: 'same-origin',
+          cache: 'no-store',
+        }),
+        'The raw rehearsal could not be verified.',
+      );
+      setVerification(verified.verification);
+      setActivity(
+        `Verification ${verified.verification.overallResult}. Implemented revision ${verified.verification.implementedRevision} did not change.`,
+      );
+    } catch (error) {
+      setActivity(
+        error instanceof Error
+          ? error.message
+          : 'The raw rehearsal could not be finalized.',
+      );
+    } finally {
+      setRehearsalBusy(false);
     }
   }
 
@@ -291,6 +468,7 @@ export function FocusContractStudio() {
               <strong>{titleCaseTarget(review.review.implemented.initialFocus)}</strong>
             </div>
             <DeleteAccountDialog
+              busy={rehearsalBusy}
               configuration={review.review.implemented}
               onFirstFocus={(target, offset, manifest) =>
                 void recordInitialFocus(target, offset, manifest)
@@ -298,6 +476,11 @@ export function FocusContractStudio() {
               onSyntheticDelete={() =>
                 setActivity('Synthetic demo only: no account or private data was changed.')
               }
+              onStartRehearsal={startCompleteRehearsal}
+              onRehearsalComplete={(capture) =>
+                void finalizeCompleteRehearsal(capture)
+              }
+              onRehearsalError={setActivity}
             />
             <p className="privacy-note">
               This synthetic demo stores untrusted browser-reported target IDs, bounded
@@ -356,6 +539,8 @@ export function FocusContractStudio() {
           </section>
         </div>
 
+        {verification ? <VerificationResult verification={verification} /> : null}
+
         {proposal ? <ProposalDiff /> : null}
 
         <section aria-labelledby="boundary-heading" className="boundary-panel">
@@ -367,12 +552,64 @@ export function FocusContractStudio() {
           </p>
         </section>
 
-        <p aria-live="polite" className="activity-status" role="status">
+        <p aria-live="polite" className="activity-status" id="rehearsal-status" role="status">
           {activity}
         </p>
-        <WebMcpTools csrfToken={csrfToken} />
+        <p className="tool-status" data-tool-state={toolState}>
+          {toolCopy[toolState]}
+        </p>
       </section>
     </main>
+  );
+}
+
+function VerificationResult({ verification }: { verification: VerificationView }) {
+  return (
+    <section
+      aria-labelledby="verification-heading"
+      className={`verification-result verification-${verification.overallResult}`}
+      role="region"
+    >
+      <p className="stage-number">03 · Independent verification</p>
+      <h2 id="verification-heading">Raw rehearsal verification</h2>
+      <p className="verification-overall">
+        Overall result: <strong>{verification.overallResult}</strong>
+      </p>
+      <div className="verification-manifest">
+        <p>
+          Implemented revision {verification.implementedRevision} · Environment:{' '}
+          {verification.environment}
+        </p>
+        <p>
+          {verification.manifest.role.charAt(0).toUpperCase() + verification.manifest.role.slice(1)}
+          {' · '}{verification.manifest.open ? 'open' : 'closed'}
+          {' · '}{verification.manifest.ariaModal ? 'modal' : 'non-modal'}
+        </p>
+        <p><strong>{verification.manifest.dialogName}</strong></p>
+        <p>{verification.manifest.dialogDescription}</p>
+        <p className="verification-digests">
+          Manifest <code>{verification.manifestDigest8}</code> · Events{' '}
+          <code>{verification.eventDigest8}</code>
+        </p>
+      </div>
+      <ol className="verification-checks">
+        {verification.checks.map((check) => (
+          <li className={`verification-check check-${check.result}`} key={check.behavior}>
+            <strong>{checkLabels[check.behavior]}</strong>
+            <span>{check.result.replace('_', ' ')}</span>
+            <span>
+              Sequences: {check.evidenceSequences.length > 0
+                ? check.evidenceSequences.join(', ')
+                : 'none'}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="verification-boundary">
+        This verification compares one raw rehearsal with the named implemented
+        revision. It does not prove approval, general conformance, or human operation.
+      </p>
+    </section>
   );
 }
 

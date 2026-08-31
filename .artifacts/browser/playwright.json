@@ -1,0 +1,40 @@
+{
+  "schema_version": "fcs-package3-evidence-v1",
+  "evidence_id": "E-009",
+  "package": 3,
+  "scope": "built-worker-real-browser-rehearsal",
+  "status": "PASS",
+  "source": {
+    "algorithm": "sha256",
+    "file_count": 39,
+    "aggregate_sha256": "4a1dd4a98666eb0f0a7bb1d93fed2333eaf27c21612d0bff3bafefb4c202b154"
+  },
+  "command": "npm run test:package3:browser:built",
+  "started_at_utc": "2026-08-31T19:13:43Z",
+  "completed_at_utc": "2026-08-31T19:13:54Z",
+  "exit_code": 0,
+  "runtime": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "runner": "playwright",
+    "runner_version": "1.62.1",
+    "environment": "chromium-built-worker-local-d1"
+  },
+  "tests": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  },
+  "assertions": {
+    "real_keyboard_events": "PASS",
+    "dialog_semantics": "PASS",
+    "background_pointer_and_focus_blocked": "PASS",
+    "result_comprehension": "PASS",
+    "desktop_320_375_and_200_percent": "PASS",
+    "no_two_dimensional_scroll_or_occlusion": "PASS",
+    "reduced_motion": "PASS"
+  },
+  "remote_bindings": false,
+  "hosted_status": "NOT_RUN",
+  "manual_status": "NOT_RUN"
+}

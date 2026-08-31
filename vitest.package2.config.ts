@@ -22,9 +22,9 @@ export default defineConfig({
           FCS_CSRF_HMAC_SECRET: 'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI',
           FCS_PUBLIC_ORIGIN: 'https://focus-contract-studio.example',
           FCS_RATE_LIMIT_HMAC_SECRET: 'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM',
-          PACKAGE2_TEST_MIGRATIONS: await readD1Migrations(
-            path.join(repositoryRoot, 'drizzle'),
-          ),
+          PACKAGE2_TEST_MIGRATIONS: (
+            await readD1Migrations(path.join(repositoryRoot, 'drizzle'))
+          ).filter(({ name }) => /^000[12]_/u.test(name)),
         },
       },
     })),

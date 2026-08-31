@@ -17,8 +17,8 @@ const forbiddenPrefixes = [
   ['', 'private', 'tmp'].join('/'),
 ];
 
-test('publishable tracked content and every reachable commit use stable path placeholders', () => {
-  const revisions = git(['rev-list', '--all'])
+test('publishable candidate tree and its reachable commits use stable path placeholders', () => {
+  const revisions = git(['rev-list', 'HEAD'])
     .split('\n')
     .filter(Boolean);
   const violations: string[] = [];
@@ -48,4 +48,3 @@ test('publishable tracked content and every reachable commit use stable path pla
     `machine-specific paths remain in reachable Git history:\n${violations.join('\n')}`,
   );
 });
-

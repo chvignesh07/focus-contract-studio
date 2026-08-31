@@ -63,6 +63,10 @@ test('the evolved migration set preserves every Package 1 table and adds Package
 });
 
 test('reapplying the ordered numbered migrations is a no-op', async () => {
+  expect(env.PACKAGE1_TEST_MIGRATIONS.map(({ name }) => name)).toEqual([
+    '0001_package1_domain.sql',
+    '0002_package2_vertical_slice.sql',
+  ]);
   const before = await schema(env.DB);
   await applyD1Migrations(
     env.DB,

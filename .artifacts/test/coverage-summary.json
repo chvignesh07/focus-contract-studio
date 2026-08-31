@@ -1,0 +1,37 @@
+{
+  "schema_version": "fcs-package3-evidence-v1",
+  "evidence_id": "E-014",
+  "package": 3,
+  "scope": "package3-coverage",
+  "status": "PASS",
+  "source": {
+    "algorithm": "sha256",
+    "file_count": 39,
+    "aggregate_sha256": "4a1dd4a98666eb0f0a7bb1d93fed2333eaf27c21612d0bff3bafefb4c202b154"
+  },
+  "command": "npm run test:package3:coverage",
+  "started_at_utc": "2026-08-31T19:13:01Z",
+  "completed_at_utc": "2026-08-31T19:13:01Z",
+  "exit_code": 0,
+  "runtime": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "runner": "node-coverage",
+    "runner_version": "v22.22.3",
+    "environment": "node-local"
+  },
+  "tests": {
+    "passed": 12,
+    "failed": 0,
+    "total": 12
+  },
+  "assertions": {
+    "verifier_branch_percent": 100,
+    "verifier_line_percent": 100,
+    "applicable_repository_thresholds": "PASS",
+    "excluded_verifier_branches": 0
+  },
+  "remote_bindings": false,
+  "hosted_status": "NOT_RUN",
+  "manual_status": "NOT_RUN"
+}

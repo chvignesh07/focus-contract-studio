@@ -14,7 +14,7 @@ export default defineConfig({
     cloudflareTest(async () => ({
       remoteBindings: false,
       wrangler: {
-        configPath: path.join(repositoryRoot, 'wrangler.package1.jsonc'),
+        configPath: path.join(repositoryRoot, 'wrangler.package3.jsonc'),
       },
       miniflare: {
         bindings: {
@@ -22,20 +22,15 @@ export default defineConfig({
           FCS_CSRF_HMAC_SECRET: 'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI',
           FCS_PUBLIC_ORIGIN: 'https://focus-contract-studio.example',
           FCS_RATE_LIMIT_HMAC_SECRET: 'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM',
-          PACKAGE1_TEST_MIGRATIONS: (
+          PACKAGE3_TEST_MIGRATIONS: (
             await readD1Migrations(path.join(repositoryRoot, 'drizzle'))
-          ).filter(({ name }) => /^000[12]_/u.test(name)),
-          PACKAGE0_UPGRADE_MIGRATIONS: (
-            await readD1Migrations(
-              path.join(repositoryRoot, 'probes/d1/migrations'),
-            )
-          ).filter(({ name }) => name.endsWith('.up.sql')),
+          ).filter(({ name }) => /^000[123]_/u.test(name)),
         },
       },
     })),
   ],
   test: {
-    include: ['tests/package1/**/*.test.ts'],
-    setupFiles: ['tests/package1/d1-vitest-setup.ts'],
+    include: ['tests/package3/**/*.test.ts'],
+    setupFiles: ['tests/package3/d1-vitest-setup.ts'],
   },
 });

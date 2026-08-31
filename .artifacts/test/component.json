@@ -1,0 +1,38 @@
+{
+  "schema_version": "fcs-package3-evidence-v1",
+  "evidence_id": "E-008",
+  "package": 3,
+  "scope": "component-dialog-result-accessibility",
+  "status": "PASS",
+  "source": {
+    "algorithm": "sha256",
+    "file_count": 39,
+    "aggregate_sha256": "4a1dd4a98666eb0f0a7bb1d93fed2333eaf27c21612d0bff3bafefb4c202b154"
+  },
+  "command": "npm run test:package3:dom",
+  "started_at_utc": "2026-08-31T19:13:00Z",
+  "completed_at_utc": "2026-08-31T19:13:02Z",
+  "exit_code": 0,
+  "runtime": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "runner": "vitest",
+    "runner_version": "4.1.0",
+    "environment": "jsdom-local"
+  },
+  "tests": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "assertions": {
+    "browser_event_capture": "PASS",
+    "bounded_manifest_and_six_rows": "PASS",
+    "single_restrained_status": "PASS",
+    "associated_error_and_focus": "PASS",
+    "focusable_aria_disabled_reentry_suppressed": "PASS"
+  },
+  "remote_bindings": false,
+  "hosted_status": "NOT_RUN",
+  "manual_status": "NOT_RUN"
+}

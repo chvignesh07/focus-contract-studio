@@ -1,5 +1,8 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+// Package 3 declarations stay in package3-schema.ts so the frozen Revision 2
+// schema export remains byte-compatible for its existing consumers.
+
 // The additive SQL migration is the enforcement authority. These declarations
 // keep application reads typed and mirror every Revision 2 domain table.
 export const workspaces = sqliteTable('workspaces', {
@@ -159,6 +162,7 @@ export const verificationReceipts = sqliteTable('verification_receipts', {
   implementedRevision: integer('implemented_revision').notNull(), verifierVersion: text('verifier_version').notNull(),
   result: text('result').notNull(), eventDigest: text('event_digest').notNull(),
   manifestDigest: text('manifest_digest').notNull(), activeAtVerification: integer('active_at_verification').notNull(),
+  environment: text('environment').notNull(), verifierOutputHash: text('verifier_output_hash').notNull(),
   createdAt: integer('created_at').notNull(),
 });
 
@@ -166,6 +170,7 @@ export const verificationChecks = sqliteTable('verification_checks', {
   id: text('id').primaryKey(), workspaceId: text('workspace_id').notNull(),
   verificationReceiptId: text('verification_receipt_id').notNull(), behavior: text('behavior').notNull(),
   result: text('result').notNull(), evidenceSequencesJson: text('evidence_sequences_json').notNull(),
+  verifierOutputHash: text('verifier_output_hash').notNull(),
 });
 
 export const idempotencyRecords = sqliteTable('idempotency_records', {

@@ -54,8 +54,9 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 3px solid white;
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--focus);
 }
 
 .studio-shell {
@@ -226,11 +227,18 @@ h2 {
   transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 
+.rehearsal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
-.button:disabled {
+.button:disabled,
+.button[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.55;
 }
@@ -389,6 +397,84 @@ code {
   padding: clamp(20px, 3vw, 28px);
 }
 
+.verification-result {
+  min-width: 0;
+  margin-top: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-strong);
+}
+
+.verification-pass {
+  border-color: #3f7d5d;
+}
+
+.verification-fail {
+  border-color: var(--danger);
+}
+
+.verification-overall {
+  margin: 12px 0;
+  font-size: 1.05rem;
+}
+
+.verification-manifest {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #faf7f1;
+}
+
+.verification-manifest p {
+  margin: 3px 0;
+}
+
+.verification-digests,
+.verification-check {
+  font-variant-numeric: tabular-nums;
+}
+
+.verification-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.verification-check {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px;
+  border-left: 4px solid var(--line);
+  background: #f7f4ee;
+}
+
+.check-pass {
+  border-color: #3f7d5d;
+}
+
+.check-fail {
+  border-color: var(--danger);
+}
+
+.verification-check span {
+  overflow-wrap: anywhere;
+}
+
+.verification-check span:nth-child(2) {
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.verification-boundary {
+  margin: 0;
+  color: var(--muted);
+}
+
 .table-scroll {
   overflow-x: auto;
   margin-top: 16px;
@@ -535,7 +621,8 @@ thead th {
 
   .panel,
   .proposal-section,
-  .boundary-panel {
+  .boundary-panel,
+  .verification-result {
     padding: 18px;
   }
 
@@ -555,6 +642,15 @@ thead th {
 
   .dialog-actions .button {
     width: 100%;
+  }
+
+  .rehearsal-actions,
+  .rehearsal-actions .button {
+    width: 100%;
+  }
+
+  .verification-checks {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

@@ -14,6 +14,10 @@ beforeEach(async () => {
 });
 
 test('additive Package 2 migration installs indexed immutable retrieval profiles', async () => {
+  expect(env.PACKAGE2_TEST_MIGRATIONS.map(({ name }) => name)).toEqual([
+    '0001_package1_domain.sql',
+    '0002_package2_vertical_slice.sql',
+  ]);
   const table = await env.DB.prepare(
     `SELECT sql FROM sqlite_schema
       WHERE type = 'table' AND name = 'precedent_retrieval_profiles'`,
