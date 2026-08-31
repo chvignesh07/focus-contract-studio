@@ -1,0 +1,523 @@
+{
+  "schema_version": "fcs-package3-authority-baseline-v2",
+  "package": {
+    "number": 3,
+    "name": "Raw observer and independent verifier",
+    "artifact_role": "DERIVED_PLANNING_BASELINE_NOT_PRODUCT_AUTHORITY"
+  },
+  "repository_path": "<REPOSITORY_ROOT>",
+  "path_aliases": {
+    "<REPOSITORY_ROOT>": "--repository-root",
+    "<PLANNING_WORKSPACE>": "--planning-workspace"
+  },
+  "baseline_git_commit": "cb75d76e0cfd91534e27ea1ce6a2f192423d99c7",
+  "authority_contract": {
+    "root_contract": "AGENTS.md",
+    "controlling_intake": "START_HERE.md",
+    "mandatory_authority_file_count": 28,
+    "sequencing_context_file_count": 2,
+    "workflow_contract_file_count": 1,
+    "rule": "Root AGENTS.md, START_HERE.md, and its complete mandatory read order remain controlling. This manifest records bytes and anchors only and cannot amend, omit, reinterpret, or supersede them."
+  },
+  "authority_files": [
+    {
+      "read_order": null,
+      "path": "AGENTS.md",
+      "git_blob_id": "3793c0d977087237c96c28116f39ce93bcb77c52",
+      "sha256": "eaf0c16d01a30b6c0efdfdd9675b3bb78e2cb1220a7208456392d940e2476c5e",
+      "bytes": 3504,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Scope and authority",
+        "Repository custody",
+        "Engineering gate",
+        "External and destructive actions",
+        "Product invariants",
+        "Completion evidence"
+      ],
+      "annotation": "Controls authority, one-writer custody, privacy-safe raw verification, exact four-tool boundary, proportionate evidence, and the prohibition on beginning a later package without authorization."
+    },
+    {
+      "read_order": null,
+      "path": "START_HERE.md",
+      "git_blob_id": "507b26fa991bd78a348b9f83b409d110aef793c5",
+      "sha256": "3a66b0763d360a149133424971461433378c0fc8d49f0b2312cd1cc889345c9c",
+      "bytes": 5690,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Non-negotiable product truth",
+        "Mandatory read order",
+        "Authority order",
+        "Stop conditions"
+      ],
+      "annotation": "Defines the complete intake, conflict order, raw-event independence, and stop conditions that generated planning artifacts cannot weaken."
+    },
+    {
+      "read_order": 1,
+      "path": "WEBMCP_FOUNDER_DECISIONS.md",
+      "git_blob_id": "3a61f0c5908a093eff3f718086793128fca80954",
+      "sha256": "aa207119bcc85848915657d2f7dea923dc61945c889e7a7eaf57684f9c6c93c8",
+      "bytes": 7842,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "D-003 — Persistent mutation target",
+        "D-008 — Reviewer authority",
+        "D-011 — Execution and reviews",
+        "D-015 — Hero model correction"
+      ],
+      "annotation": "Keeps implemented revision, review authority, raw verification, and independent adversarial review distinct."
+    },
+    {
+      "read_order": 2,
+      "path": "docs/authority/PRODUCT_TRUTH.md",
+      "git_blob_id": "7df875ed7f57e61ce915c7d779eccb259216d956",
+      "sha256": "eee8caa8c48ec720d18eef614d9f5aecf3e58e6e9093445d7fbc584768bb8aa6",
+      "bytes": 10092,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Problem and answer",
+        "Locked release boundary",
+        "The coherent hero > Repair truth",
+        "Authority boundary",
+        "Evidence-gated submission claims"
+      ],
+      "annotation": "Defines observation versus implemented configuration, the observer/verifier capture boundary, revision-2 rehearsal, and independent-verification claim gate."
+    },
+    {
+      "read_order": 3,
+      "path": "docs/authority/AUTHORITY_VALIDATION.md",
+      "git_blob_id": "119547156c94950090226070e9793007bc999c14",
+      "sha256": "8ebf9287b9546b7892df6aa755bde02455562e8de8e01255c32019162d7de691",
+      "bytes": 7874,
+      "package_3_relevance": "CONTEXTUAL",
+      "anchors": [
+        "Meaning of this result",
+        "Resolved contradictions",
+        "Mechanical validation",
+        "Deliberately not yet passed"
+      ],
+      "annotation": "Confirms documentation coherence while explicitly withholding product, accessibility, security, and verifier test evidence until executed."
+    },
+    {
+      "read_order": 4,
+      "path": "docs/delivery/AGENT_BUILD_CONTRACT.md",
+      "git_blob_id": "7608f726711d85c2b3220d3b4130aa8e78132dda",
+      "sha256": "2b0d641cf4081518e744c24cc26b7d54626e8b5491ff8cfe240c2c4014d86022",
+      "bytes": 6160,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Sites ownership",
+        "Change discipline",
+        "Decision discipline",
+        "Engineering loop",
+        "Evidence language",
+        "Review protocol"
+      ],
+      "annotation": "Controls single-writer custody, test-first package execution, verifier independence, evidence language, and read-only review disposition."
+    },
+    {
+      "read_order": 5,
+      "path": "docs/architecture/TECHNOLOGY_SELECTION.md",
+      "git_blob_id": "92285909c88efbce64ae164cd9ee3f4bd2346f5e",
+      "sha256": "eeeac50a98b465c213af9ee9f604b15f9c3eafebb55a88d19dd64cef9d8e52a0",
+      "bytes": 10610,
+      "package_3_relevance": "CONTEXTUAL",
+      "anchors": [
+        "Selection principle",
+        "Chosen stack",
+        "Bootstrap probes — block features until resolved",
+        "Top-one implementation consequences"
+      ],
+      "annotation": "Constrains later implementation to the selected first-party stack and real browser/test evidence; Prompt B makes no new technology choice."
+    },
+    {
+      "read_order": 6,
+      "path": "docs/hackathon-build/scope.md",
+      "git_blob_id": "7b9f2948b506193095481e9dddce9d5159fa57c5",
+      "sha256": "5c5b73d76f5739a915320632b4335c390cbaa2bf3002c12454b0c608e49707f1",
+      "bytes": 6374,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Hero proof",
+        "What we are building > Verification",
+        "Explicit non-goals",
+        "Time and execution boundary",
+        "Definition of done"
+      ],
+      "annotation": "Bounds Package 3 to actual focus/key observation and independent verification for one dialog family, with no scope expansion or weakened gates."
+    },
+    {
+      "read_order": 7,
+      "path": "docs/hackathon-build/prd.md",
+      "git_blob_id": "1ccf031e2832f96100f6edac839e99f373fa2b20",
+      "sha256": "87b77e8a64e214b690a7ceace94e105e84a0c74af8574efe5e674d0bac06fd94",
+      "bytes": 12667,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Core user journey",
+        "PRD-003 — See the exact active subject",
+        "PRD-004 — Capture raw behavior",
+        "PRD-011 — Verify raw rehearsal evidence",
+        "PRD-013 — Use the same protected operations",
+        "Edge cases"
+      ],
+      "annotation": "Provides the Package 3 user outcomes, raw-event privacy rule, six verification behaviors, revision/session edge cases, and observable acceptance."
+    },
+    {
+      "read_order": 8,
+      "path": "docs/hackathon-build/spec.md",
+      "git_blob_id": "5546ce4a95f292879920f402fcd2e84b1dcaa570",
+      "sha256": "859814caf66941977c633b67421d74acc378078dead18530efa185356ab3a332",
+      "bytes": 12302,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Overview",
+        "Architecture",
+        "Data flow > Verify and undo",
+        "Components and responsibilities > Focus playground",
+        "Components and responsibilities > Independent verifier and history",
+        "API surface"
+      ],
+      "annotation": "Defines browser capture responsibility, finalized-session verification flow, verifier/history responsibility, and the existing rehearsal/verification surfaces."
+    },
+    {
+      "read_order": 9,
+      "path": "docs/architecture/ARCHITECTURE.md",
+      "git_blob_id": "fc45c7302a8a6581ce80decac31b85428c7ce5d6",
+      "sha256": "8e101f878851eb4726f1a0f35560a8de8ff1580c9f7ab18d8950df264af7ebe2",
+      "bytes": 11022,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Trust boundaries",
+        "Layer rules",
+        "Core flows > Render and observe",
+        "Core flows > Verify and project precedent",
+        "Read consistency",
+        "Failure behavior",
+        "Data lifecycle and observability"
+      ],
+      "annotation": "Defines manifest/event capture, trust boundaries, immutable finalization, receipt construction, verifier isolation, replay behavior, and privacy-safe lifecycle/logging."
+    },
+    {
+      "read_order": 10,
+      "path": "docs/architecture/DOMAIN_MODEL.md",
+      "git_blob_id": "8ee1437741426f1329fba2bc0e2f5ca78f7d87f1",
+      "sha256": "3d133b5b00c1be498202cb54a7dbb2dbc3e6c87b02d574cf278d6460b7d0c923",
+      "bytes": 12099,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Fixed value objects",
+        "Entities",
+        "State machines > Observation",
+        "Workspace and ID invariants",
+        "Exact guarded mutation invariant",
+        "Idempotency contract",
+        "Raw observation grammar",
+        "Verification invariant",
+        "Public error envelope"
+      ],
+      "annotation": "Supplies stable target/event types, entity bindings, lifecycle, limits, digest/receipt invariants, idempotent verification, and non-oracle errors."
+    },
+    {
+      "read_order": 11,
+      "path": "docs/contracts/WEBMCP_TOOL_CONTRACT.md",
+      "git_blob_id": "e9b9542cfcd1fbf74678b0c14cddc9fb597016f3",
+      "sha256": "e240c93b1fc67c442e97a65147dd35f6a3fd38bed26ff986905b7d45635d3cb2",
+      "bytes": 10661,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Common constraints",
+        "4. `verify_focus_contract`",
+        "Public errors",
+        "Capability parity"
+      ],
+      "annotation": "Constrains the eventual verification operation, result/check vocabulary, replay semantics, unavailable-ID boundary, and the rule that verification cannot mutate configuration."
+    },
+    {
+      "read_order": 12,
+      "path": "docs/retrieval/RETRIEVAL_AND_RRF_SPEC.md",
+      "git_blob_id": "6ac3bd849d1ecbe4c4cf924122983263a0f31663",
+      "sha256": "3c74290d084a540007d2fffb6d846e4d664a418f149915e92553b8c91cda5ff4",
+      "bytes": 11614,
+      "package_3_relevance": "BOUNDARY_ONLY",
+      "anchors": [
+        "Purpose and authority",
+        "Explanation and injection boundary",
+        "Determinism and performance"
+      ],
+      "annotation": "Package 3 must remain independent of retrieval, untrusted rationale, rank code, and benchmark expected judgments; it does not implement retrieval."
+    },
+    {
+      "read_order": 13,
+      "path": "docs/retrieval/RRF_BENCHMARK.md",
+      "git_blob_id": "5326077bc7c92c0366f7e8d436ece3716cd7e65b",
+      "sha256": "b4ebd8bf17e1cc17ab5b00f031484685eaaa72fb1fa2e91c294ef46ac304ddc4",
+      "bytes": 6393,
+      "package_3_relevance": "BOUNDARY_ONLY",
+      "anchors": [
+        "Seal and holdout honesty",
+        "Frozen release gates",
+        "Memory counterfactual is separate"
+      ],
+      "annotation": "The observer/verifier cannot import benchmark judgments, expected fields, or reference-evaluator outputs; Package 3 does not open or alter the holdout."
+    },
+    {
+      "read_order": 14,
+      "path": "docs/product/UX_SPEC.md",
+      "git_blob_id": "d637344c75d374fbe910aebaa1bf4b4f3d8ab974",
+      "sha256": "c7b9c6f0e5d7f318a1b1fa91daedaadaae87b155558d743751680bdfc4223cf6",
+      "bytes": 8695,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Information architecture",
+        "State language",
+        "Hero interaction > Observe",
+        "Hero interaction > Verify",
+        "Error and empty states",
+        "Accessibility interaction contract",
+        "Cold comprehension gate"
+      ],
+      "annotation": "Defines observable rehearsal/verification states, raw-sequence presentation, `not_observed` failure, safe errors, accessibility, and truthful comprehension."
+    },
+    {
+      "read_order": 15,
+      "path": "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md",
+      "git_blob_id": "652a2d5ae17b17a79a8b34327e1adbe8fc3a0079",
+      "sha256": "772a38aadd044e2b59823c162b1af922e884c96c0824f1aa1dc2342fb4ed2d2f",
+      "bytes": 5969,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Scope",
+        "Renderer contract",
+        "Observer independence",
+        "Complete rehearsal script",
+        "Verifier v1 rules",
+        "Deliberate mutation tests",
+        "Automated accessibility gates",
+        "Founder-operated manual session",
+        "Cold evaluator"
+      ],
+      "annotation": "Primary Package 3 behavior contract: bounded private capture, exact rehearsal order, six pass rules, seven planted failures, dependency isolation, accessibility evidence, and no general conformance claim."
+    },
+    {
+      "read_order": 16,
+      "path": "docs/quality/SECURITY_AND_PRIVACY.md",
+      "git_blob_id": "4aed5b6cc579bcbabd4be3cbfd54018c23ca101b",
+      "sha256": "9987ef7ce976c91cb3ac00543918fcab8075179f1b336fbc874efaa89657f223",
+      "bytes": 9033,
+      "package_3_relevance": "CONTROLLING",
+      "anchors": [
+        "Security objective",
+        "Threat controls",
+        "Session and workspace design > Anonymous baseline",
+        "Request boundary",
+        "Guarded D1 writes",
+        "Data inventory and retention",
+        "Proposed limits — not confirmed until hosted load tests",
+        "Disclosure"
+      ],
+      "annotation": "Controls workspace isolation, tamper/replay safety, stable-ID-only capture, data minimization, bounds, retention, no secrets/typed content, and evidence-qualified claims."
+    },
+    {
+      "read_order": 17,
+      "path": "docs/quality/TEST_STRATEGY.md",
+      "git_blob_id": "e667589c43ef5cb19bd80c0211a4b73297c93557",
+      "sha256": "fff709020801689104e2ca9edcb8f6d220240e12a866cdb8449db1e863bdf6cc",
+      "bytes": 8578,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Principle",
+        "Test layers",
+        "Retrieval v2",
+        "Critical D1 matrix",
+        "WebMCP tests",
+        "Security/privacy tests",
+        "Quality thresholds",
+        "Release acceptance"
+      ],
+      "annotation": "Requires unit, D1, route, browser, privacy, planted-divergence, real-environment, coverage, and interrupted-check evidence at the layer where behavior can fail."
+    },
+    {
+      "read_order": 18,
+      "path": "docs/quality/TRACEABILITY_MATRIX.md",
+      "git_blob_id": "befaca526e21cddc67107922a6c0e6061ce14700",
+      "sha256": "c53374470b0fe07002a1580ccb42f237b9ec38d7f427cdcc7501015ba906f52d",
+      "bytes": 3105,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Raw observation",
+        "Independent verification",
+        "Accessibility",
+        "Privacy/retention"
+      ],
+      "annotation": "Maps raw observation, verifier independence, accessibility, and privacy requirements to automated and hosted/manual evidence without allowing plan-only PASS."
+    },
+    {
+      "read_order": 19,
+      "path": "docs/hackathon-build/checklist.md",
+      "git_blob_id": "a4da77590f510b8fe578d2af26ff5593cb9692b9",
+      "sha256": "912a9c1e04ccc0f467e02f2665a9ced799c59ac72ec4b3fe3d1f2877e2fb5db1",
+      "bytes": 12705,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Build preferences",
+        "Checklist > 5. Implement raw focus observation and independent verification",
+        "Checklist > 7. Complete the accessible human workflow and premium responsive UX",
+        "Checklist > 9. Run adversarial review one and close all high-severity findings"
+      ],
+      "annotation": "Names the exact observer/verifier build outcome, planted divergence and privacy proof, browser/manual evidence, and review closure expected in later implementation."
+    },
+    {
+      "read_order": 20,
+      "path": "docs/delivery/EVIDENCE_REGISTRY.md",
+      "git_blob_id": "bf59bdc0bcc71532f13526adb430f51d954ae49f",
+      "sha256": "7ee4bdb3c5f4d61e984f2642eb1d4914373fe3c116df2eef3c5d2b82ec5277bc",
+      "bytes": 11987,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Purpose",
+        "File conventions",
+        "Result vocabulary",
+        "Required evidence > E-006",
+        "Required evidence > E-007",
+        "Required evidence > E-008",
+        "Required evidence > E-009",
+        "Required evidence > E-010",
+        "Required evidence > E-011",
+        "Required evidence > E-014",
+        "Claim-to-evidence rule"
+      ],
+      "annotation": "Defines exact observer/verifier, D1, browser, coverage, and claim artifacts; plans and interrupted checks cannot count as PASS."
+    },
+    {
+      "read_order": 21,
+      "path": "docs/delivery/DEPLOYMENT_AND_OPERATIONS.md",
+      "git_blob_id": "582dc611af00ed9cf30f889900b6380a3b482b6b",
+      "sha256": "e02e284089d66a80bbf32a5c7a340f82d23bd7fd31c37a184c60a90ee717c2ca",
+      "bytes": 11643,
+      "package_3_relevance": "CONTEXTUAL",
+      "anchors": [
+        "Hosting truth",
+        "Environment model",
+        "Configuration and secrets",
+        "Public acceptance minimum",
+        "Deadline freeze"
+      ],
+      "annotation": "Later hosted/manual verification must identify the exact environment and avoid secrets; Prompt B performs no deployment, hosted mutation, or release action."
+    },
+    {
+      "read_order": 22,
+      "path": "docs/delivery/PROVENANCE_AND_LICENSE.md",
+      "git_blob_id": "a81ccd6a8e0956e4ae9688af33cfe4afc6695867",
+      "sha256": "5513d54124a7a31607316c6f83548643cdf17209a08440f002aac4fe00551a43",
+      "bytes": 6320,
+      "package_3_relevance": "BOUNDARY_ONLY",
+      "anchors": [
+        "Original work boundary",
+        "Dependency policy",
+        "AI usage disclosure",
+        "Release checks"
+      ],
+      "annotation": "Package 3 must be new project work, must not copy Clivus/private artifacts, and must preserve dependency/provenance evidence."
+    },
+    {
+      "read_order": 23,
+      "path": "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md",
+      "git_blob_id": "101245f591a03364a63a5cea55de2c1de69cd66e",
+      "sha256": "866c6e63f85f1f9250190ebd1eafc4f02dc463ca3959bd998b67fb6256791ea0",
+      "bytes": 22659,
+      "package_3_relevance": "PRIMARY_CONTROLLING",
+      "anchors": [
+        "Immutable product spine",
+        "Critical path",
+        "Package 3 — Raw observer and independent verifier",
+        "Package 5 — Review, guarded apply, receipts, history, and undo",
+        "Scope pressure rule",
+        "Definition of done"
+      ],
+      "annotation": "Names the complete Package 3 build, tests, evidence, static dependency boundary, and exit gate; Prompt B derives the specification only."
+    },
+    {
+      "read_order": 24,
+      "path": "docs/delivery/SUBMISSION_PLAN.md",
+      "git_blob_id": "3d05de212e504bc16a19eea4c34b556ccbbd7d40",
+      "sha256": "f1432300e98d1ae4a067cfe0228d6d38423e7d147658074f6c2160c4d9c8006c",
+      "bytes": 14906,
+      "package_3_relevance": "CONTEXTUAL",
+      "anchors": [
+        "Canonical positioning > Better human-agent experience",
+        "Criterion proof map",
+        "Public repository package",
+        "Claim gates"
+      ],
+      "annotation": "Constrains later claims to raw-event verification evidence and planted failures; Prompt B performs no video, publication, or Devpost action."
+    },
+    {
+      "read_order": 25,
+      "path": "devpost-submission.md",
+      "git_blob_id": "903d32030f35344085c0c023de05d54a9b916e49",
+      "sha256": "d6a6ca7dbf3db276f8b099a60e7a66c0e02b8548750d571cb1bc61a289f2e431",
+      "bytes": 11881,
+      "package_3_relevance": "CONTEXTUAL",
+      "anchors": [
+        "What it does",
+        "How it creates a better human-agent experience",
+        "How we built it",
+        "Accomplishments",
+        "Claim boundary"
+      ],
+      "annotation": "Draft claims require exact Package 3 evidence and cannot be promoted from a specification or unexecuted test."
+    },
+    {
+      "read_order": 26,
+      "path": ".devpost-hackathon-state.json",
+      "git_blob_id": "77d59f07d986bf74d52e284056a1189b3ced684d",
+      "sha256": "98ab12fd017c13633cbefdcbd82e2d989466a6f06727bb3714b0f09eb77918a5",
+      "bytes": 1462,
+      "package_3_relevance": "NO_DIRECT_REQUIREMENT",
+      "anchors": [
+        "$"
+      ],
+      "annotation": "Records hackathon workflow context only; it does not authorize Package 3 product code, external writes, or submission."
+    }
+  ],
+  "sequencing_context_files": [
+    {
+      "path": "docs/evidence/EXECUTION_STATE.md",
+      "git_blob_id": "91d188e6137781e5d25ab76760f9f9f1554ad4f8",
+      "sha256": "e3621ba45229be8210ec994c1b7c69401bb4b101801a92cd4cb51eea83b64b48",
+      "bytes": 1530,
+      "package_3_relevance": "SEQUENCING_ONLY",
+      "anchors": [
+        "Product-Local Execution State"
+      ],
+      "annotation": "Historical state said Package 3 was not authorized; the current user request authorizes Prompt B planning only and still does not authorize implementation."
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.json",
+      "git_blob_id": "fd33d8acd2b98feaa864156d9ca551bdf79a7e2a",
+      "sha256": "a7a0ae058074e6016466bdffd727af032d19cab67595c7df180abb9c15656349",
+      "bytes": 613,
+      "package_3_relevance": "SEQUENCING_ONLY",
+      "anchors": [
+        "$.packages.package3"
+      ],
+      "annotation": "Machine-readable companion for sequencing status; it cannot amend product authority or broaden this Prompt B authorization."
+    }
+  ],
+  "workflow_contract": {
+    "source_type": "EXTERNAL_READ_ONLY_WORKFLOW_AUTHORITY",
+    "path": "<PLANNING_WORKSPACE>/docs/delivery/SPEC_KIT_ADOPTION_PLAN_2026-08-30.md",
+    "git_blob_id": null,
+    "sha256": "58a2daecaca8c576eaa727a6e102568f890d730371f02e9de695a860c64bc71f",
+    "bytes": 24003,
+    "package_3_relevance": "PROMPT_B_WORKFLOW_ONLY",
+    "anchors": [
+      "Authority model after adoption",
+      "Gate 0.5 — One-prompt and authorization protocol",
+      "Gate 3 — Package 3 planning pilot",
+      "Gate 4 — Pilot acceptance contract"
+    ],
+    "annotation": "Controls the authority-baseline bridge, re-hash-before-command rule, Prompt B skill sequence and stop boundary, and Package 3 stable-ID acceptance contract. It is not product authority and cannot authorize implementation."
+  }
+}

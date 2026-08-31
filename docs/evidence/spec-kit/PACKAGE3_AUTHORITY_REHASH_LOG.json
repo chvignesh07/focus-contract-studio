@@ -1,0 +1,60 @@
+{
+  "schema_version": "fcs-package3-authority-rehash-log-v4",
+  "baseline_manifest": "docs/evidence/spec-kit/PACKAGE3_AUTHORITY_BASELINE.json",
+  "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+  "receipt": "docs/evidence/spec-kit/PACKAGE3_AUTHORITY_BASELINE.sha256",
+  "receipt_sha256": "4d5f2ac7da568037bf9dbe7696c7a2eab60242416ef524d765875f0c1a4cc00a",
+  "path_resolution": {
+    "<REPOSITORY_ROOT>": "--repository-root",
+    "<PLANNING_WORKSPACE>": "--planning-workspace"
+  },
+  "supersedes": {
+    "baseline_sha256": "afbaf725a6b7e68bc544f375ccc6a81766b7c4dfeec2d269c68aefef4ec45ffc",
+    "receipt_sha256": "5b7de37d723bb2b6ec9c53ea5f72b7a6f4174b55dc2bf5fd4c4dbc9e6afd9cbf",
+    "rehash_log_sha256": "b60735542c58cffc479b2c49879a79f73f996165c339513930a4b87a2bb0fef6",
+    "spec_sha256": "2feeccdc05b5c7f8efd4b52a3cdba3f9ffd20fa99d99cb13d97b69808bdbb5e6",
+    "checklist_sha256": "04d910c4d31369baa888bfc6fcd5ef8494cf6751e1bee0f7c32b611239f654c2",
+    "portability_repair_rehash_log_sha256": "98e20afca1f0a773bdfafb7588d44451a088e83eaf401bf6994f7a50e6a3eb85",
+    "portability_repair_validator_sha256": "484799c99fcd1652e661f2a56185873e4eaafd09b647e8804c919378517969f3",
+    "portability_repair_checklist_sha256": "95e209aa0bbe35784c61ce70774478e80addf74256ce85c40e1b618bc10bf477",
+    "final_integrity_repair_rehash_log_sha256": "6ac946246f5c81a1d145c5a5d97675765283a649e00fede969c4f0ae95e7ad57",
+    "final_integrity_repair_validator_sha256": "05cdf491f069b37b27f2f60b00a23f51f73746037f24735b29b2be6214f41348"
+  },
+  "artifact_sha256": {
+    ".specify/feature.json": "0f6600dc3e0c4754d657ce7ee8997659520e40f22a7a6d78ae479767fec71869",
+    "specs/001-package-3-raw-observer-verifier/spec.md": "5fe820a27b5612904eaed1087eded6f6fdf6769c024aa040f32fe80c0cd72d25",
+    "specs/001-package-3-raw-observer-verifier/checklists/requirements.md": "f70b8f5decae6af5543e52fc82ec6171507e46aacc744c27d3b03b5423ffb7aa",
+    "docs/evidence/spec-kit/verify_prompt_b.py": "169a00c108509f2894919c63e302fab1ea62efe47ca3642c6a4c08802b463bd6"
+  },
+  "checks": [
+    {
+      "phase": "prompt_b_checkpoint_binding_repair",
+      "checked_at": "2026-08-31T18:54:36Z",
+      "git_head": "cb75d76e0cfd91534e27ea1ce6a2f192423d99c7",
+      "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "receipt_sha256": "4d5f2ac7da568037bf9dbe7696c7a2eab60242416ef524d765875f0c1a4cc00a",
+      "prompt_a_managed_files_checked": 30,
+      "authority_files_checked": 30,
+      "workflow_contract_files_checked": 1,
+      "source_anchors_checked": 158,
+      "stable_requirements_checked": 62,
+      "requirement_source_map": "PASS",
+      "specification_checklist": "16/16 PASS",
+      "strict_recursive_json_decoder": "PASS",
+      "canonical_fence_aware_markdown_sections": "PASS",
+      "validator_self_tests": "19/19 PASS",
+      "working_state_validation": "PASS_EXPECTED_HEAD_PROHIBITED",
+      "committed_state_contract": "CALLER_EXPECTED_HEAD_SINGLE_CHILD_OF_BASELINE_EXACT_SIX_FILES_CLEAN",
+      "immutable_checkpoint": "CALLER_SUPPLIED_EXPECTED_HEAD_WITHOUT_EMBEDDED_COMMIT_SHA",
+      "feature_pointer_contract": "PRESENT_EXACT_IGNORED_OR_ABSENT_IN_PRISTINE_COMMITTED_CLONE",
+      "controlled_surface_scope": "SPEC_KIT_EVIDENCE_AND_SPECIFICATION",
+      "ignored_secret_like_name_matches": 0,
+      "local_path_references": 0,
+      "unresolved_critical_high_findings": 0,
+      "missing_controlling_requirements": 0,
+      "allowed_write_boundary": "PASS",
+      "main_checkout": "UNTOUCHED",
+      "result": "PASS"
+    }
+  ]
+}
