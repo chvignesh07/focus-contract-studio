@@ -1,0 +1,59 @@
+{
+  "schema_version": "fcs-package4-d1-v1",
+  "package": 4,
+  "status": "PASS",
+  "command": "npm run test:package4:d1",
+  "tests": { "passed": 5, "failed": 0, "total": 5 },
+  "migrations": [
+    "0001_package1_domain.sql",
+    "0002_package2_vertical_slice.sql",
+    "0003_package3_raw_observer_verifier.sql"
+  ],
+  "sql_sha256": "fa5a14b0d8baffe61aedede09b35559d84e33df697be9b606f2f8424d44dfc01",
+  "query_plan": {
+    "detail": [
+      "SEARCH pr USING INDEX idx_precedent_profiles_eligibility (workspace_id=? AND product=? AND component_family=? AND use_case=? AND intent=? AND risk=? AND source_status=? AND hostile=?)",
+      "CORRELATED SCALAR SUBQUERY 1",
+      "SCAN json_each VIRTUAL TABLE INDEX 1:",
+      "CORRELATED SCALAR SUBQUERY 2",
+      "SCAN json_each VIRTUAL TABLE INDEX 1:",
+      "SEARCH p USING INDEX sqlite_autoindex_precedent_records_2 (workspace_id=? AND id=?)",
+      "CORRELATED SCALAR SUBQUERY 3",
+      "SCAN allowed VIRTUAL TABLE INDEX 1:",
+      "CORRELATED SCALAR SUBQUERY 4",
+      "SEARCH successor USING COVERING INDEX idx_precedent_eligibility (workspace_id=?)",
+      "SEARCH successor_profile USING INDEX sqlite_autoindex_precedent_retrieval_profiles_2 (workspace_id=? AND record_id=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "required_indexes": ["idx_precedent_profiles_eligibility", "idx_precedent_eligibility"],
+    "production_table_scans": 0
+  },
+  "excluded_categories": [
+    "foreign-workspace",
+    "hostile",
+    "rejected-profile",
+    "wrong-product",
+    "wrong-component-family",
+    "wrong-use-case",
+    "wrong-variant",
+    "wrong-behavior",
+    "wrong-intent",
+    "wrong-risk",
+    "wrong-mismatch-tag",
+    "expired",
+    "future",
+    "invalid-outcome",
+    "superseded-record-status",
+    "quarantined-record-status",
+    "conflict-record-status",
+    "active-valid-superseded"
+  ],
+  "malformed_materialization": "FAIL_CLOSED",
+  "development_parity_cases": 9,
+  "maximum_rows": 36,
+  "deterministic_order": "record_key ASC",
+  "additive_migration": "NOT_REQUIRED",
+  "remote_bindings": false,
+  "hosted_status": "NOT_RUN",
+  "holdout_status": "NOT_RUN"
+}

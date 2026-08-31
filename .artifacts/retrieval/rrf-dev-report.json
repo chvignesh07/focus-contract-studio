@@ -1,0 +1,931 @@
+{
+  "schemaVersion": "fcs-package4-development-report-v1",
+  "benchmarkId": "fcs-rrf-benchmark-v2",
+  "algorithm": "rrf-k60-v2",
+  "eligibility": "focus-eligibility-v2",
+  "lexical": "eligible-ts-bm25-v1",
+  "environment": "local-production-typescript-development-only",
+  "claimBoundary": "Synthetic development evidence only; no holdout or release-superiority claim.",
+  "productionSource": {
+    "algorithm": "sha256",
+    "fileCount": 6,
+    "aggregateSha256": "a55ee9bd28282d75cb672ad8d1c019d1d821c4a783053f50dea460f57d34d3d1",
+    "files": [
+      {
+        "path": "lib/retrieval/active-focus.ts",
+        "bytes": 11621,
+        "sha256": "1d7e330cdfabe2996036304f74bc15de2f6c04699234e3a362bb572fc497e6c2"
+      },
+      {
+        "path": "lib/retrieval/bm25.ts",
+        "bytes": 2705,
+        "sha256": "2b23aff045ea7a4c497e75850ee20de0522a8096cf2f93d5e592da66addab8c3"
+      },
+      {
+        "path": "lib/retrieval/corpus-v2.ts",
+        "bytes": 1618,
+        "sha256": "f2d213bc02a9e1a07e068c22e9e9833881eadec4ef5a1eb0319e16b42c2c08ba"
+      },
+      {
+        "path": "lib/retrieval/rrf.ts",
+        "bytes": 1108,
+        "sha256": "fd44d8c55f843538f4ca77c2ecd82523dee431bb8f1f0f91cc5b5dca2fcec3fd"
+      },
+      {
+        "path": "lib/retrieval/tokenize.ts",
+        "bytes": 233,
+        "sha256": "b3286c032e38c274dbc86e61edb8a690af7b2bb88b93099f30757b722ecb7e07"
+      },
+      {
+        "path": "lib/retrieval/types.ts",
+        "bytes": 1336,
+        "sha256": "519da2732c86416a6998bceda67b8469589c5150308181823479ae137a049b5a"
+      }
+    ]
+  },
+  "fixtureSeal": {
+    "manifestSha256": "d671c490ec1c20d88c9c1a35b3ae262a3395ce3624e9bfe0b9394ebddfcef8f7",
+    "hashes": {
+      "rrf-corpus-v1.json": "5f0ca4d31b80b5cb270a1ddd14e2a6f98596a516acf84634e27ba522a179eaa3",
+      "rrf-corpus-overrides-v2.json": "783fdd1507de009707e6a7f6fb5cd01412896bb21f55682f7dfcb8ef160ce9cb",
+      "rrf-dev-queries-v2.json": "1bb9c02a4b5c9c20fa34e53ff85de86ea41c0425e35335cb295bdf182575298d",
+      "rrf-holdout-queries-v2.json": "ff3d45dbf976582a23a7354ae84ffb67b83ea4029b2fa20cb2dc506c762629f0",
+      "rrf-corpus-schema-v2.json": "546d4ea2524cd04c4ff3520eb01d7091d25ecaa2bd60401f5c7232ac8ec56802",
+      "rrf-query-suite-schema-v2.json": "d2db025ee29fd28282ae06d7e15b1db291a2831e2905a940f43cb121a3c6ee3e",
+      "reference-evaluator-v2.mjs": "b9d027f8c3a1aeff248c72e811062cec1ff8340419d9c625af3fe4857a97fa7a",
+      "RRF_V2_CALIBRATION.json": "bc815df5557b483bc4a27f02735afbbd54c4cb350278cf83f29ffe79be9883b6"
+    },
+    "holdoutAccess": "hash-only"
+  },
+  "summary": {
+    "queryCount": 12,
+    "positiveCases": 8,
+    "dispositionCorrect": 12,
+    "goldenCorrect": 12,
+    "forbiddenAppearances": 0,
+    "repetitions": 100,
+    "byteIdentical": true,
+    "determinismSha256": "4b88b3347e6a25d573145968fdee047ff22e525d198f877bfb674f42d217766e"
+  },
+  "metrics": {
+    "meanNdcgAt3": {
+      "lexical": 0.824102,
+      "structured": 0.885657,
+      "relationship": 0.963726,
+      "rrf": 0.963726
+    },
+    "mrrAt3": {
+      "lexical": 0.75,
+      "structured": 0.8125,
+      "relationship": 0.9375,
+      "rrf": 0.9375
+    },
+    "recallAt3": {
+      "lexical": 1,
+      "structured": 1,
+      "relationship": 1,
+      "rrf": 1
+    }
+  },
+  "ablations": {
+    "withoutLexical": {
+      "meanNdcgAt3": 0.891179,
+      "mrrAt3": 0.8125,
+      "recallAt3": 1
+    },
+    "withoutStructured": {
+      "meanNdcgAt3": 0.963726,
+      "mrrAt3": 0.9375,
+      "recallAt3": 1
+    },
+    "withoutRelationship": {
+      "meanNdcgAt3": 0.891179,
+      "mrrAt3": 0.8125,
+      "recallAt3": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "DEV2-01",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D001",
+        "D003",
+        "D029"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D029",
+          "D001",
+          "D003"
+        ],
+        "structured": [
+          "D001",
+          "D003",
+          "D029"
+        ],
+        "relationship": [
+          "D001",
+          "D003",
+          "D029"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D001",
+          "outcomeKey": "cancel-button",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01639344"
+          ],
+          "structuredScore": 94,
+          "relationshipTier": 1,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "For the destructive Delete Account dialog, initial focus goes to Cancel before the destru… Evidence only — not approval."
+        },
+        {
+          "recordId": "D003",
+          "outcomeKey": "cancel-button",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            3,
+            2,
+            2
+          ],
+          "contributions": [
+            "0.01587302",
+            "0.01612903",
+            "0.01612903"
+          ],
+          "structuredScore": 84,
+          "relationshipTier": 2,
+          "rrfScore": 0.048131080389144903,
+          "rrf": "0.04813108",
+          "rationaleExcerpt": "Destructive confirmation dialogs normally start on the safe Cancel action when no warning… Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D001",
+          "grade": 3
+        },
+        {
+          "id": "D003",
+          "grade": 2
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "512a616a36a6fb50401f2e1a8129c093bd6f8134b7c91725df8d3c616ebe667a",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "512a616a36a6fb50401f2e1a8129c093bd6f8134b7c91725df8d3c616ebe667a"
+      }
+    },
+    {
+      "id": "DEV2-02",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D002",
+        "D003",
+        "D029"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D002",
+          "D003",
+          "D029"
+        ],
+        "structured": [
+          "D003",
+          "D002",
+          "D029"
+        ],
+        "relationship": [
+          "D002",
+          "D003",
+          "D029"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D002",
+          "outcomeKey": "dialog-title",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            1,
+            2,
+            1
+          ],
+          "contributions": [
+            "0.01639344",
+            "0.01612903",
+            "0.01639344"
+          ],
+          "structuredScore": 85,
+          "relationshipTier": 1,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "When the danger-emphasis warning must be announced first, move initial focus to the dialo… Evidence only — not approval."
+        },
+        {
+          "recordId": "D003",
+          "outcomeKey": "cancel-button",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            2
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01612903"
+          ],
+          "structuredScore": 88,
+          "relationshipTier": 2,
+          "rrfScore": 0.048651507139079855,
+          "rrf": "0.04865151",
+          "rationaleExcerpt": "Destructive confirmation dialogs normally start on the safe Cancel action when no warning… Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D002",
+          "grade": 3
+        },
+        {
+          "id": "D003",
+          "grade": 1
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "0a67244dfb6d076ddab6135da37b075348a8947461265e7a267e1df68ca29fe4",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "0a67244dfb6d076ddab6135da37b075348a8947461265e7a267e1df68ca29fe4"
+      }
+    },
+    {
+      "id": "DEV2-03",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D009",
+        "D012"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D012",
+          "D009"
+        ],
+        "structured": [
+          "D009",
+          "D012"
+        ],
+        "relationship": [
+          "D009",
+          "D012"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D009",
+          "outcomeKey": "close",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01639344"
+          ],
+          "structuredScore": 88,
+          "relationshipTier": 2,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "Escape closes an uncommitted Delete Account dialog without submitting the destructive act… Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D009",
+          "grade": 3
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "b48e6f4a1d43735ff028c6d26aa9dc6e9bb9be83897f7499fdf0ec8441f838ff",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "b48e6f4a1d43735ff028c6d26aa9dc6e9bb9be83897f7499fdf0ec8441f838ff"
+      }
+    },
+    {
+      "id": "DEV2-04",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D013",
+        "D015",
+        "D033"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D033",
+          "D015",
+          "D013"
+        ],
+        "structured": [
+          "D033",
+          "D015",
+          "D013"
+        ],
+        "relationship": [
+          "D033",
+          "D013",
+          "D015"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D033",
+          "outcomeKey": "delete-trigger",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            1,
+            1,
+            1
+          ],
+          "contributions": [
+            "0.01639344",
+            "0.01639344",
+            "0.01639344"
+          ],
+          "structuredScore": 94,
+          "relationshipTier": 1,
+          "rrfScore": 0.04918032786885246,
+          "rrf": "0.04918033",
+          "rationaleExcerpt": "The standard Delete Account dialog returns focus directly to its still-mounted Delete acc… Evidence only — not approval."
+        },
+        {
+          "recordId": "D013",
+          "outcomeKey": "delete-trigger",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            3,
+            3,
+            2
+          ],
+          "contributions": [
+            "0.01587302",
+            "0.01587302",
+            "0.01612903"
+          ],
+          "structuredScore": 79,
+          "relationshipTier": 2,
+          "rrfScore": 0.04787506400409626,
+          "rrf": "0.04787506",
+          "rationaleExcerpt": "After dismissing Delete Account, return focus to the Delete account trigger when it remai… Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D033",
+          "grade": 3
+        },
+        {
+          "id": "D013",
+          "grade": 2
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "f4d5e2be81245f4a16c7f04b741eb368569596221cea889f5a1927687df086a0",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "f4d5e2be81245f4a16c7f04b741eb368569596221cea889f5a1927687df086a0"
+      }
+    },
+    {
+      "id": "DEV2-05",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D017",
+        "D021"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D021",
+          "D017"
+        ],
+        "structured": [
+          "D017",
+          "D021"
+        ],
+        "relationship": [
+          "D017",
+          "D021"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D017",
+          "outcomeKey": "wrap-first",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01639344"
+          ],
+          "structuredScore": 88,
+          "relationshipTier": 2,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "Tab on the final Delete button wraps to the first tabbable control inside the open modal. Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D017",
+          "grade": 3
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "ae4c2cc681ca9820721c60ea2d9aff367159a8c6c39ab877bc65bcf364893bd4",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "ae4c2cc681ca9820721c60ea2d9aff367159a8c6c39ab877bc65bcf364893bd4"
+      }
+    },
+    {
+      "id": "DEV2-06",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D018",
+        "D020"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D018",
+          "D020"
+        ],
+        "structured": [
+          "D018",
+          "D020"
+        ],
+        "relationship": [
+          "D020",
+          "D018"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D018",
+          "outcomeKey": "wrap-last",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            1,
+            1,
+            2
+          ],
+          "contributions": [
+            "0.01639344",
+            "0.01639344",
+            "0.01612903"
+          ],
+          "structuredScore": 88,
+          "relationshipTier": 2,
+          "rrfScore": 0.04891591750396616,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "Shift plus Tab on the first tabbable control wraps to the final Delete button inside the … Evidence only — not approval."
+        },
+        {
+          "recordId": "D020",
+          "outcomeKey": "wrap-last",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            2,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01612903",
+            "0.01639344"
+          ],
+          "structuredScore": 85,
+          "relationshipTier": 1,
+          "rrfScore": 0.048651507139079855,
+          "rrf": "0.04865151",
+          "rationaleExcerpt": "The danger-emphasis variant keeps backward focus inside the modal and wraps from the firs… Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D020",
+          "grade": 3
+        },
+        {
+          "id": "D018",
+          "grade": 1
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "9fba1e04fe23e6ff8b12e96b09965e0a95eed03f2145f7d064e6094d7192cf6c",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "9fba1e04fe23e6ff8b12e96b09965e0a95eed03f2145f7d064e6094d7192cf6c"
+      }
+    },
+    {
+      "id": "DEV2-07",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D022",
+        "D024"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D022",
+          "D024"
+        ],
+        "structured": [
+          "D022",
+          "D024"
+        ],
+        "relationship": [
+          "D024",
+          "D022"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D022",
+          "outcomeKey": "reason-cancel-delete",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            1,
+            1,
+            2
+          ],
+          "contributions": [
+            "0.01639344",
+            "0.01639344",
+            "0.01612903"
+          ],
+          "structuredScore": 94,
+          "relationshipTier": 1,
+          "rrfScore": 0.04891591750396616,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "The standard variant follows visual order: reason input, Cancel, then Delete. Evidence only — not approval."
+        },
+        {
+          "recordId": "D024",
+          "outcomeKey": "cancel-delete",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            2,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01612903",
+            "0.01639344"
+          ],
+          "structuredScore": 84,
+          "relationshipTier": 1,
+          "rrfScore": 0.048651507139079855,
+          "rrf": "0.04865151",
+          "rationaleExcerpt": "When no reason field is rendered, the remaining order is Cancel followed by Delete. Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D022",
+          "grade": 3
+        },
+        {
+          "id": "D024",
+          "grade": 1
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "0da5bae203ab60345a6d56b9e269a0b531b1d13d18d6f95506fbd97209fddeef",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "0da5bae203ab60345a6d56b9e269a0b531b1d13d18d6f95506fbd97209fddeef"
+      }
+    },
+    {
+      "id": "DEV2-08",
+      "disposition": "results",
+      "reasonCode": "SUPPORTED_PRECEDENT",
+      "expectedDisposition": "results",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D023",
+        "D024"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D023",
+          "D024"
+        ],
+        "structured": [
+          "D024",
+          "D023"
+        ],
+        "relationship": [
+          "D023",
+          "D024"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D023",
+          "outcomeKey": "reason-cancel-delete",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            1,
+            2,
+            1
+          ],
+          "contributions": [
+            "0.01639344",
+            "0.01612903",
+            "0.01639344"
+          ],
+          "structuredScore": 85,
+          "relationshipTier": 1,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "After programmatic title focus, the danger variant tab order is reason input, Cancel, the… Evidence only — not approval."
+        },
+        {
+          "recordId": "D024",
+          "outcomeKey": "cancel-delete",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            2
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01612903"
+          ],
+          "structuredScore": 88,
+          "relationshipTier": 2,
+          "rrfScore": 0.048651507139079855,
+          "rrf": "0.04865151",
+          "rationaleExcerpt": "When no reason field is rendered, the remaining order is Cancel followed by Delete. Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D023",
+          "grade": 3
+        },
+        {
+          "id": "D024",
+          "grade": 1
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "bae747f3a54660d8c408d6da1798dbcfc14a977abff9e08df0081b8c4a221764",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "bae747f3a54660d8c408d6da1798dbcfc14a977abff9e08df0081b8c4a221764"
+      }
+    },
+    {
+      "id": "DEV2-09",
+      "disposition": "abstain",
+      "reasonCode": "UNSUPPORTED_CONTEXT",
+      "expectedDisposition": "abstain",
+      "goldenPass": true,
+      "eligibleIds": [],
+      "rankLists": {
+        "lexical": [],
+        "structured": [],
+        "relationship": []
+      },
+      "returned": [],
+      "expectedRelevant": [],
+      "forbidden": [],
+      "goldenPacketSha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72"
+      }
+    },
+    {
+      "id": "DEV2-10",
+      "disposition": "abstain",
+      "reasonCode": "UNSUPPORTED_CONTEXT",
+      "expectedDisposition": "abstain",
+      "goldenPass": true,
+      "eligibleIds": [],
+      "rankLists": {
+        "lexical": [],
+        "structured": [],
+        "relationship": []
+      },
+      "returned": [],
+      "expectedRelevant": [],
+      "forbidden": [],
+      "goldenPacketSha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72"
+      }
+    },
+    {
+      "id": "DEV2-11",
+      "disposition": "conflict",
+      "reasonCode": "EXACT_OUTCOME_CONFLICT",
+      "expectedDisposition": "conflict",
+      "goldenPass": true,
+      "eligibleIds": [
+        "D027",
+        "D028",
+        "D029"
+      ],
+      "rankLists": {
+        "lexical": [
+          "D029",
+          "D028",
+          "D027"
+        ],
+        "structured": [
+          "D028",
+          "D027",
+          "D029"
+        ],
+        "relationship": [
+          "D028",
+          "D027",
+          "D029"
+        ]
+      },
+      "returned": [
+        {
+          "recordId": "D028",
+          "outcomeKey": "dialog-title",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            2,
+            1,
+            1
+          ],
+          "contributions": [
+            "0.01612903",
+            "0.01639344",
+            "0.01639344"
+          ],
+          "structuredScore": 94,
+          "relationshipTier": 1,
+          "rrfScore": 0.048915917503966164,
+          "rrf": "0.04891592",
+          "rationaleExcerpt": "For the destructive Delete Account dialog policy exception, initial focus goes to the dia… Evidence only — not approval."
+        },
+        {
+          "recordId": "D027",
+          "outcomeKey": "cancel-button",
+          "status": "active",
+          "algorithm": "rrf-k60-v2",
+          "eligibility": "focus-eligibility-v2",
+          "ranks": [
+            3,
+            2,
+            2
+          ],
+          "contributions": [
+            "0.01587302",
+            "0.01612903",
+            "0.01612903"
+          ],
+          "structuredScore": 94,
+          "relationshipTier": 1,
+          "rrfScore": 0.048131080389144903,
+          "rrf": "0.04813108",
+          "rationaleExcerpt": "For the destructive Delete Account dialog policy exception, initial focus goes to Cancel … Evidence only — not approval."
+        }
+      ],
+      "expectedRelevant": [
+        {
+          "id": "D027",
+          "grade": 3
+        },
+        {
+          "id": "D028",
+          "grade": 3
+        }
+      ],
+      "forbidden": [],
+      "goldenPacketSha256": "1fb5d4d4fd9609f9203f4ed0c9d3dd522f8ad5a1061ebd67cc0b0040f9908bdf",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "1fb5d4d4fd9609f9203f4ed0c9d3dd522f8ad5a1061ebd67cc0b0040f9908bdf"
+      }
+    },
+    {
+      "id": "DEV2-12",
+      "disposition": "abstain",
+      "reasonCode": "UNSUPPORTED_CONTEXT",
+      "expectedDisposition": "abstain",
+      "goldenPass": true,
+      "eligibleIds": [],
+      "rankLists": {
+        "lexical": [],
+        "structured": [],
+        "relationship": []
+      },
+      "returned": [],
+      "expectedRelevant": [],
+      "forbidden": [],
+      "goldenPacketSha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72",
+      "determinism": {
+        "repetitions": 100,
+        "byteIdentical": true,
+        "sha256": "ebb56e8ec190f9fdaa4c2a0d6ff5fe2cf7a62bf8704eb77e22f6193f92440f72"
+      }
+    }
+  ]
+}

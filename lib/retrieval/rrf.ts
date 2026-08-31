@@ -6,6 +6,12 @@ export function reciprocalRankFusion(
   score: number;
 }> {
   if (rankLists.length !== 3) throw new Error('RRF requires exactly three rank lists.');
+  for (const list of rankLists) {
+    if (list.length > 12) throw new Error('RRF rank lists are bounded to 12 records.');
+    if (new Set(list.map(({ id }) => id)).size !== list.length) {
+      throw new Error('RRF rank list contains a duplicate rank ID.');
+    }
+  }
   const rankMaps = rankLists.map(
     (list) => new Map(list.map((item, index) => [item.id, index + 1])),
   );

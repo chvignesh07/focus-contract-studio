@@ -1,0 +1,56 @@
+{
+  "schema_version": "fcs-package4-local-gate-v1",
+  "package": 4,
+  "status": "PASS",
+  "command": "npm run verify:package4",
+  "source": {
+    "algorithm": "sha256",
+    "file_count": 28,
+    "aggregate_sha256": "e8295f7e276cf7bdd29cb757c60f6d65524312973b2d29cf1582526d33fab0ec"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "package0": "PASS",
+    "package1": "PASS",
+    "package2_functional": "PASS",
+    "package3": "PASS",
+    "package3_coverage": "PASS",
+    "fixture_seal": "PASS",
+    "development_benchmark": "PASS",
+    "d1": "PASS",
+    "dependency_boundary": "PASS",
+    "production_build": "PASS",
+    "package2_browser": "PASS",
+    "package3_browser": "PASS",
+    "production_audit": "PASS",
+    "package1_binding": "PASS",
+    "package3_checkpoint_frozen": "PASS",
+    "package4_source_binding": "PASS",
+    "package4_evidence_binding": "PASS",
+    "adversarial_review": "PASS",
+    "spec_kit_convergence": "PASS"
+  },
+  "tests": { "passed": 303, "failed": 0, "total": 303 },
+  "test_breakdown": {
+    "package0": 80,
+    "package1": 69,
+    "package2_functional": 52,
+    "package3_functional": 49,
+    "package3_coverage": 12,
+    "package4_node": 24,
+    "package4_d1": 5,
+    "package2_browser": 5,
+    "package3_browser": 7
+  },
+  "browser": { "package2": 5, "package3": 7 },
+  "security": { "audit_vulnerabilities": 0, "boundary_violations": 0 },
+  "external": {
+    "holdout": "NOT_RUN",
+    "hosted_d1": "NOT_RUN",
+    "deployment": "NOT_RUN",
+    "real_client": "NOT_RUN",
+    "founder_manual": "NOT_RUN",
+    "package5": "NOT_AUTHORIZED"
+  }
+}

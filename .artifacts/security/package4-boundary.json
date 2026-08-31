@@ -1,0 +1,649 @@
+{
+  "schemaVersion": "fcs-package4-production-boundary-v1",
+  "entryPaths": [
+    "app/api/focus-proposals/route.ts",
+    "app/api/focus-review/route.ts",
+    "app/api/observations/initial-focus/route.ts",
+    "app/api/package0-probe/route.ts",
+    "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+    "app/api/rehearsals/start/route.ts",
+    "app/api/session/bootstrap/route.ts",
+    "app/api/session/reset/route.ts",
+    "app/api/verifications/route.ts",
+    "app/chatgpt-auth.ts",
+    "app/delete-account-dialog.tsx",
+    "app/focus-contract-studio.tsx",
+    "app/layout.tsx",
+    "app/package0-hosted-probe-panel.tsx",
+    "app/package0-site-tool-probe.tsx",
+    "app/page.tsx",
+    "app/webmcp-tools.tsx",
+    "lib/retrieval/active-focus.ts",
+    "lib/retrieval/bm25.ts",
+    "lib/retrieval/corpus-seed.ts",
+    "lib/retrieval/corpus-v2.ts",
+    "lib/retrieval/rrf.ts",
+    "lib/retrieval/tokenize.ts",
+    "lib/retrieval/types.ts",
+    "lib/server/active-focus-review.ts",
+    "lib/server/admission.ts",
+    "lib/server/create-proposal.ts",
+    "lib/server/crypto.ts",
+    "lib/server/errors.ts",
+    "lib/server/evidence-token.ts",
+    "lib/server/focus-rehearsal.ts",
+    "lib/server/http.ts",
+    "lib/server/initial-focus-observation.ts",
+    "lib/server/precedent-repository.ts",
+    "lib/server/query-inventory.ts",
+    "lib/server/request-security.ts",
+    "lib/server/runtime-config.ts",
+    "lib/server/security-secrets.ts",
+    "lib/server/session.ts",
+    "lib/server/verify-focus-contract.ts",
+    "lib/server/workspaces.ts"
+  ],
+  "reachedPaths": [
+    "app/api/focus-proposals/route.ts",
+    "app/api/focus-review/route.ts",
+    "app/api/observations/initial-focus/route.ts",
+    "app/api/package0-probe/route.ts",
+    "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+    "app/api/rehearsals/start/route.ts",
+    "app/api/session/bootstrap/route.ts",
+    "app/api/session/reset/route.ts",
+    "app/api/verifications/route.ts",
+    "app/chatgpt-auth.ts",
+    "app/delete-account-dialog.tsx",
+    "app/focus-contract-studio.tsx",
+    "app/globals.css",
+    "app/layout.tsx",
+    "app/package0-hosted-probe-panel.tsx",
+    "app/package0-site-tool-probe.tsx",
+    "app/page.tsx",
+    "app/webmcp-tools.tsx",
+    "docs/retrieval/fixtures/rrf/rrf-corpus-overrides-v2.json",
+    "docs/retrieval/fixtures/rrf/rrf-corpus-v1.json",
+    "lib/domain/focus-configuration.ts",
+    "lib/domain/focus-event-verifier.ts",
+    "lib/domain/focus-rehearsal.ts",
+    "lib/domain/initial-focus-manifest.ts",
+    "lib/domain/proposal.ts",
+    "lib/domain/workspace-seed.ts",
+    "lib/retrieval/active-focus.ts",
+    "lib/retrieval/bm25.ts",
+    "lib/retrieval/corpus-seed.ts",
+    "lib/retrieval/corpus-v2.ts",
+    "lib/retrieval/rrf.ts",
+    "lib/retrieval/tokenize.ts",
+    "lib/retrieval/types.ts",
+    "lib/server/active-focus-review.ts",
+    "lib/server/admission.ts",
+    "lib/server/create-proposal.ts",
+    "lib/server/crypto.ts",
+    "lib/server/errors.ts",
+    "lib/server/evidence-token.ts",
+    "lib/server/focus-rehearsal.ts",
+    "lib/server/http.ts",
+    "lib/server/initial-focus-observation.ts",
+    "lib/server/precedent-repository.ts",
+    "lib/server/query-inventory.ts",
+    "lib/server/request-security.ts",
+    "lib/server/runtime-config.ts",
+    "lib/server/security-secrets.ts",
+    "lib/server/session.ts",
+    "lib/server/verify-focus-contract.ts",
+    "lib/server/workspaces.ts",
+    "lib/webmcp/contracts.ts",
+    "lib/webmcp/register.ts",
+    "probes/d1/d1-probe.ts",
+    "probes/d1/hosted-probe.ts",
+    "probes/d1/migrations/0001_package0_probe.down.sql",
+    "probes/d1/migrations/0001_package0_probe.up.sql",
+    "probes/hosted/presentation.ts",
+    "probes/hosted/request-handler.ts",
+    "probes/webmcp/package0-tool.ts"
+  ],
+  "localEdges": [
+    {
+      "from": "app/api/focus-proposals/route.ts",
+      "to": "lib/server/create-proposal.ts"
+    },
+    {
+      "from": "app/api/focus-proposals/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/focus-proposals/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/focus-proposals/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/focus-proposals/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/focus-review/route.ts",
+      "to": "lib/server/active-focus-review.ts"
+    },
+    {
+      "from": "app/api/focus-review/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/focus-review/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/focus-review/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/focus-review/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/initial-focus-observation.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/observations/initial-focus/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/package0-probe/route.ts",
+      "to": "probes/d1/migrations/0001_package0_probe.down.sql"
+    },
+    {
+      "from": "app/api/package0-probe/route.ts",
+      "to": "probes/d1/migrations/0001_package0_probe.up.sql"
+    },
+    {
+      "from": "app/api/package0-probe/route.ts",
+      "to": "probes/hosted/request-handler.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/rehearsals/start/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/admission.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/session/bootstrap/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/admission.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/session/reset/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/http.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/request-security.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/runtime-config.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/verify-focus-contract.ts"
+    },
+    {
+      "from": "app/api/verifications/route.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "app/delete-account-dialog.tsx",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "app/delete-account-dialog.tsx",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "app/delete-account-dialog.tsx",
+      "to": "lib/domain/initial-focus-manifest.ts"
+    },
+    {
+      "from": "app/focus-contract-studio.tsx",
+      "to": "app/delete-account-dialog.tsx"
+    },
+    {
+      "from": "app/focus-contract-studio.tsx",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "app/focus-contract-studio.tsx",
+      "to": "lib/domain/initial-focus-manifest.ts"
+    },
+    {
+      "from": "app/focus-contract-studio.tsx",
+      "to": "lib/server/active-focus-review.ts"
+    },
+    {
+      "from": "app/focus-contract-studio.tsx",
+      "to": "lib/webmcp/register.ts"
+    },
+    {
+      "from": "app/layout.tsx",
+      "to": "app/globals.css"
+    },
+    {
+      "from": "app/package0-hosted-probe-panel.tsx",
+      "to": "probes/hosted/presentation.ts"
+    },
+    {
+      "from": "app/package0-site-tool-probe.tsx",
+      "to": "probes/webmcp/package0-tool.ts"
+    },
+    {
+      "from": "app/page.tsx",
+      "to": "app/focus-contract-studio.tsx"
+    },
+    {
+      "from": "app/webmcp-tools.tsx",
+      "to": "lib/webmcp/register.ts"
+    },
+    {
+      "from": "lib/domain/focus-event-verifier.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/domain/focus-event-verifier.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "lib/domain/proposal.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/domain/proposal.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/domain/workspace-seed.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/domain/workspace-seed.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/retrieval/active-focus.ts",
+      "to": "lib/retrieval/bm25.ts"
+    },
+    {
+      "from": "lib/retrieval/active-focus.ts",
+      "to": "lib/retrieval/rrf.ts"
+    },
+    {
+      "from": "lib/retrieval/active-focus.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/retrieval/bm25.ts",
+      "to": "lib/retrieval/tokenize.ts"
+    },
+    {
+      "from": "lib/retrieval/bm25.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/retrieval/corpus-seed.ts",
+      "to": "lib/retrieval/corpus-v2.ts"
+    },
+    {
+      "from": "lib/retrieval/corpus-seed.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/retrieval/corpus-seed.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/retrieval/corpus-v2.ts",
+      "to": "docs/retrieval/fixtures/rrf/rrf-corpus-overrides-v2.json"
+    },
+    {
+      "from": "lib/retrieval/corpus-v2.ts",
+      "to": "docs/retrieval/fixtures/rrf/rrf-corpus-v1.json"
+    },
+    {
+      "from": "lib/retrieval/corpus-v2.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/domain/proposal.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/retrieval/active-focus.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/server/evidence-token.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/server/precedent-repository.ts"
+    },
+    {
+      "from": "lib/server/active-focus-review.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "lib/server/admission.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/admission.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/domain/proposal.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/server/active-focus-review.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/server/evidence-token.ts"
+    },
+    {
+      "from": "lib/server/create-proposal.ts",
+      "to": "lib/server/workspaces.ts"
+    },
+    {
+      "from": "lib/server/evidence-token.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/evidence-token.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/focus-rehearsal.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "lib/server/focus-rehearsal.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/focus-rehearsal.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/http.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/initial-focus-observation.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/server/initial-focus-observation.ts",
+      "to": "lib/domain/initial-focus-manifest.ts"
+    },
+    {
+      "from": "lib/server/initial-focus-observation.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/initial-focus-observation.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/precedent-repository.ts",
+      "to": "lib/retrieval/active-focus.ts"
+    },
+    {
+      "from": "lib/server/precedent-repository.ts",
+      "to": "lib/retrieval/types.ts"
+    },
+    {
+      "from": "lib/server/request-security.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/request-security.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/runtime-config.ts",
+      "to": "lib/server/security-secrets.ts"
+    },
+    {
+      "from": "lib/server/security-secrets.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/session.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/verify-focus-contract.ts",
+      "to": "lib/domain/focus-configuration.ts"
+    },
+    {
+      "from": "lib/server/verify-focus-contract.ts",
+      "to": "lib/domain/focus-event-verifier.ts"
+    },
+    {
+      "from": "lib/server/verify-focus-contract.ts",
+      "to": "lib/domain/focus-rehearsal.ts"
+    },
+    {
+      "from": "lib/server/verify-focus-contract.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/verify-focus-contract.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/domain/workspace-seed.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/retrieval/corpus-seed.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/server/crypto.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/server/errors.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/server/query-inventory.ts"
+    },
+    {
+      "from": "lib/server/workspaces.ts",
+      "to": "lib/server/session.ts"
+    },
+    {
+      "from": "lib/webmcp/contracts.ts",
+      "to": "lib/domain/proposal.ts"
+    },
+    {
+      "from": "lib/webmcp/register.ts",
+      "to": "lib/webmcp/contracts.ts"
+    },
+    {
+      "from": "probes/d1/hosted-probe.ts",
+      "to": "probes/d1/d1-probe.ts"
+    },
+    {
+      "from": "probes/hosted/request-handler.ts",
+      "to": "probes/d1/hosted-probe.ts"
+    }
+  ],
+  "allowedCorpusImports": [
+    {
+      "from": "lib/retrieval/corpus-v2.ts",
+      "to": "docs/retrieval/fixtures/rrf/rrf-corpus-overrides-v2.json"
+    },
+    {
+      "from": "lib/retrieval/corpus-v2.ts",
+      "to": "docs/retrieval/fixtures/rrf/rrf-corpus-v1.json"
+    }
+  ],
+  "violations": [],
+  "holdoutAccessPolicy": "path-reference-forbidden; fixture validator hashes opaque bytes only"
+}

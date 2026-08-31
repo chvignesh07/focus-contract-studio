@@ -20,6 +20,18 @@
       "local_public_source_slice": "PASS"
     },
     "package3": {
+      "overall_result": "PASS",
+      "local_public_source_slice": "PASS",
+      "gate6_independent_review": "PASS"
+    },
+    "package4": {
+      "authorization": "AUTHORIZED",
+      "overall_result": "PASS",
+      "local_result": "PASS",
+      "development_benchmark": "12/12",
+      "holdout_status": "NOT_RUN"
+    },
+    "package5": {
       "authorization": "NOT_AUTHORIZED"
     }
   }

@@ -61,16 +61,24 @@ test('repository package identity and current execution state are explicit', () 
     path: 'START_HERE.md',
     classification: 'HISTORICAL_INTAKE_STATE',
   });
-  assert.deepEqual(state.packages, {
-    package0: {
-      overall_result: 'INCONCLUSIVE',
-      local_result: 'PASS',
-      hosted_supported_chatgpt_evidence: 'NOT_RUN',
-    },
-    package1: { local_public_source_slice: 'PASS' },
-    package2: { local_public_source_slice: 'PASS' },
-    package3: { authorization: 'NOT_AUTHORIZED' },
+  assert.deepEqual(Object.keys(state.packages ?? {}), [
+    'package0', 'package1', 'package2', 'package3', 'package4', 'package5',
+  ]);
+  assert.deepEqual(state.packages?.package0, {
+    overall_result: 'INCONCLUSIVE',
+    local_result: 'PASS',
+    hosted_supported_chatgpt_evidence: 'NOT_RUN',
   });
+  assert.deepEqual(state.packages?.package1, { local_public_source_slice: 'PASS' });
+  assert.deepEqual(state.packages?.package2, { local_public_source_slice: 'PASS' });
+  assert.deepEqual(state.packages?.package3, {
+    overall_result: 'PASS',
+    local_public_source_slice: 'PASS',
+    gate6_independent_review: 'PASS',
+  });
+  assert.equal(state.packages?.package4?.authorization, 'AUTHORIZED');
+  assert.match(state.packages?.package4?.overall_result ?? '', /^(?:IN_PROGRESS|PASS)$/u);
+  assert.deepEqual(state.packages?.package5, { authorization: 'NOT_AUTHORIZED' });
 });
 
 test('Package 0 summaries are INCONCLUSIVE while unexecuted hosted rows remain NOT_RUN', () => {

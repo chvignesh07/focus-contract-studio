@@ -48,6 +48,82 @@ export type LoadedPrecedent = {
   record: RetrievalRecord;
 };
 
+export const ELIGIBLE_PRECEDENTS_SQL =
+  `SELECT p.id AS database_record_id, p.record_key,
+          pr.product, pr.component_family, pr.use_case, pr.variants_json,
+          p.behavior, pr.intent, pr.risk, p.normalized_outcome_key,
+          pr.source_status, p.valid_from, p.valid_until,
+          pr.supersedes_record_key, pr.hostile, pr.mismatch_tags_json,
+          pr.shape_tags_json, pr.relationships_json, p.rationale,
+          p.tags_json
+     FROM precedent_records p
+     JOIN precedent_retrieval_profiles pr
+       ON pr.workspace_id = p.workspace_id AND pr.record_id = p.id
+    WHERE p.workspace_id = ?
+      AND pr.product = ?
+      AND pr.component_family = ?
+      AND pr.use_case IN (?, '*')
+      AND EXISTS (
+        SELECT 1 FROM json_each(pr.variants_json)
+         WHERE value IN (?, 'both')
+      )
+      AND p.behavior = ?
+      AND pr.intent IN (?, '*')
+      AND pr.risk IN (?, '*')
+      AND EXISTS (
+        SELECT 1 FROM json_each(pr.mismatch_tags_json)
+         WHERE value IN (?, '*')
+      )
+      AND p.status = 'active'
+      AND pr.source_status = 'active'
+      AND pr.hostile = 0
+      AND p.valid_from <= ?
+      AND (p.valid_until IS NULL OR p.valid_until > ?)
+      AND EXISTS (
+        SELECT 1 FROM json_each(?) allowed
+         WHERE allowed.value = p.normalized_outcome_key
+      )
+      AND NOT EXISTS (
+        SELECT 1
+          FROM precedent_records successor
+          JOIN precedent_retrieval_profiles successor_profile
+            ON successor_profile.workspace_id = successor.workspace_id
+           AND successor_profile.record_id = successor.id
+         WHERE successor.workspace_id = p.workspace_id
+           AND successor_profile.supersedes_record_key = p.record_key
+           AND successor.status = 'active'
+           AND successor_profile.source_status = 'active'
+           AND successor_profile.hostile = 0
+           AND successor.valid_from <= ?
+           AND (successor.valid_until IS NULL OR successor.valid_until > ?)
+      )
+    ORDER BY p.record_key
+    LIMIT 36`;
+
+export function eligiblePrecedentBindings(
+  workspaceId: string,
+  context: RawRetrievalContext,
+  asOfSeconds: number,
+  outcomes: readonly string[],
+): unknown[] {
+  return [
+    workspaceId,
+    context.product,
+    context.componentFamily,
+    context.useCase,
+    context.variant,
+    context.behavior,
+    context.intent,
+    context.risk,
+    context.mismatchTag,
+    asOfSeconds,
+    asOfSeconds,
+    JSON.stringify(outcomes),
+    asOfSeconds,
+    asOfSeconds,
+  ];
+}
+
 function canonicalInstant(seconds: number): string {
   if (!Number.isSafeInteger(seconds) || seconds < 0) {
     throw new Error('Precedent time is invalid.');
@@ -113,74 +189,8 @@ export async function loadEligiblePrecedents(
     ];
   if (!outcomes) return [];
   const rows = await db
-    .prepare(
-      `SELECT p.id AS database_record_id, p.record_key,
-              pr.product, pr.component_family, pr.use_case, pr.variants_json,
-              p.behavior, pr.intent, pr.risk, p.normalized_outcome_key,
-              pr.source_status, p.valid_from, p.valid_until,
-              pr.supersedes_record_key, pr.hostile, pr.mismatch_tags_json,
-              pr.shape_tags_json, pr.relationships_json, p.rationale,
-              p.tags_json
-         FROM precedent_records p
-         JOIN precedent_retrieval_profiles pr
-           ON pr.workspace_id = p.workspace_id AND pr.record_id = p.id
-        WHERE p.workspace_id = ?
-          AND pr.product = ?
-          AND pr.component_family = ?
-          AND pr.use_case IN (?, '*')
-          AND EXISTS (
-            SELECT 1 FROM json_each(pr.variants_json)
-             WHERE value IN (?, 'both')
-          )
-          AND p.behavior = ?
-          AND pr.intent IN (?, '*')
-          AND pr.risk IN (?, '*')
-          AND EXISTS (
-            SELECT 1 FROM json_each(pr.mismatch_tags_json)
-             WHERE value IN (?, '*')
-          )
-          AND p.status = 'active'
-          AND pr.source_status = 'active'
-          AND pr.hostile = 0
-          AND p.valid_from <= ?
-          AND (p.valid_until IS NULL OR p.valid_until > ?)
-          AND EXISTS (
-            SELECT 1 FROM json_each(?) allowed
-             WHERE allowed.value = p.normalized_outcome_key
-          )
-          AND NOT EXISTS (
-            SELECT 1
-              FROM precedent_records successor
-              JOIN precedent_retrieval_profiles successor_profile
-                ON successor_profile.workspace_id = successor.workspace_id
-               AND successor_profile.record_id = successor.id
-             WHERE successor.workspace_id = p.workspace_id
-               AND successor_profile.supersedes_record_key = p.record_key
-               AND successor.status = 'active'
-               AND successor_profile.source_status = 'active'
-               AND successor_profile.hostile = 0
-               AND successor.valid_from <= ?
-               AND (successor.valid_until IS NULL OR successor.valid_until > ?)
-          )
-        ORDER BY p.record_key
-        LIMIT 36`,
-    )
-    .bind(
-      workspaceId,
-      context.product,
-      context.componentFamily,
-      context.useCase,
-      context.variant,
-      context.behavior,
-      context.intent,
-      context.risk,
-      context.mismatchTag,
-      asOfSeconds,
-      asOfSeconds,
-      JSON.stringify(outcomes),
-      asOfSeconds,
-      asOfSeconds,
-    )
+    .prepare(ELIGIBLE_PRECEDENTS_SQL)
+    .bind(...eligiblePrecedentBindings(workspaceId, context, asOfSeconds, outcomes))
     .all<PrecedentRow>();
   if (!rows.success || rows.results.length > 36) {
     throw new Error('The eligible precedent query failed closed.');
