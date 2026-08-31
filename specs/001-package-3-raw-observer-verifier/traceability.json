@@ -1,0 +1,2483 @@
+{
+  "schema_version": "fcs-package3-gate4-traceability-v1",
+  "status": "PLANNING_ONLY_NOT_IMPLEMENTATION_EVIDENCE",
+  "requirement_count": 62,
+  "requirement_category_counts": {
+    "AUT": 5,
+    "OBS": 11,
+    "VER": 16,
+    "SEC": 10,
+    "MUT": 7,
+    "EVD": 13
+  },
+  "verifier_behaviors": [
+    "initialFocus",
+    "focusOrder",
+    "trapTab",
+    "trapShiftTab",
+    "escapeAction",
+    "returnFocus"
+  ],
+  "mutation_ids": [
+    "P3-MUT-001",
+    "P3-MUT-002",
+    "P3-MUT-003",
+    "P3-MUT-004",
+    "P3-MUT-005",
+    "P3-MUT-006",
+    "P3-MUT-007"
+  ],
+  "canonical_chain": [
+    "authority_anchors",
+    "spec_ref",
+    "design_refs",
+    "task_ids",
+    "failing_test_task_ids",
+    "implementation_targets",
+    "verification_evidence"
+  ],
+  "rows": [
+    {
+      "requirement_id": "P3-AUT-001",
+      "authority_anchors": [
+        "AGENTS.md > Scope and authority",
+        "START_HERE.md > Authority order",
+        "docs/delivery/SUBMISSION_PLAN.md > Public repository package",
+        "<PLANNING_WORKSPACE>/docs/delivery/SPEC_KIT_ADOPTION_PLAN_2026-08-30.md > Authority model after adoption",
+        "<PLANNING_WORKSPACE>/docs/delivery/SPEC_KIT_ADOPTION_PLAN_2026-08-30.md > Gate 3 — Package 3 planning pilot",
+        "adoption baseline receipt"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-AUT-001",
+      "design_refs": [
+        "research.md#decision-1-authority-and-phase-custody"
+      ],
+      "task_ids": [
+        "T001",
+        "T036",
+        "T037"
+      ],
+      "failing_test_task_ids": [
+        "T001",
+        "T036"
+      ],
+      "implementation_targets": [
+        "scripts/package3-source-manifest.mjs",
+        "scripts/package3-evidence-binding.mjs"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-AUT-002",
+      "authority_anchors": [
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Critical path",
+        "docs/hackathon-build/scope.md > Explicit non-goals",
+        "<PLANNING_WORKSPACE>/docs/delivery/SPEC_KIT_ADOPTION_PLAN_2026-08-30.md > Gate 0.5 — One-prompt and authorization protocol",
+        "<PLANNING_WORKSPACE>/docs/delivery/SPEC_KIT_ADOPTION_PLAN_2026-08-30.md > Gate 3 — Package 3 planning pilot"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-AUT-002",
+      "design_refs": [
+        "research.md#decision-2-minimum-package-boundary"
+      ],
+      "task_ids": [
+        "T001",
+        "T002",
+        "T036",
+        "T037"
+      ],
+      "failing_test_task_ids": [
+        "T001",
+        "T036"
+      ],
+      "implementation_targets": [
+        "package.json",
+        "vitest.package3-node.config.ts",
+        "vitest.package3.config.ts",
+        "vitest.package3-dom.config.ts",
+        "wrangler.package3.jsonc",
+        "playwright.config.ts",
+        "tests/package3/d1-vitest-setup.ts",
+        "scripts/package3-source-manifest.mjs",
+        "scripts/package3-evidence-binding.mjs"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-AUT-003",
+      "authority_anchors": [
+        "AGENTS.md > Product invariants",
+        "docs/authority/PRODUCT_TRUTH.md > Authority boundary",
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` "
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-AUT-003",
+      "design_refs": [
+        "contracts/verifier.md#authority-and-side-effect-boundary"
+      ],
+      "task_ids": [
+        "T008",
+        "T013",
+        "T016",
+        "T020",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T008",
+        "T020"
+      ],
+      "implementation_targets": [
+        "lib/server/focus-rehearsal.ts",
+        "app/focus-contract-studio.tsx",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-AUT-004",
+      "authority_anchors": [
+        "START_HERE.md > Non-negotiable product truth",
+        "docs/authority/PRODUCT_TRUTH.md > Authority boundary",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Observer independence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-AUT-004",
+      "design_refs": [
+        "contracts/verifier.md#independence-boundary"
+      ],
+      "task_ids": [
+        "T004",
+        "T005"
+      ],
+      "failing_test_task_ids": [
+        "T004"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-AUT-005",
+      "authority_anchors": [
+        "AGENTS.md > Product invariants",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/quality/TEST_STRATEGY.md > Critical D1 matrix",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Security objective"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-AUT-005",
+      "design_refs": [
+        "contracts/persistence.md#failure-and-rollback-contract"
+      ],
+      "task_ids": [
+        "T010",
+        "T014",
+        "T021",
+        "T024",
+        "T027",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T010",
+        "T021",
+        "T027"
+      ],
+      "implementation_targets": [
+        "app/api/rehearsals/start/route.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts",
+        "lib/server/verify-focus-contract.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-001",
+      "authority_anchors": [
+        "docs/architecture/ARCHITECTURE.md > Core flows > Render and observe",
+        "docs/architecture/DOMAIN_MODEL.md > Entities",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-001",
+      "design_refs": [
+        "contracts/rehearsal-api.md#start-rehearsal"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T008",
+        "T013",
+        "T016"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T008"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts",
+        "app/focus-contract-studio.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-002",
+      "authority_anchors": [
+        "docs/architecture/ARCHITECTURE.md > Core flows > Render and observe",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Observer independence",
+        "docs/architecture/DOMAIN_MODEL.md > Fixed value objects",
+        "docs/architecture/DOMAIN_MODEL.md > Entities"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-002",
+      "design_refs": [
+        "data-model.md#rendered-manifest"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T011",
+        "T015"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T011"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "app/delete-account-dialog.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-003",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Raw observation grammar",
+        "docs/hackathon-build/prd.md > PRD-004 — Capture raw behavior"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-003",
+      "design_refs": [
+        "data-model.md#observation-event"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T011",
+        "T015"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T011"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "app/delete-account-dialog.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-004",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Raw observation grammar",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Observer independence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-004",
+      "design_refs": [
+        "contracts/rehearsal-api.md#server-ordering"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T009",
+        "T013"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T009"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "lib/server/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-005",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Complete rehearsal script",
+        "docs/product/UX_SPEC.md > Hero interaction > Observe"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-005",
+      "design_refs": [
+        "contracts/rehearsal-api.md#complete-rehearsal"
+      ],
+      "task_ids": [
+        "T009",
+        "T012",
+        "T015",
+        "T016"
+      ],
+      "failing_test_task_ids": [
+        "T009",
+        "T012"
+      ],
+      "implementation_targets": [
+        "app/delete-account-dialog.tsx",
+        "app/focus-contract-studio.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-006",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Raw observation grammar",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Complete rehearsal script",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Proposed limits — not confirmed until hosted load tests"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-006",
+      "design_refs": [
+        "contracts/rehearsal-api.md#bounds-and-invalid-finalization"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T009",
+        "T013"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T009"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "lib/server/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-007",
+      "authority_anchors": [
+        "docs/authority/PRODUCT_TRUTH.md > Authority boundary",
+        "docs/hackathon-build/prd.md > PRD-004 — Capture raw behavior",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Data inventory and retention"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-007",
+      "design_refs": [
+        "data-model.md#privacy-inventory"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T011",
+        "T015",
+        "T029"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T011",
+        "T029"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "app/delete-account-dialog.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-008",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Observer independence",
+        "docs/architecture/ARCHITECTURE.md > Layer rules",
+        "START_HERE.md > Stop conditions"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-008",
+      "design_refs": [
+        "contracts/verifier.md#independence-boundary"
+      ],
+      "task_ids": [
+        "T004",
+        "T005",
+        "T011",
+        "T012",
+        "T015"
+      ],
+      "failing_test_task_ids": [
+        "T004",
+        "T011",
+        "T012"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "app/delete-account-dialog.tsx"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-009",
+      "authority_anchors": [
+        "docs/architecture/ARCHITECTURE.md > Core flows > Render and observe",
+        "docs/architecture/DOMAIN_MODEL.md > Entities",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Observer independence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-009",
+      "design_refs": [
+        "contracts/persistence.md#rehearsal-finalization-batch"
+      ],
+      "task_ids": [
+        "T003",
+        "T005",
+        "T006",
+        "T007",
+        "T009",
+        "T013"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T006",
+        "T009"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-010",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > State machines > Observation",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/architecture/ARCHITECTURE.md > Failure behavior"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-010",
+      "design_refs": [
+        "data-model.md#observation-session-state"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T009",
+        "T013",
+        "T016",
+        "T025",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T009",
+        "T025"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts",
+        "app/focus-contract-studio.tsx",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-OBS-011",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > State machines > Observation",
+        "docs/architecture/ARCHITECTURE.md > Data lifecycle and observability",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Data inventory and retention"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-OBS-011",
+      "design_refs": [
+        "contracts/persistence.md#immutability-and-lifecycle"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T009",
+        "T013"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T009"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-001",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/hackathon-build/spec.md > Components and responsibilities > Independent verifier and history"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-001",
+      "design_refs": [
+        "contracts/verifier.md#input-contract"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-002",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/contracts/WEBMCP_TOOL_CONTRACT.md > Public errors",
+        "docs/hackathon-build/prd.md > Edge cases"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-002",
+      "design_refs": [
+        "contracts/verifier.md#pre-evaluation-rejection"
+      ],
+      "task_ids": [
+        "T019",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T019"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-003",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/retrieval/RETRIEVAL_AND_RRF_SPEC.md > Purpose and authority",
+        "docs/retrieval/RRF_BENCHMARK.md > Seal and holdout honesty"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-003",
+      "design_refs": [
+        "contracts/verifier.md#independence-boundary"
+      ],
+      "task_ids": [
+        "T004",
+        "T005",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T004"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-rehearsal.ts",
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-004",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-004",
+      "design_refs": [
+        "contracts/verifier.md#initialfocus"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-005",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Renderer contract"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-005",
+      "design_refs": [
+        "contracts/verifier.md#focusorder"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-006",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/hackathon-build/prd.md > PRD-011 — Verify raw rehearsal evidence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-006",
+      "design_refs": [
+        "contracts/verifier.md#traptab"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-007",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/hackathon-build/prd.md > PRD-011 — Verify raw rehearsal evidence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-007",
+      "design_refs": [
+        "contracts/verifier.md#trapshifttab"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-008",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/hackathon-build/prd.md > PRD-011 — Verify raw rehearsal evidence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-008",
+      "design_refs": [
+        "contracts/verifier.md#escapeaction"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-009",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/hackathon-build/prd.md > PRD-011 — Verify raw rehearsal evidence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-009",
+      "design_refs": [
+        "contracts/verifier.md#returnfocus"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-010",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` ",
+        "docs/product/UX_SPEC.md > Hero interaction > Verify"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-010",
+      "design_refs": [
+        "contracts/verifier.md#missing-evidence"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-011",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-011",
+      "design_refs": [
+        "contracts/verifier.md#overall-result"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-012",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` ",
+        "docs/product/UX_SPEC.md > Hero interaction > Verify"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-012",
+      "design_refs": [
+        "contracts/verifier.md#sequence-evidence"
+      ],
+      "task_ids": [
+        "T017",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-013",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Entities",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` ",
+        "docs/hackathon-build/prd.md > PRD-011 — Verify raw rehearsal evidence",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-013",
+      "design_refs": [
+        "data-model.md#verification-receipt-and-check"
+      ],
+      "task_ids": [
+        "T020",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T020"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-014",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Idempotency contract",
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` ",
+        "docs/architecture/ARCHITECTURE.md > Read consistency"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-014",
+      "design_refs": [
+        "contracts/persistence.md#natural-key-replay"
+      ],
+      "task_ids": [
+        "T020",
+        "T023",
+        "T028",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T020",
+        "T028"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-015",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Idempotency contract",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls",
+        "docs/quality/TEST_STRATEGY.md > Critical D1 matrix"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-015",
+      "design_refs": [
+        "contracts/persistence.md#natural-key-replay"
+      ],
+      "task_ids": [
+        "T020",
+        "T023",
+        "T028",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T020",
+        "T028"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-VER-016",
+      "authority_anchors": [
+        " docs/contracts/WEBMCP_TOOL_CONTRACT.md > 4. `verify_focus_contract` ",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 5 — Review, guarded apply, receipts, history, and undo"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-VER-016",
+      "design_refs": [
+        "contracts/verifier.md#authority-and-side-effect-boundary"
+      ],
+      "task_ids": [
+        "T020",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T020"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-001",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Workspace and ID invariants",
+        "docs/architecture/ARCHITECTURE.md > Trust boundaries",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Session and workspace design > Anonymous baseline"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-001",
+      "design_refs": [
+        "contracts/rehearsal-api.md#request-boundary"
+      ],
+      "task_ids": [
+        "T008",
+        "T013"
+      ],
+      "failing_test_task_ids": [
+        "T008"
+      ],
+      "implementation_targets": [
+        "lib/server/focus-rehearsal.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-002",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Workspace and ID invariants",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-002",
+      "design_refs": [
+        "contracts/persistence.md#workspace-binding"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T008",
+        "T013",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T008"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-003",
+      "authority_anchors": [
+        "AGENTS.md > Product invariants",
+        "docs/architecture/DOMAIN_MODEL.md > Workspace and ID invariants",
+        "docs/contracts/WEBMCP_TOOL_CONTRACT.md > Public errors",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-003",
+      "design_refs": [
+        "contracts/rehearsal-api.md#public-errors-and-id-oracle"
+      ],
+      "task_ids": [
+        "T026",
+        "T031"
+      ],
+      "failing_test_task_ids": [
+        "T026"
+      ],
+      "implementation_targets": [
+        "lib/server/focus-rehearsal.ts",
+        "lib/server/verify-focus-contract.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-004",
+      "authority_anchors": [
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls",
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/quality/TEST_STRATEGY.md > Test layers"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-004",
+      "design_refs": [
+        "contracts/persistence.md#digest-recheck"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T013",
+        "T019",
+        "T023",
+        "T025",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T019",
+        "T025"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/focus-rehearsal.ts",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-005",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Public error envelope",
+        "docs/contracts/WEBMCP_TOOL_CONTRACT.md > Public errors",
+        "docs/product/UX_SPEC.md > Error and empty states"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-005",
+      "design_refs": [
+        "contracts/rehearsal-api.md#public-errors-and-id-oracle"
+      ],
+      "task_ids": [
+        "T010",
+        "T014",
+        "T021",
+        "T024",
+        "T026",
+        "T029",
+        "T031"
+      ],
+      "failing_test_task_ids": [
+        "T010",
+        "T021",
+        "T026",
+        "T029"
+      ],
+      "implementation_targets": [
+        "app/api/rehearsals/start/route.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts",
+        "lib/server/focus-rehearsal.ts",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-006",
+      "authority_anchors": [
+        "docs/architecture/ARCHITECTURE.md > Data lifecycle and observability",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Data inventory and retention",
+        "docs/delivery/EVIDENCE_REGISTRY.md > File conventions"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-006",
+      "design_refs": [
+        "data-model.md#privacy-inventory"
+      ],
+      "task_ids": [
+        "T003",
+        "T016",
+        "T029",
+        "T031"
+      ],
+      "failing_test_task_ids": [
+        "T003",
+        "T029"
+      ],
+      "implementation_targets": [
+        "app/focus-contract-studio.tsx",
+        "lib/server/focus-rehearsal.ts",
+        "lib/server/verify-focus-contract.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-007",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Verification invariant",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules",
+        "docs/quality/TEST_STRATEGY.md > Test layers"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-007",
+      "design_refs": [
+        "contracts/persistence.md#truthful-fail-versus-invalid-input"
+      ],
+      "task_ids": [
+        "T019",
+        "T020",
+        "T023"
+      ],
+      "failing_test_task_ids": [
+        "T019",
+        "T020"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-008",
+      "authority_anchors": [
+        "docs/architecture/DOMAIN_MODEL.md > Idempotency contract",
+        "docs/quality/TEST_STRATEGY.md > Critical D1 matrix",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-008",
+      "design_refs": [
+        "contracts/persistence.md#natural-key-replay"
+      ],
+      "task_ids": [
+        "T020",
+        "T023",
+        "T028",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T020",
+        "T028"
+      ],
+      "implementation_targets": [
+        "lib/server/verify-focus-contract.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-009",
+      "authority_anchors": [
+        "docs/quality/SECURITY_AND_PRIVACY.md > Request boundary",
+        "docs/architecture/ARCHITECTURE.md > Trust boundaries",
+        "docs/contracts/WEBMCP_TOOL_CONTRACT.md > Common constraints",
+        "docs/quality/TEST_STRATEGY.md > Security/privacy tests"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-009",
+      "design_refs": [
+        "contracts/rehearsal-api.md#request-boundary"
+      ],
+      "task_ids": [
+        "T010",
+        "T014",
+        "T021",
+        "T024"
+      ],
+      "failing_test_task_ids": [
+        "T010",
+        "T021"
+      ],
+      "implementation_targets": [
+        "app/api/rehearsals/start/route.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-SEC-010",
+      "authority_anchors": [
+        "AGENTS.md > Product invariants",
+        "docs/architecture/ARCHITECTURE.md > Core flows > Verify and project precedent",
+        "docs/architecture/DOMAIN_MODEL.md > Exact guarded mutation invariant",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Guarded D1 writes"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-SEC-010",
+      "design_refs": [
+        "contracts/persistence.md#verification-guard-and-finalizer-batch"
+      ],
+      "task_ids": [
+        "T006",
+        "T007",
+        "T020",
+        "T023",
+        "T027",
+        "T030"
+      ],
+      "failing_test_task_ids": [
+        "T006",
+        "T020",
+        "T027"
+      ],
+      "implementation_targets": [
+        "db/package3-schema.ts",
+        "db/schema.ts",
+        "drizzle/0003_package3_raw_observer_verifier.sql",
+        "drizzle/meta/_journal.json",
+        "lib/server/verify-focus-contract.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-001",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-001",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-002",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-002",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-003",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-003",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-004",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-004",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-005",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-005",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-006",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-006",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-MUT-007",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-MUT-007",
+      "design_refs": [
+        "contracts/verifier.md#deliberate-mutation-matrix"
+      ],
+      "task_ids": [
+        "T018",
+        "T022"
+      ],
+      "failing_test_task_ids": [
+        "T018"
+      ],
+      "implementation_targets": [
+        "lib/domain/focus-event-verifier.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-001",
+      "authority_anchors": [
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/hackathon-build/checklist.md > Checklist > 5. Implement raw focus observation and independent verification",
+        "docs/quality/TEST_STRATEGY.md > Test layers"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-001",
+      "design_refs": [
+        "quickstart.md#scenario-1-positive-exact-traces"
+      ],
+      "task_ids": [
+        "T017",
+        "T038"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/unit.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-002",
+      "authority_anchors": [
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Verifier v1 rules"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-002",
+      "design_refs": [
+        "quickstart.md#scenario-2-missing-evidence"
+      ],
+      "task_ids": [
+        "T017",
+        "T038"
+      ],
+      "failing_test_task_ids": [
+        "T017"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/unit.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-003",
+      "authority_anchors": [
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/quality/TEST_STRATEGY.md > Test layers",
+        "docs/quality/TEST_STRATEGY.md > Critical D1 matrix"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-003",
+      "design_refs": [
+        "quickstart.md#scenario-3-integrity-isolation-and-replay"
+      ],
+      "task_ids": [
+        "T025",
+        "T026",
+        "T028",
+        "T039"
+      ],
+      "failing_test_task_ids": [
+        "T025",
+        "T026",
+        "T028"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/d1.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-004",
+      "authority_anchors": [
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Deliberate mutation tests",
+        "docs/delivery/CODEX_IMPLEMENTATION_PLAN.md > Package 3 — Raw observer and independent verifier",
+        "docs/quality/TEST_STRATEGY.md > Retrieval v2"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-004",
+      "design_refs": [
+        "contracts/verifier.md#independence-boundary"
+      ],
+      "task_ids": [
+        "T004",
+        "T042"
+      ],
+      "failing_test_task_ids": [
+        "T004"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/verifier-independence.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-005",
+      "authority_anchors": [
+        "docs/quality/SECURITY_AND_PRIVACY.md > Threat controls",
+        "docs/quality/TEST_STRATEGY.md > Security/privacy tests",
+        "docs/delivery/EVIDENCE_REGISTRY.md > File conventions"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-005",
+      "design_refs": [
+        "quickstart.md#scenario-4-privacy-marker"
+      ],
+      "task_ids": [
+        "T029",
+        "T042"
+      ],
+      "failing_test_task_ids": [
+        "T029"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/verifier-independence.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-006",
+      "authority_anchors": [
+        "docs/hackathon-build/checklist.md > Checklist > 5. Implement raw focus observation and independent verification",
+        "docs/quality/TEST_STRATEGY.md > Test layers",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Complete rehearsal script",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Automated accessibility gates",
+        "docs/product/UX_SPEC.md > Accessibility interaction contract"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-006",
+      "design_refs": [
+        "quickstart.md#scenario-5-real-browser-and-manual-keyboard"
+      ],
+      "task_ids": [
+        "T012",
+        "T033",
+        "T034",
+        "T035",
+        "T041"
+      ],
+      "failing_test_task_ids": [
+        "T012",
+        "T033",
+        "T034"
+      ],
+      "implementation_targets": [
+        "app/focus-contract-studio.tsx",
+        "app/globals.css",
+        ".artifacts/browser/playwright.json",
+        ".artifacts/accessibility/axe.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-010",
+          "path": ".artifacts/accessibility/axe.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-007",
+      "authority_anchors": [
+        "docs/hackathon-build/checklist.md > Checklist > 5. Implement raw focus observation and independent verification",
+        "docs/product/UX_SPEC.md > Hero interaction > Verify",
+        "docs/product/UX_SPEC.md > Accessibility interaction contract",
+        "docs/quality/ACCESSIBILITY_AND_VERIFICATION.md > Automated accessibility gates"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-007",
+      "design_refs": [
+        "contracts/result-surface.md#accessible-result-contract"
+      ],
+      "task_ids": [
+        "T032",
+        "T033",
+        "T035",
+        "T040"
+      ],
+      "failing_test_task_ids": [
+        "T032",
+        "T033"
+      ],
+      "implementation_targets": [
+        "app/focus-contract-studio.tsx",
+        "app/globals.css",
+        ".artifacts/test/component.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-008",
+          "path": ".artifacts/test/component.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-008",
+      "authority_anchors": [
+        "docs/quality/TEST_STRATEGY.md > Quality thresholds",
+        "AGENTS.md > Engineering gate"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-008",
+      "design_refs": [
+        "quickstart.md#scenario-6-coverage"
+      ],
+      "task_ids": [
+        "T002",
+        "T017",
+        "T034",
+        "T043"
+      ],
+      "failing_test_task_ids": [
+        "T017",
+        "T034"
+      ],
+      "implementation_targets": [
+        "package.json",
+        "vitest.package3-node.config.ts",
+        "vitest.package3.config.ts",
+        "vitest.package3-dom.config.ts",
+        "wrangler.package3.jsonc",
+        "playwright.config.ts",
+        "tests/package3/d1-vitest-setup.ts",
+        ".artifacts/test/coverage-summary.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-009",
+      "authority_anchors": [
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-006",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-007",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-008",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-009",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-010",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-011",
+        "docs/delivery/EVIDENCE_REGISTRY.md > Required evidence > E-014",
+        "docs/quality/TRACEABILITY_MATRIX.md > Raw observation",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification",
+        "docs/quality/TRACEABILITY_MATRIX.md > Accessibility"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-009",
+      "design_refs": [
+        "quickstart.md#evidence-destinations"
+      ],
+      "task_ids": [
+        "T001",
+        "T002",
+        "T036",
+        "T037",
+        "T040",
+        "T041",
+        "T042",
+        "T043",
+        "T044"
+      ],
+      "failing_test_task_ids": [
+        "T001",
+        "T036"
+      ],
+      "implementation_targets": [
+        "package.json",
+        "vitest.package3-node.config.ts",
+        "vitest.package3.config.ts",
+        "vitest.package3-dom.config.ts",
+        "wrangler.package3.jsonc",
+        "playwright.config.ts",
+        "tests/package3/d1-vitest-setup.ts",
+        "scripts/package3-source-manifest.mjs",
+        "scripts/package3-evidence-binding.mjs",
+        ".artifacts/test/component.json",
+        ".artifacts/browser/playwright.json",
+        ".artifacts/accessibility/axe.json",
+        ".artifacts/test/verifier-independence.json",
+        ".artifacts/test/coverage-summary.json",
+        "docs/evidence/PACKAGE3_VERIFICATION.md"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        },
+        {
+          "id": "E-008",
+          "path": ".artifacts/test/component.json"
+        },
+        {
+          "id": "E-009",
+          "path": ".artifacts/browser/playwright.json"
+        },
+        {
+          "id": "E-010",
+          "path": ".artifacts/accessibility/axe.json"
+        },
+        {
+          "id": "E-011",
+          "path": ".artifacts/test/verifier-independence.json"
+        },
+        {
+          "id": "E-014",
+          "path": ".artifacts/test/coverage-summary.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-010",
+      "authority_anchors": [
+        "docs/delivery/AGENT_BUILD_CONTRACT.md > Review protocol",
+        "docs/hackathon-build/checklist.md > Checklist > 9. Run adversarial review one and close all high-severity findings",
+        "AGENTS.md > Completion evidence"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-010",
+      "design_refs": [
+        "checklists/gate4.md"
+      ],
+      "task_ids": [
+        "T045",
+        "T046"
+      ],
+      "failing_test_task_ids": [
+        "T045"
+      ],
+      "implementation_targets": [
+        "docs/evidence/PACKAGE3_ADVERSARIAL_REVIEW.md"
+      ],
+      "verification_evidence": [
+        {
+          "id": "REVIEW",
+          "path": "docs/evidence/PACKAGE3_ADVERSARIAL_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-011",
+      "authority_anchors": [
+        "docs/delivery/EVIDENCE_REGISTRY.md > Result vocabulary",
+        "docs/quality/TRACEABILITY_MATRIX.md > Independent verification",
+        "docs/quality/TRACEABILITY_MATRIX.md > Accessibility",
+        "docs/quality/TEST_STRATEGY.md > Principle",
+        "docs/authority/AUTHORITY_VALIDATION.md > Meaning of this result"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-011",
+      "design_refs": [
+        "quickstart.md#evidence-language"
+      ],
+      "task_ids": [
+        "T001",
+        "T036",
+        "T037",
+        "T038",
+        "T044"
+      ],
+      "failing_test_task_ids": [
+        "T001",
+        "T036"
+      ],
+      "implementation_targets": [
+        "scripts/package3-source-manifest.mjs",
+        "scripts/package3-evidence-binding.mjs",
+        ".artifacts/test/unit.json",
+        "docs/evidence/PACKAGE3_VERIFICATION.md"
+      ],
+      "verification_evidence": [
+        {
+          "id": "PROMPT-C",
+          "path": "docs/evidence/spec-kit/PACKAGE3_PROMPT_C_VALIDATION.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-012",
+      "authority_anchors": [
+        "docs/quality/SECURITY_AND_PRIVACY.md > Request boundary",
+        "docs/contracts/WEBMCP_TOOL_CONTRACT.md > Common constraints",
+        "docs/quality/TEST_STRATEGY.md > Security/privacy tests",
+        "docs/quality/TEST_STRATEGY.md > WebMCP tests"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-012",
+      "design_refs": [
+        "contracts/rehearsal-api.md#route-negative-matrix"
+      ],
+      "task_ids": [
+        "T010",
+        "T014",
+        "T021",
+        "T024"
+      ],
+      "failing_test_task_ids": [
+        "T010",
+        "T021"
+      ],
+      "implementation_targets": [
+        "app/api/rehearsals/start/route.ts",
+        "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+        "app/api/verifications/route.ts"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-006",
+          "path": ".artifacts/test/unit.json"
+        },
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        }
+      ]
+    },
+    {
+      "requirement_id": "P3-EVD-013",
+      "authority_anchors": [
+        "AGENTS.md > Product invariants",
+        "docs/architecture/ARCHITECTURE.md > Core flows > Verify and project precedent",
+        "docs/architecture/DOMAIN_MODEL.md > Exact guarded mutation invariant",
+        "docs/quality/SECURITY_AND_PRIVACY.md > Guarded D1 writes",
+        "docs/quality/TEST_STRATEGY.md > Critical D1 matrix"
+      ],
+      "spec_ref": "specs/001-package-3-raw-observer-verifier/spec.md > Requirements > P3-EVD-013",
+      "design_refs": [
+        "contracts/persistence.md#failure-injection-matrix"
+      ],
+      "task_ids": [
+        "T020",
+        "T027",
+        "T028",
+        "T039"
+      ],
+      "failing_test_task_ids": [
+        "T020",
+        "T027",
+        "T028"
+      ],
+      "implementation_targets": [
+        ".artifacts/test/d1.json"
+      ],
+      "verification_evidence": [
+        {
+          "id": "E-007",
+          "path": ".artifacts/test/d1.json"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": "fcs-package3-prompt-c-preflights-v1",
+  "trusted_prompt_b_checkpoint": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+  "trusted_prompt_b_parent": "cb75d76e0cfd91534e27ea1ce6a2f192423d99c7",
+  "source_snapshot_algorithm": "sha256(canonical-json-array(path,sha256,bytes,git_blob_id); baseline order; UTF-8; sorted keys; compact separators)",
+  "path_resolution": {
+    "<REPOSITORY_ROOT>": "--repository-root",
+    "<PLANNING_WORKSPACE>": "--planning-workspace"
+  },
+  "prompt_b_artifacts": {
+    "docs/evidence/spec-kit/PACKAGE3_AUTHORITY_BASELINE.json": {
+      "sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "bytes": 22281,
+      "git_blob_id": "34d24258ca31effda3e7c24826523ae459cbdf7c"
+    },
+    "docs/evidence/spec-kit/PACKAGE3_AUTHORITY_BASELINE.sha256": {
+      "sha256": "4d5f2ac7da568037bf9dbe7696c7a2eab60242416ef524d765875f0c1a4cc00a",
+      "bytes": 122,
+      "git_blob_id": "d52f1de6a5c1eb12f4500021ab1979a9c51a1798"
+    },
+    "docs/evidence/spec-kit/PACKAGE3_AUTHORITY_REHASH_LOG.json": {
+      "sha256": "d825fbe4e2fc9f8d67160496fc993461fe84dbd1cb7c407648e37f4538ccca57",
+      "bytes": 3586,
+      "git_blob_id": "c2cc54c967432e7ac90cc1e1fca4f7c716a2290f"
+    },
+    "specs/001-package-3-raw-observer-verifier/spec.md": {
+      "sha256": "5fe820a27b5612904eaed1087eded6f6fdf6769c024aa040f32fe80c0cd72d25",
+      "bytes": 43037,
+      "git_blob_id": "c07e65b9703b7d023427d37096a2e6dd033efc35"
+    },
+    "specs/001-package-3-raw-observer-verifier/checklists/requirements.md": {
+      "sha256": "f70b8f5decae6af5543e52fc82ec6171507e46aacc744c27d3b03b5423ffb7aa",
+      "bytes": 3015,
+      "git_blob_id": "97aa96632fcf8574ca2551fef4ed5e4f5dd1afee"
+    },
+    "docs/evidence/spec-kit/verify_prompt_b.py": {
+      "sha256": "169a00c108509f2894919c63e302fab1ea62efe47ca3642c6a4c08802b463bd6",
+      "bytes": 60111,
+      "git_blob_id": "c026b81edb95193fe3c5507ce30630821398ea95"
+    },
+    ".specify/feature.json": {
+      "sha256": "0f6600dc3e0c4754d657ce7ee8997659520e40f22a7a6d78ae479767fec71869",
+      "bytes": 71,
+      "git_blob_id": "6a2c51da1ffa2e9bbaf1312f34827d9e8d48dc32"
+    }
+  },
+  "records": [
+    {
+      "sequence": 1,
+      "before_skill": "$speckit-plan",
+      "checked_at": "2026-08-31T14:45:43Z",
+      "git_head": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+      "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "source_files_checked": 31,
+      "source_snapshot_sha256": "913c74105fda6ced6d2e632669890786a22591c8df3b25f4130959d5f4a54188",
+      "prompt_b_artifact_identities_checked": 7,
+      "prompt_b_validator": "PASS_19_OF_19",
+      "extensions_hooks_presets_bundles": "ABSENT",
+      "result": "PASS"
+    },
+    {
+      "sequence": 2,
+      "before_skill": "$speckit-checklist",
+      "checked_at": "2026-08-31T14:55:10Z",
+      "git_head": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+      "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "source_files_checked": 31,
+      "source_snapshot_sha256": "913c74105fda6ced6d2e632669890786a22591c8df3b25f4130959d5f4a54188",
+      "prompt_b_artifact_identities_checked": 7,
+      "prompt_b_validator": "PASS_19_OF_19",
+      "extensions_hooks_presets_bundles": "ABSENT",
+      "result": "PASS"
+    },
+    {
+      "sequence": 3,
+      "before_skill": "$speckit-tasks",
+      "checked_at": "2026-08-31T14:56:40Z",
+      "git_head": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+      "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "source_files_checked": 31,
+      "source_snapshot_sha256": "913c74105fda6ced6d2e632669890786a22591c8df3b25f4130959d5f4a54188",
+      "prompt_b_artifact_identities_checked": 7,
+      "prompt_b_validator": "PASS_19_OF_19",
+      "extensions_hooks_presets_bundles": "ABSENT",
+      "result": "PASS"
+    },
+    {
+      "sequence": 4,
+      "before_skill": "$speckit-analyze",
+      "checked_at": "2026-08-31T15:02:59Z",
+      "git_head": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+      "baseline_sha256": "eb2491238f82111a1cee3121a0276d2d7c748a771856659318409b57d61aaed0",
+      "source_files_checked": 31,
+      "source_snapshot_sha256": "913c74105fda6ced6d2e632669890786a22591c8df3b25f4130959d5f4a54188",
+      "prompt_b_artifact_identities_checked": 7,
+      "prompt_b_validator": "PASS_19_OF_19",
+      "extensions_hooks_presets_bundles": "ABSENT",
+      "result": "PASS"
+    }
+  ]
+}

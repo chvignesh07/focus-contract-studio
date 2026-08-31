@@ -1,0 +1,32 @@
+{
+  "schema_version": "fcs-package3-prompt-c-validation-v1",
+  "phase": "PROMPT_C_GATE_4_PLANNING_ONLY",
+  "trusted_prompt_b_checkpoint": "f78c9d4cafa35e48172d269fe40922ffc634ddac",
+  "commit_binding": "CALLER_SUPPLIED_EXPECTED_HEAD_NO_SELF_REFERENCE",
+  "working_state": "PASS",
+  "committed_state": "REQUIRES_CLEAN_HEAD_AND_LITERAL_EXPECTED_HEAD",
+  "requirements": 62,
+  "plan_mappings": 62,
+  "trace_rows": 62,
+  "tasks": 46,
+  "checklist_items": 46,
+  "analysis_critical": 0,
+  "analysis_high": 0,
+  "self_tests": [
+    "ordinary-duplicate-json-key",
+    "unicode-duplicate-json-key",
+    "missing-trace-mapping",
+    "duplicate-requirement-id",
+    "orphan-task",
+    "missing-test-predecessor",
+    "checked-implementation-task",
+    "missing-verifier-behavior",
+    "missing-mutation-coverage",
+    "authority-drift",
+    "unauthorized-path",
+    "forged-clean-analysis"
+  ],
+  "product_implementation": "NOT_STARTED",
+  "external_actions": "NONE",
+  "result": "PASS"
+}
