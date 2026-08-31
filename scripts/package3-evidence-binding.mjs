@@ -406,11 +406,17 @@ function validateVerificationMarkdown(repositoryRoot, text, source) {
     'Safari',
     'Supported Chrome client',
     'VoiceOver',
-    'Gate 6 convergence',
   ]) {
     requireCondition(text.includes(`| ${row} | \`NOT_RUN\` |`), `false or missing NOT_RUN row: ${row}`);
   }
-  requireCondition(text.includes('| Candidate-overlay clean clone | `PASS` |'), 'clean-clone evidence missing');
+  requireCondition(text.includes('| Gate 6 convergence | `PASS` |'), 'Gate 6 convergence evidence missing');
+  requireCondition(text.includes('| Exact final commit clean clone | `PASS` |'), 'clean-clone evidence missing');
+  requireCondition(
+    text.includes(
+      'Publication safety covers the sanitized candidate tracked tree and HEAD-reachable lineage only; unrelated local branches are outside this claim.',
+    ),
+    'publication-safety scope drift',
+  );
 }
 
 export function verifyPackage3EvidenceBinding(repositoryRoot) {

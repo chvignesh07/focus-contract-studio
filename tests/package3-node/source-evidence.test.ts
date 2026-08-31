@@ -216,6 +216,20 @@ test('complete evidence binding accepts only the exact truthful artifact union',
   );
 });
 
+test('Gate 6 evidence binds convergence, the exact final clone, and narrow publication scope', () => {
+  const verification = readFileSync(
+    path.join(repositoryRoot, 'docs/evidence/PACKAGE3_VERIFICATION.md'),
+    'utf8',
+  );
+  assert.match(verification, /\| Gate 6 convergence \| `PASS` \|/u);
+  assert.match(verification, /\| Exact final commit clean clone \| `PASS` \|/u);
+  assert.ok(
+    verification.includes(
+      'Publication safety covers the sanitized candidate tracked tree and HEAD-reachable lineage only; unrelated local branches are outside this claim.',
+    ),
+  );
+});
+
 test('review gate rejects absent review, unresolved critical/high, and missing requirements', () => {
   const source = buildPackage3SourceManifest(repositoryRoot);
   const review = readFileSync(

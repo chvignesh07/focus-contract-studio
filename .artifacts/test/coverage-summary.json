@@ -7,11 +7,11 @@
   "source": {
     "algorithm": "sha256",
     "file_count": 39,
-    "aggregate_sha256": "4a1dd4a98666eb0f0a7bb1d93fed2333eaf27c21612d0bff3bafefb4c202b154"
+    "aggregate_sha256": "cdc3511c349f445f8f700e469b7c7caf3237eb2756b8a98a698625d015be7b8c"
   },
   "command": "npm run test:package3:coverage",
-  "started_at_utc": "2026-08-31T19:13:01Z",
-  "completed_at_utc": "2026-08-31T19:13:01Z",
+  "started_at_utc": "2026-08-31T20:09:20Z",
+  "completed_at_utc": "2026-08-31T20:09:20Z",
   "exit_code": 0,
   "runtime": {
     "node": "v22.22.3",
