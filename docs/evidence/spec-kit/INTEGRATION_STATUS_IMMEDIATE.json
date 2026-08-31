@@ -1,0 +1,39 @@
+{
+  "status": "ok",
+  "default_integration": "codex",
+  "installed_integrations": [
+    "codex"
+  ],
+  "recorded_installed_integrations": [
+    "codex"
+  ],
+  "manifest_checked_integrations": [
+    "codex",
+    "speckit"
+  ],
+  "multi_install_safe": true,
+  "shared_templates_target_alignment": "codex",
+  "missing_managed_files": 0,
+  "modified_managed_files": 0,
+  "invalid_manifest_paths": 0,
+  "unchecked_manifests": 0,
+  "manifests": {
+    "codex": {
+      "manifest": ".specify/integrations/codex.manifest.json",
+      "readable": true,
+      "tracked_files": 10,
+      "missing_files": [],
+      "modified_files": [],
+      "invalid_files": []
+    },
+    "speckit": {
+      "manifest": ".specify/integrations/speckit.manifest.json",
+      "readable": true,
+      "tracked_files": 12,
+      "missing_files": [],
+      "modified_files": [],
+      "invalid_files": []
+    }
+  },
+  "findings": []
+}

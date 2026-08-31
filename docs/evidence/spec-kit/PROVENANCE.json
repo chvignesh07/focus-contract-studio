@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "adoption_scope": "Prompt A / Gates 0-2 only",
+  "upstream": {
+    "repository": "https://github.com/github/spec-kit.git",
+    "release": "v1.0.1",
+    "annotated_tag_object": "ed9713e4af96437c7605abfa2411144d1393e247",
+    "commit": "9118ed15a0ba65053469a94c560ea5d233f75884",
+    "tree": "460b3a777a0bb19709cd027ffe9180a701efcd2b",
+    "commit_date": "2026-08-21T19:56:19Z",
+    "tag_signature": "absent",
+    "tag_verification_result": "git verify-tag v1.0.1: error: no signature found",
+    "source_checkout": "disposable detached checkout outside the repository",
+    "tracked_source_files": 545,
+    "tracked_source_bytes": 11671736,
+    "tracked_source_clean_before_lock": true
+  },
+  "license": {
+    "identifier": "MIT",
+    "source_file": "LICENSE",
+    "sha256": "2510b446bc1f0cf9702453075d20cd88631e20e5642658edb7325d9c1eb534f7",
+    "url": "https://github.com/github/spec-kit/blob/v1.0.1/LICENSE"
+  },
+  "dependency_lock": {
+    "upstream_lock_present": false,
+    "origin": "locally generated from the pinned v1.0.1 pyproject.toml before package execution",
+    "pyproject_sha256": "6abfc27243864d7abf81151b35c596e123b7729b09ebd6bb2cd947ca2f1dba90",
+    "file": "docs/evidence/spec-kit/spec-kit-v1.0.1.uv.lock",
+    "sha256": "64b7fbf776403c947c2cce2eba8647fa3ef741995e429de0ea83ed5f03d8cb85",
+    "comparison_sha256": "64b7fbf776403c947c2cce2eba8647fa3ef741995e429de0ea83ed5f03d8cb85",
+    "comparison_result": "exact match",
+    "artifact_hashes": "preserved in the uv.lock package sdist and wheels entries"
+  },
+  "runtime": {
+    "python": "3.14.5",
+    "uv": "0.11.2 (02036a8ba 2026-03-26 aarch64-apple-darwin)",
+    "specify_cli": "1.0.1",
+    "development_dependencies_installed": false,
+    "packages": {
+      "annotated-doc": "0.0.5",
+      "click": "8.5.0",
+      "json5": "0.15.0",
+      "markdown-it-py": "4.2.0",
+      "mdurl": "0.1.2",
+      "packaging": "26.3",
+      "pathspec": "1.1.1",
+      "platformdirs": "4.11.5",
+      "pygments": "2.21.0",
+      "pyyaml": "6.0.3",
+      "readchar": "4.2.2",
+      "rich": "15.0.0",
+      "shellingham": "1.5.4",
+      "typer": "0.27.2"
+    },
+    "conditional_non_host_package": {
+      "colorama": "0.4.6; sys_platform == 'win32'"
+    }
+  },
+  "host_tools": {
+    "codex": "codex-cli 0.151.0",
+    "git": "2.50.1 (Apple Git-155)",
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "gitleaks": "8.30.1"
+  },
+  "execution": {
+    "global_install": false,
+    "network_during_initialization": false,
+    "locked": true,
+    "development_dependencies_excluded": true,
+    "integration": "codex",
+    "script_type": "sh",
+    "extensions": [],
+    "presets": [],
+    "bundles": [],
+    "event_hooks": []
+  }
+}
