@@ -8,7 +8,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const repositoryRoot = path.dirname(fileURLToPath(import.meta.url));
 const requestedPackage = process.env.FCS_PLAYWRIGHT_PACKAGE;
-const packageNumber = requestedPackage === '5' || requestedPackage === '3'
+const packageNumber = requestedPackage === '6' || requestedPackage === '5' || requestedPackage === '3'
   ? requestedPackage
   : '2';
 const port = 43_127;
@@ -32,7 +32,7 @@ function d1ServerCommand(): string {
     'drizzle/0002_package2_vertical_slice.sql',
     'drizzle/0003_package3_raw_observer_verifier.sql',
   ];
-  if (packageNumber === '5') {
+  if (packageNumber === '5' || packageNumber === '6') {
     migrations.push('drizzle/0004_package5_review_apply_undo.sql');
   }
   for (const migration of migrations) {
@@ -93,7 +93,7 @@ function d1ServerCommand(): string {
 }
 
 const webServerCommand =
-  packageNumber === '3' || packageNumber === '5'
+  packageNumber === '3' || packageNumber === '5' || packageNumber === '6'
     ? d1ServerCommand()
     : `node scripts/package2-local-server.mjs --port ${port}`;
 

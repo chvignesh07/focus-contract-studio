@@ -37,6 +37,16 @@
       "local_result": "PASS",
       "hosted_status": "NOT_RUN",
       "exact_commit_clone": "TERMINAL_POST_COMMIT"
+    },
+    "package6": {
+      "authorization": "AUTHORIZED",
+      "overall_result": "PASS",
+      "local_result": "PASS",
+      "hosted_status": "NOT_RUN",
+      "real_client_status": "NOT_RUN",
+      "founder_manual_accessibility": "NOT_RUN",
+      "deployed_cold_evaluator": "NOT_RUN",
+      "exact_commit_clone": "TERMINAL_POST_COMMIT"
     }
   }
 }

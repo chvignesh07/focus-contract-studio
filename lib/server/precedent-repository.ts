@@ -34,6 +34,7 @@ type PrecedentRow = {
   source_status: string;
   valid_from: number;
   valid_until: number | null;
+  provenance_kind: 'synthetic-seed' | 'verified-runtime';
   supersedes_record_key: string | null;
   hostile: number;
   mismatch_tags_json: string;
@@ -45,6 +46,7 @@ type PrecedentRow = {
 
 export type LoadedPrecedent = {
   databaseRecordId: string;
+  provenanceKind: 'synthetic-seed' | 'verified-runtime';
   record: RetrievalRecord;
 };
 
@@ -52,7 +54,7 @@ export const ELIGIBLE_PRECEDENTS_SQL =
   `SELECT p.id AS database_record_id, p.record_key,
           pr.product, pr.component_family, pr.use_case, pr.variants_json,
           p.behavior, pr.intent, pr.risk, p.normalized_outcome_key,
-          pr.source_status, p.valid_from, p.valid_until,
+          pr.source_status, p.valid_from, p.valid_until, p.provenance_kind,
           pr.supersedes_record_key, pr.hostile, pr.mismatch_tags_json,
           pr.shape_tags_json, pr.relationships_json, p.rationale,
           p.tags_json
@@ -148,6 +150,9 @@ function materializeRow(row: PrecedentRow, workspaceId: string): LoadedPrecedent
   }
   return {
     databaseRecordId: row.database_record_id,
+    provenanceKind: z.enum(['synthetic-seed', 'verified-runtime']).parse(
+      row.provenance_kind,
+    ),
     record: {
       id: row.record_key,
       workspaceKey: workspaceId,

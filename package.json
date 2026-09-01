@@ -52,6 +52,14 @@
     "test:package5:coverage:server-operations": "node --experimental-strip-types --experimental-test-coverage --test-coverage-branches=85 --test-coverage-lines=90 --test-coverage-functions=90 --test-coverage-include=lib/server/package5-operation-policy.ts --test tests/package5-node/package5-operation-policy.test.ts",
     "test:package5:coverage": "npm run test:package5:coverage:safety-core && npm run test:package5:coverage:server-operations",
     "test:package5": "npm run test:package5:node && npm run test:package5:d1 && npm run test:package5:dom",
+    "test:package6:node:core": "node --experimental-strip-types --test tests/package6-node/package6-domain.test.ts tests/package6-node/package6-scripts.test.ts tests/package6-node/package6-surface.test.ts",
+    "test:package6:node": "npm run test:package6:node:core && node --experimental-strip-types --test tests/package6-node/source-evidence.test.ts",
+    "test:package6:d1": "vitest run --config vitest.package6.config.ts",
+    "test:package6:dom": "vitest run --config vitest.package6-dom.config.ts",
+    "test:package6:browser:built": "FCS_PLAYWRIGHT_PACKAGE=6 PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --config playwright.config.ts",
+    "test:package6:browser": "npm run build && npm run test:package6:browser:built",
+    "test:package6:coverage": "node --experimental-strip-types --experimental-test-coverage --test-coverage-branches=100 --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-include=lib/domain/package6.ts --test tests/package6-node/package6-domain.test.ts",
+    "test:package6": "npm run test:package6:node && npm run test:package6:d1 && npm run test:package6:dom",
     "verify:package1:source-binding": "node scripts/package1-frozen-source-verifier.mjs",
     "verify:package1:evidence-binding": "node scripts/package1-evidence-binding.mjs",
     "verify:package2:source-binding": "node scripts/package2-source-manifest.mjs",
@@ -65,6 +73,9 @@
     "verify:package4:evidence-binding": "node scripts/package4-evidence-binding.mjs",
     "verify:package5:source-binding": "node scripts/package5-source-manifest.mjs",
     "verify:package5:evidence-binding": "node scripts/package5-evidence-binding.mjs",
+    "verify:package6:design-cold": "node scripts/package6-design-cold.mjs",
+    "verify:package6:source-binding": "node scripts/package6-source-manifest.mjs",
+    "verify:package6:evidence-binding": "node scripts/package6-evidence-binding.mjs",
     "audit:package0": "npm audit --omit=dev && npm audit --audit-level=high",
     "verify:package0": "npm run typecheck && npm run lint && npm run test:package0 && npm run build && npm run audit:package0",
     "verify:package1": "npm run typecheck && npm run lint && npm run verify:package1:source-binding && npm run test:package0 && npm run test:package1 && npm run build && npm run audit:package0 && npm run verify:package1:evidence-binding",
@@ -74,6 +85,9 @@
     "verify:package5:core": "node scripts/package5-verify-package4-frozen.mjs && npm run test:package5:node:core && npm run test:package5:d1 && npm run test:package5:dom && npm run test:package5:coverage && npm run build && npm run test:package5:browser:built && npm run audit:package0",
     "record:package5:local-gate": "npm run verify:package5:core && node scripts/package5-source-manifest.mjs --write && node scripts/package5-local-gate.mjs --write",
     "verify:package5": "npm run verify:package5:core && node --experimental-strip-types --test tests/package5-node/source-evidence.test.ts && npm run verify:package5:source-binding && npm run verify:package5:evidence-binding"
+    ,"verify:package6:core": "node scripts/package6-verify-package5-frozen.mjs && npm run typecheck && npm run lint && npm run test:package6:node:core && npm run test:package6:d1 && npm run test:package6:dom && npm run test:package6:coverage && npm run build && npm run test:package6:browser:built && npm run audit:package0 && npm run verify:package6:design-cold"
+    ,"record:package6:local-gate": "npm run verify:package6:core && node scripts/package6-source-manifest.mjs --write && node scripts/package6-local-gate.mjs --write"
+    ,"verify:package6": "npm run verify:package6:core && node --experimental-strip-types --test tests/package6-node/source-evidence.test.ts && npm run verify:package6:source-binding && npm run verify:package6:evidence-binding"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

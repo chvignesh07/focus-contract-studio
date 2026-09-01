@@ -38,6 +38,14 @@ export const workspaceQueryInventory = {
     maxRows: 1,
     boundedRationale: 'Composite primary identity lookup returns at most one row.',
   },
+  getVariantForWorkspaceBySlug: {
+    sql: `SELECT id, slug, active_implemented_revision
+            FROM component_variants
+           WHERE workspace_id = ? AND slug = ?
+           LIMIT 1`,
+    maxRows: 1,
+    boundedRationale: 'Workspace-scoped unique variant slug returns at most one row.',
+  },
   getActiveSeedState: {
     sql: `SELECT v.slug, v.active_implemented_revision, s.view_revision
             FROM workspace_view_state s

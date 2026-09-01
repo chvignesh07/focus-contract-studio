@@ -1,0 +1,43 @@
+{
+  "schema_version": "fcs-package6-local-gate-v1",
+  "package": 6,
+  "status": "PASS",
+  "command": "npm run verify:package6:core",
+  "source": {
+    "file_count": 42,
+    "aggregate_sha256": "f043713e070965861ba3118c475190b5a6182d5a46dd3fe76c61ce1584637aea"
+  },
+  "checks": {
+    "inherited_package5": "PASS",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "package6_node": "PASS",
+    "package6_d1": "PASS",
+    "package6_dom": "PASS",
+    "package6_coverage": "PASS",
+    "package6_browser": "PASS",
+    "production_build": "PASS",
+    "dependency_audit": "PASS",
+    "design_cold_visual": "PASS",
+    "source_inventory": "PASS"
+  },
+  "tests": {
+    "inherited_package5": 360,
+    "package6_node_core": 7,
+    "package6_d1": 3,
+    "package6_dom": 4,
+    "package6_coverage_replay": 4,
+    "package6_browser": 4,
+    "passed": 382,
+    "failed": 0,
+    "total": 382
+  },
+  "external": {
+    "hosted": "NOT_RUN",
+    "real_client": "NOT_RUN",
+    "founder_manual_accessibility": "NOT_RUN",
+    "deployed_cold_evaluator": "NOT_RUN",
+    "holdout": "NOT_RUN",
+    "package7": "NOT_RUN"
+  }
+}

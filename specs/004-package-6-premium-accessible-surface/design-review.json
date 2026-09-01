@@ -1,0 +1,393 @@
+{
+  "timestamp": "2026-09-01T15:19:00Z",
+  "reviewer": "Codex pre-code review of actual Package 5 surface",
+  "rubric_version": "2.0.0",
+  "scope": "Package 5 built local page at exact tree 0322a33d54727a68971e8ce05cd00b06e5f0b668",
+  "passes": {
+    "information_architecture": {
+      "score": 7,
+      "passed": 8,
+      "total": 12
+    },
+    "interaction_states": {
+      "score": 8,
+      "passed": 10,
+      "total": 12
+    },
+    "user_journey": {
+      "score": 8,
+      "passed": 9,
+      "total": 11
+    },
+    "ai_slop_score": {
+      "score": 8,
+      "passed": 9,
+      "total": 11
+    },
+    "design_system": {
+      "score": 5,
+      "passed": 6,
+      "total": 11
+    },
+    "responsive_a11y": {
+      "score": 9,
+      "passed": 11,
+      "total": 12
+    },
+    "unresolved_decisions": {
+      "score": 8,
+      "passed": 9,
+      "total": 11
+    }
+  },
+  "checklist": {
+    "1.1": {
+      "status": "pass",
+      "note": "Observe, precedent, proposal, verification, and history each have a real Package 5 job."
+    },
+    "1.2": {
+      "status": "fail",
+      "note": "The implementation-package eyebrow and incomplete hierarchy delay the product truth."
+    },
+    "1.3": {
+      "status": "fail",
+      "note": "Multiple rehearsal, review, apply, undo, and reset actions compete without a staged primary path."
+    },
+    "1.4": {
+      "status": "fail",
+      "note": "Duplicated stage 03 and absent 04/06 break the intended reading hierarchy."
+    },
+    "1.5": {
+      "status": "pass",
+      "note": "The product is one page with direct sections."
+    },
+    "1.6": {
+      "status": "pass",
+      "note": "Controls use concrete labels such as Run opening rehearsal and Approve exact proposal."
+    },
+    "1.7": {
+      "status": "pass",
+      "note": "The opening copy names rehearsing and governing a destructive dialog."
+    },
+    "1.8": {
+      "status": "pass",
+      "note": "Evidence and authority details are grouped into bounded sections."
+    },
+    "1.9": {
+      "status": "pass",
+      "note": "Spacing separates major functional groups."
+    },
+    "1.10": {
+      "status": "pass",
+      "note": "Primary controls meet the existing 44px minimum."
+    },
+    "1.11": {
+      "status": "fail",
+      "note": "No real-state rail identifies the next safe step across the three primary intents."
+    },
+    "1.12": {
+      "status": "pass",
+      "note": "Every existing section maps to implemented Package 5 behavior."
+    },
+    "2.1": {
+      "status": "pass",
+      "note": "Default states are visible for buttons, proposal, evidence, and history."
+    },
+    "2.2": {
+      "status": "pass",
+      "note": "Buttons have explicit hover treatment."
+    },
+    "2.3": {
+      "status": "pass",
+      "note": "A high-contrast three-pixel focus-visible ring is global."
+    },
+    "2.4": {
+      "status": "fail",
+      "note": "Controls have no explicit pressed-state treatment."
+    },
+    "2.5": {
+      "status": "fail",
+      "note": "Disabled controls dim but do not consistently expose the reason beside the control."
+    },
+    "2.6": {
+      "status": "pass",
+      "note": "Bootstrap and material mutations expose loading or busy copy."
+    },
+    "2.7": {
+      "status": "pass",
+      "note": "Package 5 exposes operation errors and retry paths."
+    },
+    "2.8": {
+      "status": "pass",
+      "note": "Abstention includes an instructive reviewer-owned path."
+    },
+    "2.9": {
+      "status": "pass",
+      "note": "Committed review/apply/verification outcomes render inline."
+    },
+    "2.10": {
+      "status": "pass",
+      "note": "There is no local unsaved draft that can be lost through navigation."
+    },
+    "2.11": {
+      "status": "pass",
+      "note": "Uncertain apply recovery retains its idempotency key."
+    },
+    "2.12": {
+      "status": "pass",
+      "note": "The seeded workspace is an intentional first-use state."
+    },
+    "3.1": {
+      "status": "pass",
+      "note": "The user lands directly on the working studio page."
+    },
+    "3.2": {
+      "status": "fail",
+      "note": "The five controlling answers are split below the fold."
+    },
+    "3.3": {
+      "status": "pass",
+      "note": "Observe through verify/undo/reset exists end to end."
+    },
+    "3.4": {
+      "status": "pass",
+      "note": "Conflict, abstention, stale, and uncertain response paths exist."
+    },
+    "3.5": {
+      "status": "pass",
+      "note": "Package 5 supplies retry and deliberate recovery actions."
+    },
+    "3.6": {
+      "status": "pass",
+      "note": "Native dialog Cancel and deliberate undo/reset escape paths exist."
+    },
+    "3.7": {
+      "status": "fail",
+      "note": "No explicit 15-second comprehension target is represented in the surface."
+    },
+    "3.8": {
+      "status": "pass",
+      "note": "Reviewer and cold judge are the named personas."
+    },
+    "3.9": {
+      "status": "pass",
+      "note": "The local seeded session/bootstrap prerequisite is handled."
+    },
+    "3.10": {
+      "status": "pass",
+      "note": "Revision-2 rehearsal follows successful application."
+    },
+    "3.11": {
+      "status": "pass",
+      "note": "Package 5 has 320px browser coverage, though Package 6 must expand it."
+    },
+    "4.1": {
+      "status": "fail",
+      "note": "The body uses a decorative violet radial gradient."
+    },
+    "4.2": {
+      "status": "pass",
+      "note": "No icon-in-colored-circle feature grid exists."
+    },
+    "4.3": {
+      "status": "pass",
+      "note": "No Welcome to X hero appears."
+    },
+    "4.4": {
+      "status": "pass",
+      "note": "No decorative blob element exists beyond the failing gradient."
+    },
+    "4.5": {
+      "status": "pass",
+      "note": "No emoji bullets appear in product copy."
+    },
+    "4.6": {
+      "status": "pass",
+      "note": "The layout is left aligned around functional content."
+    },
+    "4.7": {
+      "status": "pass",
+      "note": "Observe and Decision Mismatch are functional product surfaces, not marketing cards."
+    },
+    "4.8": {
+      "status": "pass",
+      "note": "No carousel exists."
+    },
+    "4.9": {
+      "status": "fail",
+      "note": "The page reads as a stack of visually similar dashboard cards without a complete stage hierarchy."
+    },
+    "4.10": {
+      "status": "pass",
+      "note": "No stock photography exists."
+    },
+    "4.11": {
+      "status": "pass",
+      "note": "Copy is concrete and authority-focused rather than buzzword-led."
+    },
+    "5.1": {
+      "status": "pass",
+      "note": "Colors are centralized in CSS custom properties."
+    },
+    "5.2": {
+      "status": "fail",
+      "note": "Spacing uses unrelated 7px, 10px, 13px, 18px, and 22px values instead of an 8px rhythm."
+    },
+    "5.3": {
+      "status": "fail",
+      "note": "Several one-off font sizes lack a declared scale."
+    },
+    "5.4": {
+      "status": "fail",
+      "note": "Radii vary across 8px, 10px, 12px, and 16px without named tokens."
+    },
+    "5.5": {
+      "status": "fail",
+      "note": "Shadows are one-off values rather than a restrained named ramp."
+    },
+    "5.6": {
+      "status": "pass",
+      "note": "Existing button, panel, table, dialog, and state patterns are reused."
+    },
+    "5.7": {
+      "status": "pass",
+      "note": "No mixed icon system is present."
+    },
+    "5.8": {
+      "status": "pass",
+      "note": "Interactive motion uses one short duration and reduced-motion overrides."
+    },
+    "5.9": {
+      "status": "pass",
+      "note": "Copy consistently distinguishes evidence, proposal, and implemented truth."
+    },
+    "5.10": {
+      "status": "pass",
+      "note": "The product intentionally declares a light-only color scheme; no partial dark mode exists."
+    },
+    "5.11": {
+      "status": "fail",
+      "note": "Major section spacing is ad hoc and weakens hierarchy."
+    },
+    "6.1": {
+      "status": "pass",
+      "note": "A dedicated under-420px layout exists."
+    },
+    "6.2": {
+      "status": "pass",
+      "note": "The under-799px breakpoint supplies a single-column tablet layout."
+    },
+    "6.3": {
+      "status": "pass",
+      "note": "Desktop uses a bounded two-column working-product layout."
+    },
+    "6.4": {
+      "status": "pass",
+      "note": "The content width is capped at 1180px."
+    },
+    "6.5": {
+      "status": "pass",
+      "note": "Buttons have a 44px minimum height."
+    },
+    "6.6": {
+      "status": "pass",
+      "note": "Primary body colors meet AA against their declared surfaces."
+    },
+    "6.7": {
+      "status": "fail",
+      "note": "Some dense muted metadata is not demonstrated at AAA contrast."
+    },
+    "6.8": {
+      "status": "pass",
+      "note": "DOM and visual order remain aligned."
+    },
+    "6.9": {
+      "status": "pass",
+      "note": "The global focus-visible treatment covers interactive controls."
+    },
+    "6.10": {
+      "status": "pass",
+      "note": "Native labels and dialog name/description relationships are present."
+    },
+    "6.11": {
+      "status": "pass",
+      "note": "Reduced motion disables transitions and animation."
+    },
+    "6.12": {
+      "status": "pass",
+      "note": "Responsive grids collapse and wide tables use local overflow, pending true-zoom proof."
+    },
+    "7.1": {
+      "status": "pass",
+      "note": "The Package 6 prompt and repository authorities resolve the planned decisions."
+    },
+    "7.2": {
+      "status": "pass",
+      "note": "The user is founder authority; the sole writer owns local execution."
+    },
+    "7.3": {
+      "status": "fail",
+      "note": "The baseline surface itself does not expose a decision deadline, which is not needed for this local package."
+    },
+    "7.4": {
+      "status": "pass",
+      "note": "Package 5, Spec Kit, browser cache, and review dependencies are explicit."
+    },
+    "7.5": {
+      "status": "pass",
+      "note": "The specification records local-candidate and seeded-session assumptions."
+    },
+    "7.6": {
+      "status": "pass",
+      "note": "Fallback behavior is specified for unsupported WebMCP and all material states."
+    },
+    "7.7": {
+      "status": "pass",
+      "note": "Review, retrieval, history, and verification endpoints own dynamic content."
+    },
+    "7.8": {
+      "status": "pass",
+      "note": "Existing server rate-limit policy remains authoritative."
+    },
+    "7.9": {
+      "status": "pass",
+      "note": "No feature flag or gradual rollout is required for an unshipped local checkpoint."
+    },
+    "7.10": {
+      "status": "pass",
+      "note": "Five-question timing and browser/accessibility gates define success."
+    },
+    "7.11": {
+      "status": "fail",
+      "note": "Package 6 has a stop boundary but no UI-specific sunset artifact; Package 7 is explicitly separate."
+    }
+  },
+  "total": 53,
+  "max": 70,
+  "percentage": 76,
+  "verdict": "REJECT",
+  "slop_matches": [
+    "decorative violet radial gradient",
+    "dashboard-like stack of visually similar cards"
+  ],
+  "hard_rejections": [
+    "Requires scrolling to understand proposal status, authority, and verification limits"
+  ],
+  "litmus_checks": {
+    "brand_unmistakable": "fail: Package 5 implementation label dominates product story",
+    "one_visual_anchor": "pass: live destructive dialog plus Decision Mismatch comparison",
+    "headline_scan": "fail: duplicated and missing stages break scan order",
+    "cards_necessary": "pass with correction: Observe and Decision Mismatch are required functional surfaces"
+  },
+  "iteration_notes": [
+    "Replace package-facing copy and incomplete numbering with a committed-state six-stage rail.",
+    "Remove the violet gradient and impose a warm-neutral tokenized 8px visual system with fewer card-like containers.",
+    "Put implemented/observed/precedent/NOT APPLIED/authority/verification-boundary answers and first safe action in the first viewport.",
+    "Add exact acknowledgement, complete state panels, responsive/zoom proof, and permanent receipt continuation without changing Package 5 authority."
+  ],
+  "product_authority_overrides": [
+    "Observe and Decision Mismatch remain because they are working-product surfaces, not marketing cards.",
+    "Native modal vertical scrolling is allowed only when content growth makes it necessary; page-level and two-dimensional scrolling remain forbidden."
+  ],
+  "review_invocations": 1
+}

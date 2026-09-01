@@ -68,7 +68,7 @@ function boundedReadResult(body: unknown): unknown {
   }
   const compact = structuredClone(body) as {
     retrieval?: {
-      records?: Array<{ rationaleExcerpt?: unknown }>;
+      records?: Array<Record<string, unknown> & { rationaleExcerpt?: unknown }>;
     };
   };
   if (!compact.retrieval || !Array.isArray(compact.retrieval.records)) {
@@ -76,6 +76,13 @@ function boundedReadResult(body: unknown): unknown {
   }
   compact.retrieval.records = compact.retrieval.records.slice(0, 2);
   for (const record of compact.retrieval.records) {
+    delete record.sourceKind;
+    delete record.validFrom;
+    delete record.validUntil;
+    delete record.lexicalRank;
+    delete record.structuredRank;
+    delete record.relationshipRank;
+    delete record.rrfContribution;
     if (typeof record.rationaleExcerpt === 'string') {
       const characters = Array.from(record.rationaleExcerpt);
       record.rationaleExcerpt = characters.slice(0, 80).join('');

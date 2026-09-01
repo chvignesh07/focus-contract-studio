@@ -1,0 +1,23 @@
+{
+  "schema_version": "fcs-package6-design-resolution-v1",
+  "status": "PASS",
+  "design_review_rerun": false,
+  "baseline_review_invocations": 1,
+  "unresolved_material_gaps": 0,
+  "resolved_gaps": [
+    "removed decorative violet radial gradient and glass-like styling",
+    "removed package-facing labels from the primary product hierarchy",
+    "anchored the first viewport on the live dialog and decision mismatch",
+    "made the six workflow stages inspectable navigation over real state",
+    "surfaced authority and not-applied truth before destructive action",
+    "added complete responsive reflow at 320px, 375px, and 200 percent zoom",
+    "rendered recovery, conflict, abstention, verification, history, undo, and reset states",
+    "localized horizontal overflow to the evidence table with keyboard access"
+  ],
+  "profiles": {
+    "desktop": "PASS",
+    "320px": "PASS",
+    "375px": "PASS",
+    "true_200_percent_page_zoom": "PASS"
+  }
+}

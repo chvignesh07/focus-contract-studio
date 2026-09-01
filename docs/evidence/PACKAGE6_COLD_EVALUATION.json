@@ -1,0 +1,41 @@
+{
+  "schema_version": "fcs-package6-cold-evaluation-v1",
+  "status": "PASS",
+  "context": "FINAL_BUILT_SCREENSHOT_ONLY_NO_REPOSITORY_HISTORY",
+  "input": "desktop-initial.png",
+  "input_sha256": "5d2ae318fa35b9189e093567b92faeb67c662ffb073f0e450b32e3816f936b59",
+  "elapsed_seconds": 0.062,
+  "elapsed_display": "0.062 seconds (Date.now wall clock, 1 ms resolution)",
+  "answers": [
+    {
+      "question": 1,
+      "answer": "Implemented revision 1 uses Delete; browser focus is not yet captured.",
+      "correct": true
+    },
+    {
+      "question": 2,
+      "answer": "Precedent D001 says Cancel, creating a Delete versus Cancel mismatch.",
+      "correct": true
+    },
+    {
+      "question": 3,
+      "answer": "No. The page says Not applied and No proposal.",
+      "correct": true
+    },
+    {
+      "question": 4,
+      "answer": "Only an exact human review can authorize apply.",
+      "correct": true
+    },
+    {
+      "question": 5,
+      "answer": "Verification compares finalized raw keyboard/focus events with the named rendered revision; it does not authorize apply, manufacture events, or prove WCAG/general conformance.",
+      "correct": true
+    }
+  ],
+  "pre_final_attempt": {
+    "status": "INVALIDATED_BY_REVIEW",
+    "reason": "The earlier screenshot did not state the complete verification method and limits; it was replaced before final evidence."
+  },
+  "deployed_cold_evaluator": "NOT_RUN"
+}

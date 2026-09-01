@@ -38,6 +38,7 @@ type DeleteAccountDialogProps = {
   onRehearsalComplete?: (capture: CapturedFocusRehearsal) => void;
   onRehearsalError?: (message: string) => void;
   onSyntheticDelete: () => void;
+  startCompleteRequest?: number;
 };
 
 type CompleteCapture = {
@@ -138,6 +139,7 @@ export function DeleteAccountDialog({
   onRehearsalComplete,
   onRehearsalError,
   onSyntheticDelete,
+  startCompleteRequest = 0,
 }: DeleteAccountDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -145,6 +147,7 @@ export function DeleteAccountDialog({
   const returnTargetRef = useRef<HTMLButtonElement | null>(null);
   const openingRef = useRef<{ startedAt: number; captured: boolean } | null>(null);
   const completeRef = useRef<CompleteCapture | null>(null);
+  const completedStartRequestRef = useRef(0);
   const [starting, setStarting] = useState(false);
   const [activeTrigger, setActiveTrigger] = useState<'legacy' | 'complete'>('complete');
 
@@ -237,7 +240,7 @@ export function DeleteAccountDialog({
     dialog.showModal();
   }
 
-  async function openCompleteDialog() {
+  const openCompleteDialog = useCallback(async () => {
     const dialog = dialogRef.current;
     if (!dialog || dialog.open || !onStartRehearsal || starting || busy) return;
     setActiveTrigger('complete');
@@ -272,7 +275,13 @@ export function DeleteAccountDialog({
     } finally {
       setStarting(false);
     }
-  }
+  }, [busy, onRehearsalError, onStartRehearsal, starting]);
+
+  useEffect(() => {
+    if (startCompleteRequest <= completedStartRequestRef.current) return;
+    completedStartRequestRef.current = startCompleteRequest;
+    void openCompleteDialog();
+  }, [openCompleteDialog, startCompleteRequest]);
 
   function recordFocus(target: HTMLElement, dialog: HTMLDialogElement) {
     const complete = completeRef.current;

@@ -59,8 +59,15 @@ type ProposalRow = {
 export type PublicPrecedentRecord = {
   recordId: string;
   outcomeKey: string;
+  sourceKind: 'synthetic-seed' | 'verified-runtime';
+  validFrom: string;
+  validUntil: string | null;
   applicability: 'exact-context' | 'exact-variant' | 'exact-use-case';
   rationaleExcerpt: string;
+  lexicalRank: number | null;
+  structuredRank: number | null;
+  relationshipRank: number | null;
+  rrfContribution: string;
   ranks: [number | null, number | null, number | null];
   rrf: string;
 };
@@ -159,12 +166,22 @@ function applicability(record: RankedRecord): PublicPrecedentRecord['applicabili
   return 'exact-use-case';
 }
 
-function publicRecord(record: RankedRecord): PublicPrecedentRecord {
+function publicRecord(
+  record: RankedRecord,
+  sourceKind: LoadedPrecedent['provenanceKind'],
+): PublicPrecedentRecord {
   return {
     recordId: record.id,
     outcomeKey: record.outcomeKey,
+    sourceKind,
+    validFrom: record.validFrom,
+    validUntil: record.validTo,
     applicability: applicability(record),
     rationaleExcerpt: rationaleExcerpt(record.rationale),
+    lexicalRank: record.lexicalRank,
+    structuredRank: record.structuredRank,
+    relationshipRank: record.relationshipRank,
+    rrfContribution: record.rrfDisplay,
     ranks: [
       record.lexicalRank,
       record.structuredRank,
@@ -487,6 +504,12 @@ export async function getActiveFocusReview(input: {
     snapshot.variantId,
   );
   const precedentOutcome = snapshot.retrieval.returned[0]?.outcomeKey ?? null;
+  const precedentSources = new Map(
+    snapshot.loadedPrecedents.map(({ provenanceKind, record }) => [
+      record.id,
+      provenanceKind,
+    ]),
+  );
   const label =
     snapshot.retrieval.disposition === 'conflict'
       ? 'CONFLICT'
@@ -527,7 +550,13 @@ export async function getActiveFocusReview(input: {
       algorithm: RETRIEVAL_ALGORITHM,
       disposition: snapshot.retrieval.disposition,
       reasonCode: snapshot.retrieval.reasonCode,
-      records: snapshot.retrieval.returned.slice(0, 3).map(publicRecord),
+      records: snapshot.retrieval.returned.slice(0, 3).map((record) => {
+        const sourceKind = precedentSources.get(record.id);
+        if (!sourceKind) {
+          throw new Error('Public precedent provenance is unavailable.');
+        }
+        return publicRecord(record, sourceKind);
+      }),
     },
     proposal: proposal ? publicProposal(proposal, snapshot.implemented) : null,
   };

@@ -1,0 +1,28 @@
+{
+  "schema_version": "fcs-package6-visual-manifest-v1",
+  "status": "PASS",
+  "capture": "deterministic local built-browser run",
+  "images_committed": false,
+  "temporary_collection_removed": true,
+  "screenshots": [
+    { "name": "320px-initial", "width": 320, "height": 900, "sha256": "1d13d6b180a7171eceea1061999c85c752ed8f3f6c8e5e575c8c638973b0f837", "inspection": "PASS" },
+    { "name": "320px-reset-complete", "width": 320, "height": 900, "sha256": "1d13d6b180a7171eceea1061999c85c752ed8f3f6c8e5e575c8c638973b0f837", "inspection": "PASS" },
+    { "name": "375px-initial", "width": 375, "height": 900, "sha256": "168a0be6a30265e366ce9568e015bd46ae802a81b8fb026cc25c103eaf570153", "inspection": "PASS" },
+    { "name": "375px-reset-complete", "width": 375, "height": 900, "sha256": "168a0be6a30265e366ce9568e015bd46ae802a81b8fb026cc25c103eaf570153", "inspection": "PASS" },
+    { "name": "desktop-application-receipt", "width": 1280, "height": 900, "sha256": "5655a55127e8b4fb33e797daa3207fda2ad58ac50a5c124414867f68e3dcf80f", "inspection": "PASS" },
+    { "name": "desktop-danger-variant", "width": 1280, "height": 900, "sha256": "de73f7f62fb5ce81286fdb7db17d3924048502cb880b181d50e704971171c84f", "inspection": "PASS" },
+    { "name": "desktop-initial", "width": 1280, "height": 900, "sha256": "5d2ae318fa35b9189e093567b92faeb67c662ffb073f0e450b32e3816f936b59", "inspection": "PASS" },
+    { "name": "desktop-opening-dialog", "width": 1280, "height": 900, "sha256": "eadf6d53cad8a17d3276b5912fe45687a2f7a02ed8203e495bcf106e1487ba9b", "inspection": "PASS" },
+    { "name": "desktop-proposal-not-applied", "width": 1280, "height": 900, "sha256": "f5cae42e45164ab23b492bb023374afd7e7154bd76fa24d12567125b19cb6726", "inspection": "PASS" },
+    { "name": "desktop-reset-complete", "width": 1280, "height": 900, "sha256": "5d2ae318fa35b9189e093567b92faeb67c662ffb073f0e450b32e3816f936b59", "inspection": "PASS" },
+    { "name": "desktop-reset-confirmation", "width": 1280, "height": 900, "sha256": "3a1cf02bd1b66d25558c4fb06461504cad3a9142d42dd209bebca44045a0cc69", "inspection": "PASS" },
+    { "name": "desktop-review-confirmation", "width": 1280, "height": 900, "sha256": "8071d4bcfaffd9340ff53afcc7efbc1ce0263716b034f93f09330ae2ed3446fc", "inspection": "PASS" },
+    { "name": "desktop-revision-2-dialog", "width": 1280, "height": 900, "sha256": "21a9072c21a66df438efcbe332d1bf85a59c04036c54e86b4c237dbb2e82efa1", "inspection": "PASS" },
+    { "name": "desktop-uncertain-recovery", "width": 1280, "height": 900, "sha256": "432caf27ee39bcca01b6df6db2ef91f9f06a11442172b57ecafc6081852ea5d6", "inspection": "PASS" },
+    { "name": "desktop-undo-committed", "width": 1280, "height": 900, "sha256": "8c1028f8c2dcb7505cf9ef952b730e33d2482bd9ea3158de24df58af45df31d1", "inspection": "PASS" },
+    { "name": "desktop-undo-confirmation", "width": 1280, "height": 900, "sha256": "7733dad25f41c04fb8b4ea8dcaa91db6e6ddc163b53e0f92d0c8c1a15e720cc9", "inspection": "PASS" },
+    { "name": "desktop-verified-history", "width": 1280, "height": 900, "sha256": "e56aba5b4fe09803fcdb6dc48fa1e07070c8bfbc57cd4a61f10013ea00fa1da9", "inspection": "PASS" },
+    { "name": "true-200-page-zoom-initial", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" },
+    { "name": "true-200-page-zoom-reset-complete", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" }
+  ]
+}

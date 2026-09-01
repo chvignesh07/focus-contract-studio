@@ -454,6 +454,23 @@ export async function getVariantForWorkspace(
   };
 }
 
+export async function getVariantForWorkspaceBySlug(
+  db: D1Database,
+  workspaceId: string,
+  slug: string,
+): Promise<{ id: string; slug: string; activeImplementedRevision: number }> {
+  const row = await db
+    .prepare(workspaceQueryInventory.getVariantForWorkspaceBySlug.sql)
+    .bind(workspaceId, slug)
+    .first<{ id: string; slug: string; active_implemented_revision: number }>();
+  if (!row) throw unavailableVariant();
+  return {
+    id: row.id,
+    slug: row.slug,
+    activeImplementedRevision: row.active_implemented_revision,
+  };
+}
+
 export async function getActiveSeedState(
   db: D1Database,
   workspaceId: string,
@@ -500,6 +517,22 @@ export async function setActiveVariant(
     throw new FcsError('VIEW_STATE_STALE', 'The current view changed. Reload and retry.', 409);
   }
   return { viewRevision: expectedViewRevision + 1 };
+}
+
+export async function setActiveVariantBySlug(
+  db: D1Database,
+  workspaceId: string,
+  slug: string,
+  expectedViewRevision: number,
+): Promise<{ variant: string; viewRevision: number }> {
+  const variant = await getVariantForWorkspaceBySlug(db, workspaceId, slug);
+  const result = await setActiveVariant(
+    db,
+    workspaceId,
+    variant.id,
+    expectedViewRevision,
+  );
+  return { variant: variant.slug, viewRevision: result.viewRevision };
 }
 
 export async function cleanupExpiredWorkspaces(

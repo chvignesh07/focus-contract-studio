@@ -5,6 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import {
   CANCEL_CONFIGURATION,
 } from '../lib/domain/focus-configuration';
+import {
+  derivePackage6Stages,
+  operationState,
+  stateKindForPublicCode,
+  type Package6OperationKind,
+  type Package6OperationState,
+  type Package6Variant,
+  type RevisionChange,
+} from '../lib/domain/package6';
 import type {
   InitialFocusManifest,
   InitialFocusTargetId,
@@ -26,7 +35,7 @@ type BootstrapResult = {
     generation: number;
     csrfToken: string;
     activeVariant: {
-      slug: string;
+      slug: Package6Variant;
       implementedRevision: number;
       viewRevision: number;
     };
@@ -141,13 +150,30 @@ type ResetResult = {
   data: { generation: number; csrfToken: string; replayed: boolean };
 };
 
+type ActiveVariantResult = {
+  ok: true;
+  data: {
+    variant: Package6Variant;
+    viewRevision: number;
+  };
+};
+
+type ApplicationReceiptView = {
+  receiptId: string;
+  proposalId?: string;
+  proposalDigest8?: string;
+  fromRevision: number;
+  toRevision: number;
+  createdAt?: string;
+};
+
 type ToolState = 'registered' | 'unsupported' | 'error';
 type ToolDocument = Document & { modelContext?: ModelContextLike };
 
 const toolCopy: Record<ToolState, string> = {
   registered: 'Two bounded Site tools are registered for this page.',
-  unsupported: 'Site tools are unavailable here. The complete review still works on this page.',
-  error: 'Site tools could not be registered. The complete review still works on this page.',
+  unsupported: 'Site tools are unavailable; the complete human workflow remains available.',
+  error: 'Site tools could not be registered; the complete human workflow remains available.',
 };
 
 const checkLabels: Record<VerificationView['checks'][number]['behavior'], string> = {
@@ -161,12 +187,36 @@ const checkLabels: Record<VerificationView['checks'][number]['behavior'], string
 
 type PageState =
   | { kind: 'loading' }
-  | { kind: 'error'; message: string }
+  | { kind: 'error'; operation: Package6OperationState }
   | {
       kind: 'ready';
       csrfToken: string;
+      generation: number;
+      activeVariant: {
+        slug: Package6Variant;
+        viewRevision: number;
+      };
       review: ActiveFocusReviewResult;
     };
+
+class PublicOperationError extends Error {
+  readonly code: string;
+  readonly correlationId: string;
+  readonly retryable: boolean;
+
+  constructor(input: {
+    code: string;
+    message: string;
+    correlationId: string;
+    retryable: boolean;
+  }) {
+    super(input.message);
+    this.name = 'PublicOperationError';
+    this.code = input.code;
+    this.correlationId = input.correlationId;
+    this.retryable = input.retryable;
+  }
+}
 
 function safeMessage(value: unknown, fallback: string): string {
   if (
@@ -190,16 +240,81 @@ async function jsonResponse<T>(response: Response, fallback: string): Promise<T>
   } catch {
     throw new Error(fallback);
   }
-  if (!response.ok) throw new Error(safeMessage(value, fallback));
+  if (!response.ok) {
+    const publicError =
+      value &&
+      typeof value === 'object' &&
+      'error' in value &&
+      value.error &&
+      typeof value.error === 'object' &&
+      'code' in value.error &&
+      typeof value.error.code === 'string' &&
+      'correlationId' in value.error &&
+      typeof value.error.correlationId === 'string'
+        ? value.error as {
+            code: string;
+            message?: unknown;
+            correlationId: string;
+            retryable?: unknown;
+          }
+        : null;
+    if (publicError) {
+      throw new PublicOperationError({
+        code: publicError.code,
+        message:
+          typeof publicError.message === 'string'
+            ? publicError.message
+            : fallback,
+        correlationId: publicError.correlationId,
+        retryable: publicError.retryable === true,
+      });
+    }
+    throw new Error(safeMessage(value, fallback));
+  }
   return value as T;
 }
 
-function mutationMessage(error: unknown, fallback: string): string {
-  return error instanceof TypeError
-    ? fallback
-    : error instanceof Error
-      ? error.message
-      : fallback;
+function operationForError(
+  error: unknown,
+  fallback: string,
+): Package6OperationState {
+  if (error instanceof PublicOperationError) {
+    return operationState(stateKindForPublicCode(error.code), {
+      happened: error.message,
+      code: error.code,
+      correlationId: error.correlationId,
+    });
+  }
+  return operationState(
+    error instanceof TypeError ? 'uncertainNetwork' : 'validationFailure',
+    {
+      happened: error instanceof Error ? error.message : fallback,
+      correlationId: crypto.randomUUID(),
+    },
+  );
+}
+
+function activityKind(message: string): Package6OperationKind {
+  if (/verification pass/iu.test(message)) return 'verifiedPass';
+  if (/verification fail/iu.test(message)) return 'verifiedFailure';
+  if (/outcome is uncertain|uncertain response/iu.test(message)) {
+    return 'uncertainNetwork';
+  }
+  if (/recover|starting|staging|freezing|running|committing|applying|resetting|creating/iu.test(message)) {
+    return 'recovery';
+  }
+  if (/could not|not saved|failed|invalid/iu.test(message)) {
+    return 'validationFailure';
+  }
+  return 'success';
+}
+
+function activityRevisionChange(message: string): RevisionChange {
+  if (/outcome is uncertain|recover/iu.test(message)) return 'unknown';
+  if (/application committed as implemented revision|undo committed|workspace reset/iu.test(message)) {
+    return 'yes';
+  }
+  return 'no';
 }
 
 function targetLabel(value: string | null): string {
@@ -215,6 +330,61 @@ function titleCaseTarget(value: string): string {
 function fullTargetLabel(value: string): string {
   const label = value.replace(/-/gu, ' ');
   return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
+}
+
+function focusFieldLabel(field: ProposalView['changedFields'][number]): string {
+  return {
+    initialFocus: 'Initial focus',
+    focusOrder: 'Focus order',
+    trapTab: 'Forward Tab boundary',
+    trapShiftTab: 'Backward Shift+Tab boundary',
+    escapeAction: 'Escape action',
+    returnFocus: 'Return focus',
+  }[field];
+}
+
+function configurationValue(
+  configuration: ActiveFocusReviewResult['review']['implemented'],
+  field: ProposalView['changedFields'][number],
+): string {
+  const value = configuration[field];
+  if (Array.isArray(value)) return value.map(fullTargetLabel).join(' → ');
+  return field === 'initialFocus' || field === 'returnFocus'
+    ? fullTargetLabel(value)
+    : value.replace(/-/gu, ' ');
+}
+
+function receiptText(receipt: ApplicationReceiptView): string {
+  return [
+    'Focus Contract Studio application receipt',
+    `Receipt: ${receipt.receiptId}`,
+    `Revision: ${receipt.fromRevision} -> ${receipt.toRevision}`,
+    receipt.proposalId ? `Proposal: ${receipt.proposalId}` : null,
+    receipt.proposalDigest8 ? `Proposal digest: ${receipt.proposalDigest8}` : null,
+    receipt.createdAt ? `Committed: ${receipt.createdAt}` : null,
+  ].filter(Boolean).join('\n');
+}
+
+async function copyText(value: string): Promise<void> {
+  if (typeof navigator.clipboard?.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(value);
+      return;
+    } catch {
+      // The API can exist while permission is denied; use the user-activated native fallback.
+    }
+  }
+  const field = document.createElement('textarea');
+  field.value = value;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  document.body.appendChild(field);
+  field.select();
+  const copied =
+    typeof document.execCommand === 'function' && document.execCommand('copy');
+  field.remove();
+  if (!copied) throw new Error('The receipt could not be copied.');
 }
 
 async function fetchReview(signal?: AbortSignal): Promise<ActiveFocusReviewResult> {
@@ -244,7 +414,11 @@ export function FocusContractStudio() {
   const [page, setPage] = useState<PageState>({ kind: 'loading' });
   const [proposal, setProposal] = useState<ProposalView | null>(null);
   const [observedTarget, setObservedTarget] = useState<string | null>(null);
-  const [activity, setActivity] = useState('No proposal has changed the implemented revision.');
+  const [activity, setActivityState] = useState<Package6OperationState>(
+    operationState('empty', {
+      happened: 'No proposal has changed the implemented revision.',
+    }),
+  );
   const [proposalBusy, setProposalBusy] = useState(false);
   const [novelResponsibilityAccepted, setNovelResponsibilityAccepted] = useState(false);
   const [recoveringProposal, setRecoveringProposal] = useState(false);
@@ -255,14 +429,35 @@ export function FocusContractStudio() {
   const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | 'revoke' | 'edit' | 'apply' | 'undo' | 'reset' | null>(null);
   const [mutationBusy, setMutationBusy] = useState(false);
   const [applicationReceipt, setApplicationReceipt] = useState<ApplyResult['receipt'] | null>(null);
+  const [reviewAcknowledgedKey, setReviewAcknowledgedKey] = useState<string | null>(null);
+  const [variantBusy, setVariantBusy] = useState(false);
+  const [rehearsalRequest, setRehearsalRequest] = useState(0);
   const pendingProposalKey = useRef<string | null>(null);
   const pendingMutation = useRef<{ action: string; key: string } | null>(null);
+  const readController = useRef<AbortController | null>(null);
   const receiptDialog = useRef<HTMLDialogElement>(null);
   const receiptCancel = useRef<HTMLButtonElement>(null);
   const confirmationButton = useRef<HTMLButtonElement>(null);
 
+  function setActivity(
+    happened: string,
+    kind = activityKind(happened),
+    revisionChanged = activityRevisionChange(happened),
+  ) {
+    setActivityState(operationState(kind, {
+      happened,
+      revisionChanged,
+      correlationId: crypto.randomUUID(),
+    }));
+  }
+
+  function setActivityError(error: unknown, fallback: string) {
+    setActivityState(operationForError(error, fallback));
+  }
+
   useEffect(() => {
     const controller = new AbortController();
+    readController.current = controller;
     void (async () => {
       try {
         const bootstrap = await jsonResponse<BootstrapResult>(
@@ -285,20 +480,30 @@ export function FocusContractStudio() {
         setPage({
           kind: 'ready',
           csrfToken: bootstrap.data.csrfToken,
+          generation: bootstrap.data.generation,
+          activeVariant: {
+            slug: bootstrap.data.activeVariant.slug,
+            viewRevision: bootstrap.data.activeVariant.viewRevision,
+          },
           review,
         });
       } catch (error) {
         if (controller.signal.aborted) return;
         setPage({
           kind: 'error',
-          message: error instanceof Error ? error.message : 'The review could not be loaded.',
+          operation: operationForError(error, 'The review could not be loaded.'),
         });
       }
     })();
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      readController.current?.abort();
+      readController.current = null;
+    };
   }, []);
 
   const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
+  const toolVariant = page.kind === 'ready' ? page.activeVariant.slug : null;
   useEffect(() => {
     if (!toolCsrfToken) return;
     const modelContext = (document as ToolDocument).modelContext;
@@ -320,7 +525,20 @@ export function FocusContractStudio() {
       mounted = false;
       registry.dispose();
     };
-  }, [toolCsrfToken]);
+  }, [toolCsrfToken, toolVariant]);
+
+  const acknowledgementKey =
+    page.kind === 'ready' && proposal
+      ? [
+          page.generation,
+          page.activeVariant.slug,
+          proposal.proposalId,
+          proposal.proposalDigest,
+          proposal.baseImplementedRevision,
+        ].join(':')
+      : '';
+  const reviewAcknowledged =
+    acknowledgementKey.length > 0 && reviewAcknowledgedKey === acknowledgementKey;
 
   useEffect(() => {
     if (applicationReceipt && !receiptDialog.current?.open) {
@@ -336,9 +554,8 @@ export function FocusContractStudio() {
   if (page.kind === 'loading') {
     return (
       <main className="loading-shell">
-        <p aria-live="polite" role="status">
-          Preparing an isolated demo and loading its current review…
-        </p>
+        <h1>Focus Contract Studio</h1>
+        <OperationPanel live state={operationState('loading')} />
       </main>
     );
   }
@@ -347,13 +564,12 @@ export function FocusContractStudio() {
     return (
       <main className="loading-shell">
         <h1>Focus Contract Studio</h1>
-        <p role="alert">{page.message}</p>
-        <p>No implemented revision changed. Reload to create a new isolated demo.</p>
+        <OperationPanel live state={page.operation} />
       </main>
     );
   }
 
-  const { review, csrfToken } = page;
+  const { review, csrfToken, activeVariant, generation } = page;
   const evidence = review.retrieval.records;
   const precedentOutcome = review.review.precedentComparison.precedentOutcome;
   const canCreate =
@@ -365,6 +581,43 @@ export function FocusContractStudio() {
     );
   const canCreateReviewerNovel =
     !proposal && review.retrieval.disposition !== 'results' && novelResponsibilityAccepted;
+  const stages = derivePackage6Stages({
+    observed: Boolean(review.review.observation),
+    retrievalResolved: true,
+    proposalStatus: proposal?.status ?? null,
+    applied: proposal?.applied ?? false,
+    verified: verification !== null,
+    historyKinds: history?.records.map(({ kind }) => kind) ?? [],
+  });
+  const historyApplication = history?.records
+    .filter((record) => record.kind === 'application')
+    .at(-1);
+  const durableReceipt: ApplicationReceiptView | null =
+    applicationReceipt ??
+    (historyApplication &&
+    typeof historyApplication.fromRevision === 'number' &&
+    typeof historyApplication.toRevision === 'number'
+      ? {
+          receiptId: historyApplication.id,
+          proposalId: historyApplication.proposalId,
+          fromRevision: historyApplication.fromRevision,
+          toRevision: historyApplication.toRevision,
+          createdAt: new Date(historyApplication.occurredAt * 1_000)
+            .toISOString()
+            .replace('.000Z', 'Z'),
+        }
+      : null);
+  const firstSafeAction = !review.review.observation
+    ? { label: 'Observe browser focus', target: '#observe' }
+    : !proposal
+      ? { label: 'Create the evidence-backed proposal', target: '#precedent' }
+      : proposal.status === 'proposed'
+        ? { label: 'Review the exact proposal', target: '#review-authority' }
+        : proposal.status === 'approved'
+          ? { label: 'Apply the exact approval', target: '#apply' }
+          : review.review.implementedRevision > 1
+            ? { label: 'Rehearse the rendered revision', target: '#observe' }
+            : { label: 'Inspect durable history', target: '#verify-history' };
 
   async function recordInitialFocus(
     targetId: InitialFocusTargetId,
@@ -391,12 +644,10 @@ export function FocusContractStudio() {
         'The opening observation was not saved.',
       );
       setObservedTarget(targetId);
-      const refreshed = await fetchReview();
-      setPage({ kind: 'ready', csrfToken, review: refreshed });
-      setProposal(refreshed.proposal);
+      await refreshCommittedState();
       setActivity(`Browser report recorded: ${targetLabel(targetId)}. Typed values were not captured.`);
     } catch (error) {
-      setActivity(error instanceof Error ? error.message : 'The observation was not saved.');
+      setActivityError(error, 'The observation was not saved.');
     }
   }
 
@@ -468,11 +719,7 @@ export function FocusContractStudio() {
         `Verification ${verified.verification.overallResult}. Implemented revision ${verified.verification.implementedRevision} did not change.`,
       );
     } catch (error) {
-      setActivity(
-        error instanceof Error
-          ? error.message
-          : 'The raw rehearsal could not be finalized.',
-      );
+      setActivityError(error, 'The raw rehearsal could not be finalized.');
     } finally {
       setRehearsalBusy(false);
     }
@@ -510,10 +757,10 @@ export function FocusContractStudio() {
       setRecoveringProposal(false);
       setActivity('Proposal saved for exact UI review. Revision 1 remains implemented.');
     } catch (error) {
-      setActivity(mutationMessage(
+      setActivityError(
         error,
         'The proposal outcome is uncertain. Retry recovers it with the same key.',
-      ));
+      );
     } finally {
       setProposalBusy(false);
     }
@@ -546,27 +793,110 @@ export function FocusContractStudio() {
       setNovelResponsibilityAccepted(false);
       setActivity('Reviewer-authored novel proposal saved. No precedent is presented as support.');
     } catch (error) {
-      setActivity(mutationMessage(
+      setActivityError(
         error,
         'The reviewer proposal outcome is uncertain. Retry recovers it with the same key.',
-      ));
+      );
     } finally {
       setProposalBusy(false);
     }
   }
 
-  async function refreshCommittedState(nextCsrfToken = csrfToken) {
+  async function refreshCommittedState(
+    nextCsrfToken = csrfToken,
+    nextActiveVariant = activeVariant,
+    nextGeneration = generation,
+  ) {
+    readController.current?.abort();
+    const controller = new AbortController();
+    readController.current = controller;
     const [nextReview, nextHistory] = await Promise.all([
-      fetchReview(), fetchHistory(),
+      fetchReview(controller.signal), fetchHistory(controller.signal),
     ]);
-    setPage({ kind: 'ready', csrfToken: nextCsrfToken, review: nextReview });
+    if (controller.signal.aborted) return;
+    setPage({
+      kind: 'ready',
+      csrfToken: nextCsrfToken,
+      generation: nextGeneration,
+      activeVariant: nextActiveVariant,
+      review: nextReview,
+    });
     setProposal(nextReview.proposal);
     setObservedTarget(nextReview.review.observation?.observedInitialFocus ?? null);
     setHistory(nextHistory);
   }
 
+  async function switchVariant(variant: Package6Variant) {
+    if (
+      variantBusy ||
+      mutationBusy ||
+      proposalBusy ||
+      rehearsalBusy ||
+      variant === activeVariant.slug
+    ) {
+      return;
+    }
+    setVariantBusy(true);
+    setReviewAcknowledgedKey(null);
+    setConfirmAction(null);
+    setApplicationReceipt(null);
+    setVerification(null);
+    readController.current?.abort();
+    setActivity(
+      `Switching to ${variant === 'delete-account-standard' ? 'Standard' : 'Danger-emphasis'} and refreshing committed truth…`,
+      'recovery',
+      'no',
+    );
+    try {
+      const result = await jsonResponse<ActiveVariantResult>(
+        await fetch('/api/active-variant', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-fcs-csrf': csrfToken,
+          },
+          body: JSON.stringify({
+            variant,
+            expectedViewRevision: activeVariant.viewRevision,
+          }),
+          credentials: 'same-origin',
+          cache: 'no-store',
+        }),
+        'The active variant could not be changed.',
+      );
+      await refreshCommittedState(
+        csrfToken,
+        {
+          slug: result.data.variant,
+          viewRevision: result.data.viewRevision,
+        },
+        generation,
+      );
+      setActivity(
+        `${variant === 'delete-account-standard' ? 'Standard' : 'Danger-emphasis'} is active. The implemented revision did not change.`,
+        'success',
+        'no',
+      );
+    } catch (error) {
+      setActivityError(error, 'The active variant could not be changed.');
+    } finally {
+      setVariantBusy(false);
+    }
+  }
+
   function beginMutation(action: NonNullable<typeof confirmAction>) {
     if (mutationBusy) return;
+    if (
+      ['approve', 'reject', 'revoke', 'edit'].includes(action) &&
+      !reviewAcknowledged
+    ) {
+      setActivity(
+        'Review acknowledgement is required before this exact decision can enter confirmation.',
+        'validationFailure',
+        'no',
+      );
+      return;
+    }
     if (pendingMutation.current?.action !== action) {
       pendingMutation.current = { action, key: crypto.randomUUID() };
     }
@@ -576,9 +906,21 @@ export function FocusContractStudio() {
 
   async function executeReview(action: 'approve' | 'reject' | 'revoke' | 'edit') {
     if (!proposal || mutationBusy) return;
-    beginMutation(action);
     const pending = pendingMutation.current;
-    if (!pending) return;
+    if (
+      !reviewAcknowledged ||
+      confirmAction !== action ||
+      pending?.action !== action
+    ) {
+      pendingMutation.current = null;
+      setConfirmAction(null);
+      setActivity(
+        'Review acknowledgement changed. Re-open confirmation for this exact proposal and revision.',
+        'validationFailure',
+        'no',
+      );
+      return;
+    }
     setMutationBusy(true);
     setActivity(`Committing exact ${action} authority…`);
     try {
@@ -601,7 +943,10 @@ export function FocusContractStudio() {
       setConfirmAction(null);
       setActivity(`${action.charAt(0).toUpperCase() + action.slice(1)} committed. The implemented revision did not change.`);
     } catch (error) {
-      setActivity(mutationMessage(error, `The ${action} outcome is uncertain. Retry recovers it with the same key.`));
+      setActivityError(
+        error,
+        `The ${action} outcome is uncertain. Retry recovers it with the same key.`,
+      );
     } finally {
       setMutationBusy(false);
     }
@@ -633,10 +978,16 @@ export function FocusContractStudio() {
       setConfirmAction(null);
       setActivity(`Application committed as implemented revision ${result.receipt.toRevision}. Run a fresh rehearsal and verification.`);
     } catch (error) {
-      setActivity(mutationMessage(
+      const failure = operationForError(
         error,
         'The application outcome is uncertain. Retry recovers the receipt with the same key.',
-      ));
+      );
+      setActivityState(operationState('uncertainNetwork', {
+        happened: `OUTCOME UNCERTAIN — RECOVERING RECEIPT. ${failure.happened}`,
+        revisionChanged: 'unknown',
+        code: failure.code,
+        correlationId: failure.correlationId,
+      }));
     } finally {
       setMutationBusy(false);
     }
@@ -667,7 +1018,10 @@ export function FocusContractStudio() {
       setConfirmAction(null);
       setActivity('Undo committed as a later revision. Earlier approval remains invalid.');
     } catch (error) {
-      setActivity(mutationMessage(error, 'The undo outcome is uncertain. Retry recovers it with the same key.'));
+      setActivityError(
+        error,
+        'The undo outcome is uncertain. Retry recovers it with the same key.',
+      );
     } finally {
       setMutationBusy(false);
     }
@@ -690,17 +1044,51 @@ export function FocusContractStudio() {
         }),
         'The reset outcome is uncertain. Retry recovers it with the same key.',
       );
-      await refreshCommittedState(reset.data.csrfToken);
+      await refreshCommittedState(
+        reset.data.csrfToken,
+        {
+          slug: 'delete-account-standard',
+          viewRevision: 1,
+        },
+        reset.data.generation,
+      );
       pendingMutation.current = null;
       setConfirmAction(null);
       setApplicationReceipt(null);
       setVerification(null);
       setActivity(`Workspace reset recovered generation ${reset.data.generation}.`);
     } catch (error) {
-      setActivity(mutationMessage(error, 'The reset outcome is uncertain. Retry recovers it with the same key.'));
+      setActivityError(
+        error,
+        'The reset outcome is uncertain. Retry recovers it with the same key.',
+      );
     } finally {
       setMutationBusy(false);
     }
+  }
+
+  async function copyDurableReceipt() {
+    if (!durableReceipt) return;
+    try {
+      await copyText(receiptText(durableReceipt));
+      setActivity(
+        'Application receipt copied. The implemented revision did not change.',
+        'success',
+        'no',
+      );
+    } catch (error) {
+      setActivityError(error, 'The application receipt could not be copied.');
+    }
+  }
+
+  function startReceiptRehearsal() {
+    receiptDialog.current?.close();
+    setRehearsalRequest((value) => value + 1);
+    setActivity(
+      `Starting a fresh raw rehearsal for implemented revision ${durableReceipt?.toRevision ?? review.review.implementedRevision}…`,
+      'recovery',
+      'no',
+    );
   }
 
   return (
@@ -710,30 +1098,101 @@ export function FocusContractStudio() {
           <a className="brand" href="#review">
             Focus Contract Studio
           </a>
-          <p>Human precedent guides the next repair. Exact review controls permission.</p>
+          <p>Observe browser truth. Review exact authority. Verify rendered behavior.</p>
         </div>
-        <p className="demo-label">Demo · Anonymous</p>
+        <p className="demo-label">Isolated demo · No private data</p>
       </header>
 
       <section aria-labelledby="review-heading" className="hero" id="review">
         <div className="hero-heading">
           <div>
-            <p className="eyebrow">Package 5 · Observe → Review → Apply → Verify → Undo</p>
-            <h1 id="review-heading">Review one real focus decision</h1>
+            <p className="eyebrow">One governed accessibility decision</p>
+            <h1 id="review-heading">Govern one real focus decision</h1>
+            <p className="hero-copy">
+              Browser observation and precedent can inform a proposal. Only an exact
+              human review can authorize apply.
+            </p>
           </div>
-          <div className="state-chips" aria-label="Current decision state">
-            <span>IMPLEMENTED REVISION {review.review.implementedRevision}</span>
-            <span>
-              OBSERVED: {observedTarget ? targetLabel(observedTarget) : 'NOT YET CAPTURED'}
-            </span>
-            <span>PRECEDENT: {targetLabel(precedentOutcome)}</span>
+          <div className="variant-control" id="variant-tabs">
+            <span className="control-label">Active dialog variant</span>
+            <div aria-label="Dialog variant" className="variant-tabs" role="tablist">
+              {([
+                ['delete-account-standard', 'Standard'],
+                ['delete-account-danger-emphasis', 'Danger-emphasis'],
+              ] as const).map(([variant, label]) => (
+                <button
+                  aria-selected={activeVariant.slug === variant}
+                  className="variant-tab"
+                  disabled={variantBusy || mutationBusy || proposalBusy || rehearsalBusy}
+                  id={`tab-${variant}`}
+                  key={variant}
+                  onClick={() => void switchVariant(variant)}
+                  role="tab"
+                  type="button"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        <section
+          aria-label="Current focus decision truth"
+          className="truth-strip"
+          role="region"
+        >
+          <div>
+            <span>Implemented now</span>
+            <strong>IMPLEMENTED REVISION {review.review.implementedRevision} · {targetLabel(review.review.implemented.initialFocus)}</strong>
+          </div>
+          <div>
+            <span>Browser observed</span>
+            <strong>OBSERVED {observedTarget ? targetLabel(observedTarget) : 'NOT YET CAPTURED'}</strong>
+          </div>
+          <div>
+            <span>Precedent says</span>
+            <strong>{evidence[0]?.recordId ?? 'NO RECORD'} · {targetLabel(precedentOutcome)}</strong>
+          </div>
+          <div>
+            <span>Proposal status</span>
+            <strong>{proposal?.label ?? 'NOT APPLIED · NO PROPOSAL'}</strong>
+          </div>
+          <p>
+            <strong>VERIFICATION SCOPE.</strong> Fresh finalized raw keyboard/focus
+            events are compared with the named rendered revision. Evidence cannot
+            authorize apply, manufacture events, or prove WCAG/general conformance.
+          </p>
+          <a className="truth-next" href={firstSafeAction.target}>
+            Next safe action · {firstSafeAction.label}
+          </a>
+        </section>
+
+        <nav aria-label="Governed workflow stages" className="stage-rail">
+          <ol>
+            {stages.map((stage, index) => (
+              <li data-stage-state={stage.state} key={stage.id}>
+                <a
+                  aria-current={stage.state === 'current' ? 'step' : undefined}
+                  href={stage.href}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <strong>{stage.label}</strong>
+                  <small>{stage.state}</small>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
         {proposal ? <ProposalBanner activeRevision={review.review.implementedRevision} proposal={proposal} /> : null}
 
         <div className="review-grid">
-          <section aria-labelledby="observe-heading" className="panel dialog-panel">
+          <section
+            aria-labelledby="observe-heading"
+            className={`panel dialog-panel ${activeVariant.slug === 'delete-account-danger-emphasis' ? 'danger-emphasis' : ''}`}
+            id="observe"
+          >
             <p className="stage-number">01 · Observe</p>
             <h2 id="observe-heading">Live delete-account dialog</h2>
             <p className="panel-copy">
@@ -761,6 +1220,7 @@ export function FocusContractStudio() {
                 void finalizeCompleteRehearsal(capture)
               }
               onRehearsalError={setActivity}
+              startCompleteRequest={rehearsalRequest}
             />
             <p className="privacy-note">
               This synthetic demo stores untrusted browser-reported target IDs, bounded
@@ -769,7 +1229,11 @@ export function FocusContractStudio() {
             </p>
           </section>
 
-          <section aria-labelledby="precedent-heading" className="panel precedent-panel">
+          <section
+            aria-labelledby="precedent-heading"
+            className="panel precedent-panel"
+            id="precedent"
+          >
             <p className="stage-number">02 · Precedent</p>
             <h2 id="precedent-heading">{review.review.precedentComparison.label.replace(/_/gu, ' ')}</h2>
             <div className="comparison">
@@ -778,10 +1242,21 @@ export function FocusContractStudio() {
                 <strong>{titleCaseTarget(review.review.implemented.initialFocus)}</strong>
               </div>
               <span aria-hidden="true">≠</span>
-              <div>
-                <span>Applicable precedent</span>
-                <strong>{titleCaseTarget(precedentOutcome ?? 'none')}</strong>
-              </div>
+              {review.retrieval.disposition === 'conflict' ? (
+                <div aria-label="Conflicting precedent outcomes" className="conflict-outcomes">
+                  {evidence.map(({ outcomeKey, recordId }) => (
+                    <div key={recordId}>
+                      <span>{recordId}</span>
+                      <strong>{titleCaseTarget(outcomeKey)}</strong>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <span>Applicable precedent</span>
+                  <strong>{titleCaseTarget(precedentOutcome ?? 'none')}</strong>
+                </div>
+              )}
             </div>
             <p className="evidence-warning">EVIDENCE ONLY — NOT APPROVAL</p>
             {evidence.length > 0 ? (
@@ -793,17 +1268,28 @@ export function FocusContractStudio() {
                       <strong>{titleCaseTarget(record.outcomeKey)}</strong>
                     </div>
                     <p>{record.rationaleExcerpt}</p>
-                    <dl>
+                    <dl className="evidence-detail">
+                      <div><dt>Source</dt><dd>{record.sourceKind ?? 'synthetic-seed'}</dd></div>
+                      <div><dt>Valid from</dt><dd><time dateTime={record.validFrom}>{record.validFrom ?? 'Unavailable'}</time></dd></div>
+                      <div><dt>Valid until</dt><dd>{record.validUntil ? <time dateTime={record.validUntil}>{record.validUntil}</time> : 'Open-ended'}</dd></div>
                       <div><dt>Scope</dt><dd>{record.applicability}</dd></div>
-                      <div><dt>Ranks</dt><dd>{record.ranks.map((rank) => rank ?? '—').join(' · ')}</dd></div>
-                      <div><dt>RRF</dt><dd>{record.rrf}</dd></div>
+                      <div><dt>Lexical rank</dt><dd>{record.lexicalRank ?? record.ranks[0] ?? '—'}</dd></div>
+                      <div><dt>Structured rank</dt><dd>{record.structuredRank ?? record.ranks[1] ?? '—'}</dd></div>
+                      <div><dt>Relationship rank</dt><dd>{record.relationshipRank ?? record.ranks[2] ?? '—'}</dd></div>
+                      <div><dt>RRF contribution</dt><dd>{record.rrfContribution ?? record.rrf}</dd></div>
                     </dl>
                   </article>
                 ))}
               </div>
             ) : (
-              <p>No eligible precedent was returned. No agent proposal can be created; a reviewer may accept responsibility for a novel proposal.</p>
+              <>
+                <p>No eligible precedent was returned. No agent proposal can be created; a reviewer may accept responsibility for a novel proposal.</p>
+                <OperationPanel state={operationState('abstention')} />
+              </>
             )}
+            {review.retrieval.disposition === 'conflict' ? (
+              <OperationPanel state={operationState('conflict')} />
+            ) : null}
             <button
               className="button button-primary"
               disabled={!canCreate || proposalBusy}
@@ -839,13 +1325,28 @@ export function FocusContractStudio() {
           </section>
         </div>
 
-        {verification ? <VerificationResult verification={verification} /> : null}
-
         {proposal ? (
           <ProposalReview
+            acknowledged={reviewAcknowledged}
             busy={mutationBusy}
             implemented={review.review.implemented}
             onAction={beginMutation}
+            onAcknowledgedChange={(checked) => {
+              setReviewAcknowledgedKey(checked ? acknowledgementKey : null);
+              if (
+                !checked &&
+                confirmAction !== null &&
+                ['approve', 'reject', 'revoke', 'edit'].includes(confirmAction)
+              ) {
+                pendingMutation.current = null;
+                setConfirmAction(null);
+                setActivity(
+                  'Review acknowledgement changed. Confirmation was cancelled.',
+                  'validationFailure',
+                  'no',
+                );
+              }
+            }}
             proposal={proposal}
           />
         ) : null}
@@ -887,40 +1388,89 @@ export function FocusContractStudio() {
           </section>
         ) : null}
 
-        <section aria-labelledby="history-heading" className="boundary-panel">
-          <p className="stage-number">05 · Durable history and recovery</p>
-          <h2 id="history-heading">Chronological committed state</h2>
-          {history?.records.length ? (
-            <ol className="history-list">
-              {history.records.map((record) => (
-                <li key={`${record.kind}-${record.id}`}>
-                  <strong>{record.kind}</strong>{' '}
-                  <span>{historyLabel(record)}</span>
-                </li>
-              ))}
-            </ol>
-          ) : <p>No committed Package 5 history is available yet.</p>}
-          <div className="rehearsal-actions">
-            <button
-              className="button button-secondary"
-              disabled={!history || history.activeRevision <= 1 || mutationBusy}
-              onClick={() => beginMutation('undo')}
-              type="button"
-            >
-              Undo to revision 1
-            </button>
-            <button
-              className="button button-danger"
-              disabled={mutationBusy}
-              onClick={() => beginMutation('reset')}
-              type="button"
-            >
-              Reset this workspace
-            </button>
-          </div>
+        <section aria-labelledby="apply-heading" className="boundary-panel application-panel" id="apply">
+          <p className="stage-number">05 · Apply</p>
+          <h2 id="apply-heading">Guarded application receipt</h2>
+          {durableReceipt ? (
+            <ApplicationReceipt
+              onCopy={() => void copyDurableReceipt()}
+              onRehearse={startReceiptRehearsal}
+              receipt={durableReceipt}
+            />
+          ) : (
+            <p>
+              No application receipt exists. A proposal changes nothing until an exact
+              human approval passes the guarded application checks.
+            </p>
+          )}
         </section>
 
-        <dialog aria-labelledby="receipt-heading" className="receipt-dialog" ref={receiptDialog}>
+        <div className="verification-history" id="verify-history">
+          {verification ? (
+            <VerificationResult verification={verification} />
+          ) : (
+            <section aria-labelledby="verification-heading" className="boundary-panel">
+              <p className="stage-number">06 · Verify & history</p>
+              <h2 id="verification-heading">Fresh raw verification</h2>
+              <p>
+                Verification becomes available after a complete rehearsal of the named
+                rendered revision. It creates no review authority.
+              </p>
+            </section>
+          )}
+
+          <section aria-labelledby="history-heading" className="boundary-panel">
+            <p className="stage-number">06 · Verify & history</p>
+            <h2 id="history-heading">Chronological committed state</h2>
+            {history?.records.length ? (
+              <ol className="history-list">
+                {history.records.map((record) => {
+                  const timestamp = new Date(record.occurredAt * 1_000)
+                    .toISOString()
+                    .replace('.000Z', 'Z');
+                  return (
+                    <li key={`${record.kind}-${record.id}`}>
+                      <span className="timeline-marker" aria-hidden="true" />
+                      <div>
+                        <strong>{record.kind.replace('_', ' ')}</strong>
+                        <time dateTime={timestamp}>{timestamp}</time>
+                        <p>{historyLabel(record)}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : (
+              <OperationPanel state={operationState('empty')} />
+            )}
+            <div className="rehearsal-actions">
+              <button
+                className="button button-secondary"
+                disabled={!history || history.activeRevision <= 1 || mutationBusy}
+                onClick={() => beginMutation('undo')}
+                type="button"
+              >
+                Undo to revision 1
+              </button>
+              <button
+                className="button button-danger"
+                disabled={mutationBusy}
+                onClick={() => beginMutation('reset')}
+                type="button"
+              >
+                Reset this workspace
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <dialog
+          aria-describedby="receipt-description"
+          aria-labelledby="receipt-heading"
+          aria-modal="true"
+          className="receipt-dialog"
+          ref={receiptDialog}
+        >
           <h2 id="receipt-heading">Application committed</h2>
           {applicationReceipt ? (
             <p>
@@ -928,7 +1478,9 @@ export function FocusContractStudio() {
               {applicationReceipt.fromRevision} to {applicationReceipt.toRevision}.
             </p>
           ) : null}
-          <p>Run a fresh raw rehearsal before independent verification can project precedent.</p>
+          <p id="receipt-description">
+            The durable receipt remains on the page after this dialog closes.
+          </p>
           <div className="rehearsal-actions">
             <button
               autoFocus
@@ -940,21 +1492,42 @@ export function FocusContractStudio() {
               Cancel
             </button>
             <button
-              className="button button-primary"
-              onClick={() => receiptDialog.current?.close()}
+              className="button button-secondary"
+              onClick={() => void copyDurableReceipt()}
               type="button"
             >
-              Rehearse revision {applicationReceipt?.toRevision ?? ''}
+              Copy receipt
+            </button>
+            <button
+              className="button button-primary"
+              onClick={startReceiptRehearsal}
+              type="button"
+            >
+              Start revision-{applicationReceipt?.toRevision ?? ''} rehearsal
             </button>
           </div>
         </dialog>
 
-        <p aria-live="polite" className="activity-status" id="rehearsal-status" role="status">
-          {activity}
-        </p>
-        <p className="tool-status" data-tool-state={toolState}>
-          {toolCopy[toolState]}
-        </p>
+        <OperationPanel
+          id="operation-state"
+          live
+          state={activity}
+          statusId="rehearsal-status"
+        />
+        {toolState === 'registered' ? (
+          <p className="tool-status" data-tool-state={toolState}>
+            {toolCopy[toolState]}
+          </p>
+        ) : (
+          <OperationPanel
+            state={operationState('unsupportedWebMCP', {
+              happened: toolCopy[toolState],
+              code: toolState === 'error'
+                ? 'WEBMCP_REGISTRATION_FAILED'
+                : 'WEBMCP_UNSUPPORTED',
+            })}
+          />
+        )}
       </section>
     </main>
   );
@@ -967,13 +1540,19 @@ function VerificationResult({ verification }: { verification: VerificationView }
       className={`verification-result verification-${verification.overallResult}`}
       role="region"
     >
-      <p className="stage-number">03 · Independent verification</p>
-      <h2 id="verification-heading">Raw rehearsal verification</h2>
+      <p className="stage-number">06 · Verify & history</p>
+      <h2 id="verification-heading">Fresh raw rehearsal verification</h2>
       <p className="verification-overall">
         Overall result: <strong>{verification.overallResult}</strong>
       </p>
       <p>
         Runtime precedent projected: <strong>{verification.projectedPrecedentCount ?? 0}</strong>
+      </p>
+      <p>
+        Projection provenance: reviewed application → verification receipt{' '}
+        <code>{verification.receiptId}</code> →{' '}
+        {verification.projectedPrecedentCount ?? 0} allowlisted runtime precedent
+        record(s).
       </p>
       <div className="verification-manifest">
         <p>
@@ -998,17 +1577,26 @@ function VerificationResult({ verification }: { verification: VerificationView }
             <strong>{checkLabels[check.behavior]}</strong>
             <span>{check.result.replace('_', ' ')}</span>
             <span>
-              Sequences: {check.evidenceSequences.length > 0
-                ? check.evidenceSequences.join(', ')
+              Raw event sequences: {check.evidenceSequences.length > 0
+                ? check.evidenceSequences.map((sequence) => `#${sequence}`).join(', ')
                 : 'none'}
             </span>
           </li>
         ))}
       </ol>
       <p className="verification-boundary">
-        This verification compares one raw rehearsal with the named implemented
-        revision. It does not prove approval, general conformance, or human operation.
+        This verification compares one fresh raw rehearsal with the named rendered
+        implemented revision. It does not prove approval, biological-human action,
+        WCAG conformance, or general safety.
       </p>
+      <OperationPanel
+        state={operationState(
+          verification.overallResult === 'pass' ? 'verifiedPass' : 'verifiedFailure',
+          {
+            correlationId: verification.receiptId,
+          },
+        )}
+      />
     </section>
   );
 }
@@ -1047,20 +1635,124 @@ function ProposalBanner({
   );
 }
 
+function OperationPanel({
+  id,
+  live = false,
+  state,
+  statusId,
+}: {
+  id?: string;
+  live?: boolean;
+  state: Package6OperationState;
+  statusId?: string;
+}) {
+  return (
+    <section
+      aria-label={`${state.code} state`}
+      className={`operation-panel operation-${state.kind}`}
+      data-operation-state={state.kind}
+      id={id}
+    >
+      <p
+        aria-live={live ? 'polite' : undefined}
+        id={statusId}
+        role={live ? 'status' : undefined}
+      >
+        {state.happened}
+      </p>
+      <dl>
+        <div>
+          <dt>Implemented revision changed</dt>
+          <dd>{state.revisionChanged.toUpperCase()}</dd>
+        </div>
+        <div>
+          <dt>Public code</dt>
+          <dd><code>{state.code}</code></dd>
+        </div>
+        <div>
+          <dt>Correlation</dt>
+          <dd><code>{state.correlationId}</code></dd>
+        </div>
+      </dl>
+      <a data-next-action href={state.nextAction.target}>
+        Next safe action · {state.nextAction.label}
+      </a>
+    </section>
+  );
+}
+
+function ApplicationReceipt({
+  onCopy,
+  onRehearse,
+  receipt,
+}: {
+  onCopy: () => void;
+  onRehearse: () => void;
+  receipt: ApplicationReceiptView;
+}) {
+  return (
+    <article aria-label="Permanent application receipt" className="permanent-receipt">
+      <dl>
+        <div>
+          <dt>Receipt</dt>
+          <dd><code>{receipt.receiptId}</code></dd>
+        </div>
+        <div>
+          <dt>Implemented transition</dt>
+          <dd>Revision {receipt.fromRevision} → {receipt.toRevision}</dd>
+        </div>
+        {receipt.proposalDigest8 ? (
+          <div>
+            <dt>Proposal digest</dt>
+            <dd><code>{receipt.proposalDigest8}</code></dd>
+          </div>
+        ) : null}
+        {receipt.createdAt ? (
+          <div>
+            <dt>Committed</dt>
+            <dd><time dateTime={receipt.createdAt}>{receipt.createdAt}</time></dd>
+          </div>
+        ) : null}
+      </dl>
+      <p>
+        This committed receipt is durable history. Verification still requires a
+        fresh raw rehearsal of revision {receipt.toRevision}.
+      </p>
+      <div className="rehearsal-actions">
+        <button className="button button-primary" onClick={onRehearse} type="button">
+          Start revision-{receipt.toRevision} rehearsal
+        </button>
+        <button className="button button-secondary" onClick={onCopy} type="button">
+          Copy receipt
+        </button>
+      </div>
+    </article>
+  );
+}
+
 function ProposalReview({
+  acknowledged,
   busy,
   implemented,
   onAction,
+  onAcknowledgedChange,
   proposal,
 }: {
+  acknowledged: boolean;
   busy: boolean;
   implemented: ActiveFocusReviewResult['review']['implemented'];
   onAction: (action: 'approve' | 'reject' | 'revoke' | 'edit' | 'apply' | 'undo' | 'reset') => void;
+  onAcknowledgedChange: (checked: boolean) => void;
   proposal: ProposalView;
 }) {
   return (
-    <section aria-labelledby="proposal-heading" className="proposal-section">
-      <p className="stage-number">03 · Immutable proposal review</p>
+    <section
+      aria-labelledby="proposal-heading"
+      className="proposal-section"
+      id="proposal"
+    >
+      <span className="anchor-target" id="review-authority" tabIndex={-1} />
+      <p className="stage-number">03 · Proposal · 04 · Review</p>
       <h2 id="proposal-heading">Complete exact authority</h2>
       <dl className="proposal-authority">
         <div><dt>Status</dt><dd>{proposal.label} · {proposal.status}</dd></div>
@@ -1071,21 +1763,32 @@ function ProposalReview({
         <div><dt>Created</dt><dd>{proposal.createdAt ?? 'Committed time unavailable'}</dd></div>
         <div><dt>Summary</dt><dd>{proposal.summary ?? 'Focus Cancel first.'}</dd></div>
       </dl>
-      <div className="table-scroll">
+      <div aria-label="Complete proposed focus change" className="table-scroll" role="region" tabIndex={0}>
         <table aria-label="Proposed focus change">
           <thead>
             <tr>
               <th scope="col">Field</th>
               <th scope="col">Implemented revision {proposal.baseImplementedRevision}</th>
               <th scope="col">Proposed</th>
+              <th scope="col">Supporting record / outcome</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <th scope="row">Initial focus</th>
-              <td>{fullTargetLabel(implemented.initialFocus)}</td>
-              <td>{fullTargetLabel(proposal.configuration?.initialFocus ?? 'cancel-button')}</td>
-            </tr>
+            {proposal.changedFields.map((field) => {
+              const support = proposal.fieldEvidence.find((entry) => entry.field === field);
+              return (
+                <tr key={field}>
+                  <th scope="row">{focusFieldLabel(field)}</th>
+                  <td>{configurationValue(implemented, field)}</td>
+                  <td>{configurationValue(proposal.configuration, field)}</td>
+                  <td>
+                    {support
+                      ? `${support.recordId} · ${fullTargetLabel(support.outcomeKey)}`
+                      : 'Reviewer-owned novel value · no precedent'}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -1097,18 +1800,38 @@ function ProposalReview({
           : 'Reviewer-authored novel change · no precedent supports this proposed value.'}
         {' '}EVIDENCE ONLY — NEVER APPROVAL.
       </p>
-      <div className="rehearsal-actions" aria-label="Visible proposal decisions">
+      {(proposal.status === 'proposed' || proposal.status === 'approved') ? (
+        <label className="review-acknowledgement">
+          <input
+            aria-label="I reviewed this exact proposal and revision"
+            checked={acknowledged}
+            onChange={(event) =>
+              onAcknowledgedChange(event.currentTarget.checked)
+            }
+            type="checkbox"
+          />
+          <span>
+            <strong>I reviewed this exact proposal and revision</strong>
+            <small>
+              Digest {proposal.proposalDigest8} · base revision{' '}
+              {proposal.baseImplementedRevision}. Retrieval, verification, and
+              WebMCP cannot check this box.
+            </small>
+          </span>
+        </label>
+      ) : null}
+      <div className="rehearsal-actions" aria-label="Visible proposal decisions" role="group">
         {proposal.status === 'proposed' ? (
           <>
-            <button className="button button-primary" disabled={busy} onClick={() => onAction('approve')} type="button">Approve exact proposal</button>
-            <button className="button button-secondary" disabled={busy} onClick={() => onAction('reject')} type="button">Reject proposal</button>
-            <button className="button button-secondary" disabled={busy} onClick={() => onAction('edit')} type="button">Edit as child proposal</button>
+            <button className="button button-primary" disabled={busy || !acknowledged} onClick={() => onAction('approve')} type="button">Approve exact proposal</button>
+            <button className="button button-secondary" disabled={busy || !acknowledged} onClick={() => onAction('reject')} type="button">Reject proposal</button>
+            <button className="button button-secondary" disabled={busy || !acknowledged} onClick={() => onAction('edit')} type="button">Edit as child proposal</button>
           </>
         ) : null}
         {proposal.status === 'approved' ? (
           <>
             <button className="button button-primary" disabled={busy} onClick={() => onAction('apply')} type="button">Apply approved proposal</button>
-            <button className="button button-secondary" disabled={busy} onClick={() => onAction('revoke')} type="button">Revoke approval</button>
+            <button className="button button-secondary" disabled={busy || !acknowledged} onClick={() => onAction('revoke')} type="button">Revoke approval</button>
           </>
         ) : null}
       </div>
