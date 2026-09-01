@@ -12,7 +12,7 @@ import {
   implementedFocusConfigurationSchema,
   type ImplementedFocusConfiguration,
 } from '../domain/focus-configuration';
-import { FOCUS_FIELDS, type FocusField } from '../domain/proposal';
+import { changedFocusFields, FOCUS_FIELDS, type FocusField } from '../domain/proposal';
 import { sha256Hex } from './crypto';
 import { issueEvidenceToken } from './evidence-token';
 import { FcsError } from './errors';
@@ -53,6 +53,7 @@ type ProposalRow = {
     | 'applied';
   proposal_hash: string;
   proposal_json: string;
+  parent_proposal_id: string | null;
 };
 
 export type PublicPrecedentRecord = {
@@ -107,6 +108,12 @@ export type ActiveFocusReviewResult = {
     status: ProposalRow['status'];
     applied: boolean;
     label: 'NOT APPLIED' | 'APPLIED';
+    proposalDigest: string;
+    configuration: ImplementedFocusConfiguration;
+    summary: string;
+    authorKind: 'agent' | 'reviewer';
+    createdAt: string;
+    parentProposalId: string | null;
   };
 };
 
@@ -367,7 +374,8 @@ async function latestProposal(
 ): Promise<ProposalRow | null> {
   return db
     .prepare(
-      `SELECT id, base_implemented_revision, status, proposal_hash, proposal_json
+      `SELECT id, base_implemented_revision, status, proposal_hash, proposal_json,
+              parent_proposal_id
          FROM proposals
         WHERE workspace_id = ? AND variant_id = ?
         ORDER BY created_at DESC, id DESC
@@ -377,7 +385,10 @@ async function latestProposal(
     .first<ProposalRow>();
 }
 
-function publicProposal(proposal: ProposalRow): NonNullable<ActiveFocusReviewResult['proposal']> {
+function publicProposal(
+  proposal: ProposalRow,
+  implemented: ImplementedFocusConfiguration,
+): NonNullable<ActiveFocusReviewResult['proposal']> {
   let document: unknown;
   try {
     document = JSON.parse(proposal.proposal_json);
@@ -390,7 +401,6 @@ function publicProposal(proposal: ProposalRow): NonNullable<ActiveFocusReviewRes
   const fieldEvidence = (document as { fieldEvidence?: unknown }).fieldEvidence;
   if (
     !Array.isArray(fieldEvidence) ||
-    fieldEvidence.length < 1 ||
     fieldEvidence.some(
       (entry) =>
         !entry ||
@@ -414,12 +424,30 @@ function publicProposal(proposal: ProposalRow): NonNullable<ActiveFocusReviewRes
     recordId: string;
     normalizedOutcomeKey: string;
   }>;
+  const stored = document as {
+    configuration?: unknown;
+    summary?: unknown;
+    authorKind?: unknown;
+    createdAt?: unknown;
+  };
+  const configuration = implementedFocusConfigurationSchema.safeParse(stored.configuration);
+  if (
+    !configuration.success ||
+    typeof stored.summary !== 'string' ||
+    !['agent', 'reviewer'].includes(String(stored.authorKind)) ||
+    typeof stored.createdAt !== 'string'
+  ) {
+    throw new Error('Stored proposal is malformed.');
+  }
+  if (stored.authorKind === 'agent' && publicEvidence.length < 1) {
+    throw new Error('Stored proposal is malformed.');
+  }
   const applied = proposal.status === 'applied';
   return {
     proposalId: proposal.id,
     baseImplementedRevision: proposal.base_implemented_revision,
     proposalDigest8: proposal.proposal_hash.slice(0, 8),
-    changedFields: publicEvidence.map(({ field }) => field),
+    changedFields: changedFocusFields(implemented, configuration.data),
     fieldEvidence: publicEvidence.map(({ field, recordId, normalizedOutcomeKey }) => ({
       field,
       recordId,
@@ -428,6 +456,12 @@ function publicProposal(proposal: ProposalRow): NonNullable<ActiveFocusReviewRes
     status: proposal.status,
     applied,
     label: applied ? 'APPLIED' : 'NOT APPLIED',
+    proposalDigest: proposal.proposal_hash,
+    configuration: configuration.data,
+    summary: stored.summary,
+    authorKind: stored.authorKind as 'agent' | 'reviewer',
+    createdAt: stored.createdAt,
+    parentProposalId: proposal.parent_proposal_id,
   };
 }
 
@@ -495,6 +529,6 @@ export async function getActiveFocusReview(input: {
       reasonCode: snapshot.retrieval.reasonCode,
       records: snapshot.retrieval.returned.slice(0, 3).map(publicRecord),
     },
-    proposal: proposal ? publicProposal(proposal) : null,
+    proposal: proposal ? publicProposal(proposal, snapshot.implemented) : null,
   };
 }

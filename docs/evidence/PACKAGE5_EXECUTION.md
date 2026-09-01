@@ -1,0 +1,34 @@
+<!-- package5-source-binding file_count=61 sha256=ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c -->
+# Package 5 Execution Evidence
+
+Status date: **2026-08-31 EDT**
+
+Foundational red proof: `PASS`
+
+- Migrations 0001–0003 failed the focused review, undo, and runtime-projection completeness tests while inherited application/reset enforcement remained green. Additive migration 0004 supplied only the proven missing finalizers.
+- The first strengthened application-finalizer test failed because the inherited trigger did not prove stale-sibling completeness. Migration 0004 replaced that trigger and the negative matrix passed.
+- The first compound history implementation exceeded D1's compound-select limit. Eight individually bounded, allowlisted queries now return proposal, decision, application, revision, verification, projection, rehearsal, and safe reset/failure history.
+- The first lost-response browser run exposed raw `Failed to fetch`; the shared mutation boundary now retains the original idempotency key and reports an uncertain outcome.
+- The first projection journey exposed stale visible history after verification; verification now refreshes the bounded read model.
+- Initial adversarial review exposed unsupported evidence on reviewer children/novel proposals, missing history classes, non-production coverage evidence, incomplete reload/focus proof, and device-scale rather than 200% page zoom. Each finding was reproduced, fixed at the shared boundary, and retained as regression coverage.
+- The first corrected full core gate exposed a double focus-restoration race after the native dialog closed. A trace showed two observation requests: `closeDialog` and `onClose` each queued return focus. `onClose` is now the single owner; the 200% journey passed three repeated focused runs before the full matrix passed.
+
+Focused green evidence:
+
+| Gate | Result |
+|---|---|
+| Package 5 Node, including source/evidence tamper tests | `15/15` |
+| Package 5 real D1 | `24/24` across 7 files |
+| Package 5 DOM | `6/6` |
+| Package 5 built browser | `4/4` desktop, 320 px, 375 px, true 200% page zoom |
+| Safety-core coverage | `100% lines / 100% branches / 100% functions` |
+| Server-operation production-source coverage | `100% lines / 100% branches / 100% functions`; thresholds `90/85/90` |
+| Coverage threshold negative control | `PASS`: planted incomplete fixture is rejected |
+| Same-base concurrency | `100 winners / 100 losers / 0 partial graphs` across 100 pairs |
+| Frozen inherited Package 4 gate | `303/303` from exact commit `0f85ad66ef6aa190abdfa9f003b1bd96a8a84a7f` |
+| Package 5 post-core local gate | `355/355` including inherited Package 4 |
+| Full composed Package 5 verification | `360/360` including five source/evidence tests |
+
+Complete local gate: `PASS`
+
+External deployment, hosted D1, real ChatGPT/client, billing, publication, and Package 6 work were not run.

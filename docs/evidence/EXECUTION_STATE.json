@@ -32,7 +32,11 @@
       "holdout_status": "NOT_RUN"
     },
     "package5": {
-      "authorization": "NOT_AUTHORIZED"
+      "authorization": "AUTHORIZED",
+      "overall_result": "PASS",
+      "local_result": "PASS",
+      "hosted_status": "NOT_RUN",
+      "exact_commit_clone": "TERMINAL_POST_COMMIT"
     }
   }
 }

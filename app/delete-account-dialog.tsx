@@ -225,7 +225,6 @@ export function DeleteAccountDialog({
     const dialog = dialogRef.current;
     if (!dialog?.open) return;
     dialog.close(returnValue);
-    returnFocus();
   }
 
   function openLegacyDialog() {

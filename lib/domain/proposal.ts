@@ -135,13 +135,16 @@ export function canonicalProposalDocument(input: {
   fieldEvidence: FieldEvidenceSupport[];
   summary: string;
   createdAt: number;
+  authorKind?: 'agent' | 'reviewer';
+  pageSessionId?: string;
 }): string {
+  const authorKind = input.authorKind ?? 'agent';
   if (
     !/^[A-Za-z0-9_-]{1,64}$/u.test(input.variantId) ||
     !/^[A-Za-z0-9_-]{1,64}$/u.test(input.evidenceQueryId) ||
     !Number.isSafeInteger(input.baseImplementedRevision) ||
     input.baseImplementedRevision < 1 ||
-    input.evidenceRecordIds.length < 1 ||
+    (authorKind === 'agent' && input.evidenceRecordIds.length < 1) ||
     input.evidenceRecordIds.length > 3 ||
     new Set(input.evidenceRecordIds).size !== input.evidenceRecordIds.length ||
     input.evidenceRecordIds.some((recordId) => !recordIdSchema.safeParse(recordId).success)
@@ -154,7 +157,7 @@ export function canonicalProposalDocument(input: {
       left.recordId.localeCompare(right.recordId, 'en'),
   );
   if (
-    orderedEvidence.length === 0 ||
+    (authorKind === 'agent' && orderedEvidence.length === 0) ||
     orderedEvidence.some(
       (entry) =>
         !FOCUS_FIELDS.includes(entry.field) ||
@@ -165,7 +168,16 @@ export function canonicalProposalDocument(input: {
   ) {
     throw new Error('Canonical proposal evidence is invalid.');
   }
-  return JSON.stringify({
+  if (
+    (authorKind === 'reviewer' &&
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(
+        input.pageSessionId ?? '',
+      )) ||
+    (authorKind === 'agent' && input.pageSessionId !== undefined)
+  ) {
+    throw new Error('Canonical proposal reviewer authority is invalid.');
+  }
+  const document = {
     schemaVersion: 1,
     variantId: input.variantId,
     baseImplementedRevision: input.baseImplementedRevision,
@@ -174,10 +186,12 @@ export function canonicalProposalDocument(input: {
     evidenceRecordIds: input.evidenceRecordIds,
     fieldEvidence: orderedEvidence,
     summary: normalizeProposalSummary(input.summary),
-    authorKind: 'agent',
+    authorKind,
+    ...(authorKind === 'reviewer' ? { pageSessionId: input.pageSessionId } : {}),
     status: 'proposed',
     createdAt: canonicalCreatedAt(input.createdAt),
-  });
+  };
+  return JSON.stringify(document);
 }
 
 export async function proposalDocumentHash(

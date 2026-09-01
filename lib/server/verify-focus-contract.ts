@@ -1,7 +1,12 @@
 import {
   canonicalFocusConfiguration,
   implementedFocusConfigurationSchema,
+  type ImplementedFocusConfiguration,
 } from '../domain/focus-configuration';
+import {
+  changedFocusFields,
+  supportRequirementForField,
+} from '../domain/proposal.ts';
 import {
   CHECK_BEHAVIORS,
   VERIFIER_VERSION,
@@ -69,6 +74,7 @@ type ReplayRow = {
   implemented_revision: number;
   commit_id: string;
   audit_id: string;
+  projected_count: number;
 };
 
 type StoredCheck = {
@@ -91,6 +97,7 @@ export type VerificationResult = {
   manifestDigest8: string;
   eventDigest8: string;
   idempotentReplay: boolean;
+  projectedPrecedentCount: number;
 };
 
 function notFound(): FcsError {
@@ -270,6 +277,7 @@ function result(
   input: VerifierInput,
   output: VerifierOutput,
   idempotentReplay: boolean,
+  projectedPrecedentCount: number,
 ): VerificationResult {
   return {
     receiptId,
@@ -288,6 +296,7 @@ function result(
     manifestDigest8: input.manifestDigest.slice(0, 8),
     eventDigest8: input.eventDigest.slice(0, 8),
     idempotentReplay,
+    projectedPrecedentCount,
   };
 }
 
@@ -302,7 +311,10 @@ async function loadReplay(input: {
     .prepare(
       `SELECT r.id AS receipt_id, r.result, r.event_digest, r.manifest_digest,
               r.environment, r.verifier_output_hash, r.implemented_revision,
-              c.id AS commit_id, a.id AS audit_id
+              c.id AS commit_id, a.id AS audit_id,
+              (SELECT COUNT(*) FROM runtime_precedent_provenance pp
+                WHERE pp.workspace_id = r.workspace_id
+                  AND pp.verification_receipt_id = r.id) AS projected_count
          FROM verification_receipts r
          JOIN verification_guards g
            ON g.workspace_id = r.workspace_id
@@ -375,18 +387,207 @@ async function loadReplay(input: {
   ) {
     throw invalidEvidence();
   }
-  return result(replay.receipt_id, value, storedOutput, true);
+  return result(replay.receipt_id, value, storedOutput, true, replay.projected_count);
 }
 
-function assertBatch(results: D1Result[]): void {
-  const changes = results.map((entry) => entry.meta.changes);
-  if (
-    results.length !== 11 ||
-    results.some((entry) => !entry.success) ||
-    changes.some((value) => value !== 1)
-  ) {
-    throw new Error('The verification batch returned unexpected row counts.');
+type ProjectionAuthority = {
+  proposal_id: string;
+  proposal_configuration_json: string;
+  base_configuration_json: string;
+  review_decision_id: string;
+  application_receipt_id: string;
+  variant_id: string;
+  variant_slug: string;
+};
+
+async function projectionStatements(input: {
+  db: D1Database;
+  value: VerifierInput;
+  receiptId: string;
+  overallResult: 'pass' | 'fail';
+  now: number;
+}): Promise<{ statements: D1PreparedStatement[]; count: number }> {
+  if (input.overallResult !== 'pass' || input.value.implementedRevision <= 1) {
+    return { statements: [], count: 0 };
   }
+  const authority = await input.db.prepare(
+    `SELECT p.id AS proposal_id,
+            p.configuration_json AS proposal_configuration_json,
+            base.configuration_json AS base_configuration_json,
+            d.id AS review_decision_id,
+            application.id AS application_receipt_id,
+            revision.variant_id, variant.slug AS variant_slug
+       FROM implemented_focus_revisions revision
+       JOIN proposals p
+         ON p.workspace_id = revision.workspace_id
+        AND p.id = revision.source_proposal_id
+        AND p.variant_id = revision.variant_id
+        AND p.status = 'applied'
+       JOIN implemented_focus_revisions base
+         ON base.workspace_id = p.workspace_id
+        AND base.variant_id = p.variant_id
+        AND base.revision = p.base_implemented_revision
+       JOIN application_receipts application
+         ON application.workspace_id = revision.workspace_id
+        AND application.id = revision.source_receipt_id
+        AND application.proposal_id = p.id
+        AND application.proposal_hash = p.proposal_hash
+        AND application.to_revision = revision.revision
+       JOIN review_decisions d
+         ON d.workspace_id = p.workspace_id AND d.proposal_id = p.id
+        AND d.action = 'approve' AND d.proposal_hash = p.proposal_hash
+        AND d.base_implemented_revision = p.base_implemented_revision
+        AND d.reviewer_kind = 'ui-mediated'
+       JOIN review_commits review_commit
+         ON review_commit.workspace_id = d.workspace_id
+        AND review_commit.decision_id = d.id
+        AND review_commit.proposal_id = p.id
+        AND review_commit.action = 'approve'
+       JOIN component_variants variant
+         ON variant.workspace_id = revision.workspace_id
+        AND variant.id = revision.variant_id
+        AND variant.active_implemented_revision = revision.revision
+      WHERE revision.workspace_id = ? AND revision.variant_id = ?
+        AND revision.revision = ?
+        AND NOT EXISTS (
+          SELECT 1 FROM review_decisions later
+           WHERE later.workspace_id = d.workspace_id
+             AND later.proposal_id = d.proposal_id
+             AND (later.created_at > d.created_at OR
+                  (later.created_at = d.created_at AND later.id > d.id))
+        )`,
+  ).bind(
+    input.value.workspaceId,
+    input.value.variantId,
+    input.value.implementedRevision,
+  ).first<ProjectionAuthority>();
+  if (!authority) return { statements: [], count: 0 };
+  const [before, after] = [
+    authority.base_configuration_json,
+    authority.proposal_configuration_json,
+  ].map((configuration) =>
+    implementedFocusConfigurationSchema.parse(JSON.parse(configuration)),
+  ) as [ImplementedFocusConfiguration, ImplementedFocusConfiguration];
+  const fields = changedFocusFields(before, after);
+  if (fields.length === 0) return { statements: [], count: 0 };
+  const existing = await input.db.prepare(
+    `SELECT COUNT(*) AS count FROM precedent_records
+      WHERE workspace_id = ? AND provenance_kind = 'verified-runtime'`,
+  ).bind(input.value.workspaceId).first<{ count: number }>();
+  if ((existing?.count ?? 0) + fields.length > 999) {
+    throw new Error('Runtime precedent capacity is exhausted.');
+  }
+  const statements: D1PreparedStatement[] = [];
+  for (const [index, field] of fields.entries()) {
+    const support = supportRequirementForField(field, after);
+    const sequence = (existing?.count ?? 0) + index + 1;
+    const recordKey = `R${sequence.toString().padStart(3, '0')}`;
+    const recordId = crypto.randomUUID();
+    const provenanceId = recordId;
+    const auditId = crypto.randomUUID();
+    const commitId = crypto.randomUUID();
+    const contextKey = `focus-contract-studio|modal-dialog|delete-account|${authority.variant_slug}`;
+    const edgeTargets = [
+      ['context', contextKey],
+      ['variant', authority.variant_slug],
+      ['use_case', 'delete-account'],
+      ['family', 'modal-dialog'],
+    ] as const;
+    statements.push(
+      input.db.prepare(
+        `INSERT INTO precedent_records (
+           id, workspace_id, record_key, dataset_version, scope_kind, scope_key,
+           behavior, normalized_outcome_key, status, valid_from, valid_until,
+           rationale, tags_json, provenance_kind, provenance_ref, created_at
+         )
+         SELECT ?, r.workspace_id, ?, 'fcs-runtime-v1', 'context', ?, ?, ?,
+                'active', ?, NULL, ?, ?, 'verified-runtime', r.id, ?
+           FROM verification_receipts r
+          WHERE r.workspace_id = ? AND r.id = ? AND r.result = 'pass'
+            AND r.implemented_revision = ? AND r.active_at_verification = 1`,
+      ).bind(
+        recordId, recordKey, contextKey, support.behavior,
+        support.normalizedOutcomeKey, input.now,
+        `Verified runtime decision for ${support.behavior} in delete-account.`,
+        JSON.stringify(['verified-runtime', field, authority.variant_slug]),
+        input.now, input.value.workspaceId, input.receiptId,
+        input.value.implementedRevision,
+      ),
+      input.db.prepare(
+        `INSERT INTO precedent_retrieval_profiles (
+           record_id, workspace_id, product, component_family, use_case,
+           variants_json, intent, risk, source_status, hostile,
+           mismatch_tags_json, shape_tags_json, relationships_json,
+           supersedes_record_key
+         )
+         SELECT p.id, p.workspace_id, 'focus-contract-studio', 'modal-dialog',
+                'delete-account', ?, 'destructive-confirmation', 'irreversible',
+                'active', 0, ?, ?, ?, NULL
+           FROM precedent_records p
+          WHERE p.workspace_id = ? AND p.id = ?`,
+      ).bind(
+        JSON.stringify([authority.variant_slug]),
+        JSON.stringify(['initial-focus-destructive']),
+        JSON.stringify(['reason-input-present']),
+        JSON.stringify([
+          { type: 'applies-to', target: `context:${contextKey}` },
+          { type: 'applies-to', target: `variant:${authority.variant_slug}` },
+          { type: 'applies-to', target: 'use-case:delete-account' },
+          { type: 'applies-to', target: 'family:modal-dialog' },
+        ]),
+        input.value.workspaceId, recordId,
+      ),
+      ...edgeTargets.map(([targetKind, targetKey]) => input.db.prepare(
+        `INSERT INTO precedent_subject_edges (
+           id, workspace_id, record_id, target_kind, target_key, edge_type, weight
+         )
+         SELECT ?, p.workspace_id, p.id, ?, ?, 'applies-to', 1000
+           FROM precedent_records p
+          WHERE p.workspace_id = ? AND p.id = ?`,
+      ).bind(
+        crypto.randomUUID(), targetKind, targetKey,
+        input.value.workspaceId, recordId,
+      )),
+      input.db.prepare(
+        `INSERT INTO runtime_precedent_provenance (
+           record_id, workspace_id, proposal_id, review_decision_id,
+           application_receipt_id, verification_receipt_id, variant_id,
+           changed_field, behavior, normalized_outcome_key, created_at
+         )
+         SELECT ?, r.workspace_id, ?, ?, ?, r.id, r.variant_id, ?, ?, ?, ?
+           FROM verification_receipts r
+          WHERE r.workspace_id = ? AND r.id = ? AND r.result = 'pass'`,
+      ).bind(
+        provenanceId, authority.proposal_id, authority.review_decision_id,
+        authority.application_receipt_id, field, support.behavior,
+        support.normalizedOutcomeKey, input.now,
+        input.value.workspaceId, input.receiptId,
+      ),
+      input.db.prepare(
+        `INSERT INTO audit_events (
+           id, workspace_id, actor_kind, action, target_kind, target_id,
+           result, correlation_id, safe_detail_json, occurred_at
+         )
+         SELECT ?, p.workspace_id, 'system', 'precedent.projected',
+                'precedent', p.id, 'success', ?, ?, ?
+           FROM runtime_precedent_provenance provenance
+           JOIN precedent_records p
+             ON p.workspace_id = provenance.workspace_id
+            AND p.id = provenance.record_id
+          WHERE provenance.workspace_id = ? AND provenance.record_id = ?`,
+      ).bind(
+        auditId, commitId,
+        JSON.stringify({ behavior: support.behavior, outcomeKey: support.normalizedOutcomeKey }),
+        input.now, input.value.workspaceId, recordId,
+      ),
+      input.db.prepare(
+        `INSERT INTO precedent_projection_commits (
+           id, workspace_id, verification_receipt_id, record_id, created_at
+         ) VALUES (?, ?, ?, ?, ?)`,
+      ).bind(commitId, input.value.workspaceId, input.receiptId, recordId, input.now),
+    );
+  }
+  return { statements, count: fields.length };
 }
 
 export async function verifyFocusContract(input: {
@@ -434,6 +635,13 @@ export async function verifyFocusContract(input: {
   const auditId = crypto.randomUUID();
   const commitId = crypto.randomUUID();
   const value = loaded.verifierInput;
+  const projection = await projectionStatements({
+    db: input.db,
+    value,
+    receiptId,
+    overallResult: output.overallResult,
+    now: input.now,
+  });
   const statements: D1PreparedStatement[] = [
     input.db.prepare(
       `INSERT INTO verification_guards (
@@ -546,6 +754,7 @@ export async function verifyFocusContract(input: {
          id, workspace_id, guard_id, receipt_id, audit_event_id, created_at
        ) VALUES (?, ?, ?, ?, ?, ?)`,
     ).bind(commitId, value.workspaceId, guardId, receiptId, auditId, input.now),
+    ...projection.statements,
     input.db.prepare(
       `UPDATE observation_sessions
           SET state = CASE WHEN EXISTS (
@@ -564,7 +773,13 @@ export async function verifyFocusContract(input: {
     ),
   ];
   try {
-    assertBatch(await input.db.batch(statements));
+    const results = await input.db.batch(statements);
+    if (
+      results.length !== statements.length ||
+      results.some((entry) => !entry.success || entry.meta.changes !== 1)
+    ) {
+      throw new Error('The verification batch returned unexpected row counts.');
+    }
   } catch {
     const raced = await loadReplay({
       db: input.db,
@@ -580,5 +795,5 @@ export async function verifyFocusContract(input: {
       true,
     );
   }
-  return result(receiptId, value, output, false);
+  return result(receiptId, value, output, false, projection.count);
 }

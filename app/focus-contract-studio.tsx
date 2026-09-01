@@ -85,11 +85,60 @@ type VerificationView = {
     evidenceSequences: number[];
   }>;
   idempotentReplay: boolean;
+  projectedPrecedentCount: number;
 };
 
 type VerifyRehearsalResult = {
   ok: true;
   verification: VerificationView;
+};
+
+type HistoryRecord = {
+  kind: string;
+  id: string;
+  proposalId?: string;
+  proposalDigest8?: string;
+  baseRevision?: number;
+  status?: string;
+  action?: string;
+  fromRevision?: number;
+  toRevision?: number;
+  revision?: number;
+  source?: string;
+  result?: string;
+  projected?: boolean;
+  behavior?: string;
+  outcomeKey?: string;
+  state?: string;
+  environment?: string;
+  code?: string;
+  correlationId?: string;
+  occurredAt: number;
+};
+
+type HistoryResult = {
+  ok: true;
+  activeRevision: number;
+  records: HistoryRecord[];
+};
+
+type ApplyResult = {
+  ok: true;
+  receipt: {
+    receiptId: string;
+    proposalId: string;
+    proposalDigest8: string;
+    fromRevision: number;
+    toRevision: number;
+    result: 'applied';
+    createdAt: string;
+    replayed: boolean;
+  };
+};
+
+type ResetResult = {
+  ok: true;
+  data: { generation: number; csrfToken: string; replayed: boolean };
 };
 
 type ToolState = 'registered' | 'unsupported' | 'error';
@@ -145,6 +194,14 @@ async function jsonResponse<T>(response: Response, fallback: string): Promise<T>
   return value as T;
 }
 
+function mutationMessage(error: unknown, fallback: string): string {
+  return error instanceof TypeError
+    ? fallback
+    : error instanceof Error
+      ? error.message
+      : fallback;
+}
+
 function targetLabel(value: string | null): string {
   if (!value) return 'NONE';
   return value.replace(/-(button|input)$/u, '').replace(/-/gu, ' ').toUpperCase();
@@ -152,6 +209,11 @@ function targetLabel(value: string | null): string {
 
 function titleCaseTarget(value: string): string {
   const label = value.replace(/-(button|input)$/u, '').replace(/-/gu, ' ');
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
+}
+
+function fullTargetLabel(value: string): string {
+  const label = value.replace(/-/gu, ' ');
   return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
@@ -169,17 +231,35 @@ async function fetchReview(signal?: AbortSignal): Promise<ActiveFocusReviewResul
   );
 }
 
+async function fetchHistory(signal?: AbortSignal): Promise<HistoryResult> {
+  return jsonResponse<HistoryResult>(
+    await fetch('/api/focus-history', {
+      method: 'GET', credentials: 'same-origin', cache: 'no-store', signal,
+    }),
+    'The durable history could not be loaded.',
+  );
+}
+
 export function FocusContractStudio() {
   const [page, setPage] = useState<PageState>({ kind: 'loading' });
   const [proposal, setProposal] = useState<ProposalView | null>(null);
   const [observedTarget, setObservedTarget] = useState<string | null>(null);
   const [activity, setActivity] = useState('No proposal has changed the implemented revision.');
   const [proposalBusy, setProposalBusy] = useState(false);
+  const [novelResponsibilityAccepted, setNovelResponsibilityAccepted] = useState(false);
   const [recoveringProposal, setRecoveringProposal] = useState(false);
   const [rehearsalBusy, setRehearsalBusy] = useState(false);
   const [verification, setVerification] = useState<VerificationView | null>(null);
   const [toolState, setToolState] = useState<ToolState>('unsupported');
+  const [history, setHistory] = useState<HistoryResult | null>(null);
+  const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | 'revoke' | 'edit' | 'apply' | 'undo' | 'reset' | null>(null);
+  const [mutationBusy, setMutationBusy] = useState(false);
+  const [applicationReceipt, setApplicationReceipt] = useState<ApplyResult['receipt'] | null>(null);
   const pendingProposalKey = useRef<string | null>(null);
+  const pendingMutation = useRef<{ action: string; key: string } | null>(null);
+  const receiptDialog = useRef<HTMLDialogElement>(null);
+  const receiptCancel = useRef<HTMLButtonElement>(null);
+  const confirmationButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -197,9 +277,11 @@ export function FocusContractStudio() {
           'The isolated demo could not be prepared.',
         );
         const review = await fetchReview(controller.signal);
+        const loadedHistory = await fetchHistory(controller.signal).catch(() => null);
         if (controller.signal.aborted) return;
         setProposal(review.proposal);
         setObservedTarget(review.review.observation?.observedInitialFocus ?? null);
+        setHistory(loadedHistory);
         setPage({
           kind: 'ready',
           csrfToken: bootstrap.data.csrfToken,
@@ -240,6 +322,17 @@ export function FocusContractStudio() {
     };
   }, [toolCsrfToken]);
 
+  useEffect(() => {
+    if (applicationReceipt && !receiptDialog.current?.open) {
+      receiptDialog.current?.showModal();
+      receiptCancel.current?.focus();
+    }
+  }, [applicationReceipt]);
+
+  useEffect(() => {
+    if (confirmAction) confirmationButton.current?.focus();
+  }, [confirmAction]);
+
   if (page.kind === 'loading') {
     return (
       <main className="loading-shell">
@@ -270,6 +363,8 @@ export function FocusContractStudio() {
       ({ recordId, outcomeKey }) =>
         recordId === 'D001' && outcomeKey === 'cancel-button',
     );
+  const canCreateReviewerNovel =
+    !proposal && review.retrieval.disposition !== 'results' && novelResponsibilityAccepted;
 
   async function recordInitialFocus(
     targetId: InitialFocusTargetId,
@@ -296,10 +391,10 @@ export function FocusContractStudio() {
         'The opening observation was not saved.',
       );
       setObservedTarget(targetId);
-      setActivity(`Browser report recorded: ${targetLabel(targetId)}. Typed values were not captured.`);
       const refreshed = await fetchReview();
       setPage({ kind: 'ready', csrfToken, review: refreshed });
       setProposal(refreshed.proposal);
+      setActivity(`Browser report recorded: ${targetLabel(targetId)}. Typed values were not captured.`);
     } catch (error) {
       setActivity(error instanceof Error ? error.message : 'The observation was not saved.');
     }
@@ -367,6 +462,8 @@ export function FocusContractStudio() {
         'The raw rehearsal could not be verified.',
       );
       setVerification(verified.verification);
+      const nextHistory = await fetchHistory().catch(() => null);
+      if (nextHistory) setHistory(nextHistory);
       setActivity(
         `Verification ${verified.verification.overallResult}. Implemented revision ${verified.verification.implementedRevision} did not change.`,
       );
@@ -413,13 +510,196 @@ export function FocusContractStudio() {
       setRecoveringProposal(false);
       setActivity('Proposal saved for exact UI review. Revision 1 remains implemented.');
     } catch (error) {
-      setActivity(
-        error instanceof Error
-          ? error.message
-          : 'The proposal outcome is uncertain. Retry recovers it with the same key.',
-      );
+      setActivity(mutationMessage(
+        error,
+        'The proposal outcome is uncertain. Retry recovers it with the same key.',
+      ));
     } finally {
       setProposalBusy(false);
+    }
+  }
+
+  async function createReviewerNovelProposal() {
+    if (!canCreateReviewerNovel || proposalBusy) return;
+    setProposalBusy(true);
+    pendingProposalKey.current ??= crypto.randomUUID();
+    setRecoveringProposal(true);
+    setActivity('Staging one reviewer-authored novel proposal without precedent support…');
+    try {
+      await jsonResponse(
+        await fetch('/api/focus-proposals/reviewer', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-fcs-csrf': csrfToken },
+          body: JSON.stringify({
+            configuration: CANCEL_CONFIGURATION,
+            summary: 'Reviewer-authored novel Cancel-first proposal without supporting precedent.',
+            responsibilityAccepted: true,
+            idempotencyKey: pendingProposalKey.current,
+          }),
+          credentials: 'same-origin', cache: 'no-store',
+        }),
+        'The reviewer proposal outcome is uncertain. Retry recovers it with the same key.',
+      );
+      await refreshCommittedState();
+      pendingProposalKey.current = null;
+      setRecoveringProposal(false);
+      setNovelResponsibilityAccepted(false);
+      setActivity('Reviewer-authored novel proposal saved. No precedent is presented as support.');
+    } catch (error) {
+      setActivity(mutationMessage(
+        error,
+        'The reviewer proposal outcome is uncertain. Retry recovers it with the same key.',
+      ));
+    } finally {
+      setProposalBusy(false);
+    }
+  }
+
+  async function refreshCommittedState(nextCsrfToken = csrfToken) {
+    const [nextReview, nextHistory] = await Promise.all([
+      fetchReview(), fetchHistory(),
+    ]);
+    setPage({ kind: 'ready', csrfToken: nextCsrfToken, review: nextReview });
+    setProposal(nextReview.proposal);
+    setObservedTarget(nextReview.review.observation?.observedInitialFocus ?? null);
+    setHistory(nextHistory);
+  }
+
+  function beginMutation(action: NonNullable<typeof confirmAction>) {
+    if (mutationBusy) return;
+    if (pendingMutation.current?.action !== action) {
+      pendingMutation.current = { action, key: crypto.randomUUID() };
+    }
+    setConfirmAction(action);
+    setActivity(`Confirmation opened for ${action}. Focus moved to the deliberate confirm action.`);
+  }
+
+  async function executeReview(action: 'approve' | 'reject' | 'revoke' | 'edit') {
+    if (!proposal || mutationBusy) return;
+    beginMutation(action);
+    const pending = pendingMutation.current;
+    if (!pending) return;
+    setMutationBusy(true);
+    setActivity(`Committing exact ${action} authority…`);
+    try {
+      await jsonResponse(
+        await fetch(`/api/focus-proposals/${proposal.proposalId}/review`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-fcs-csrf': csrfToken },
+          body: JSON.stringify(action === 'edit' ? {
+            action,
+            configuration: { ...CANCEL_CONFIGURATION, initialFocus: 'reason-input' },
+            summary: 'Reviewer-authored reason-first child proposal.',
+            idempotencyKey: pending.key,
+          } : { action, idempotencyKey: pending.key }),
+          credentials: 'same-origin', cache: 'no-store',
+        }),
+        `The ${action} outcome is uncertain. Retry recovers it with the same key.`,
+      );
+      await refreshCommittedState();
+      pendingMutation.current = null;
+      setConfirmAction(null);
+      setActivity(`${action.charAt(0).toUpperCase() + action.slice(1)} committed. The implemented revision did not change.`);
+    } catch (error) {
+      setActivity(mutationMessage(error, `The ${action} outcome is uncertain. Retry recovers it with the same key.`));
+    } finally {
+      setMutationBusy(false);
+    }
+  }
+
+  async function executeApply() {
+    if (!proposal || mutationBusy) return;
+    beginMutation('apply');
+    const pending = pendingMutation.current;
+    if (!pending) return;
+    setMutationBusy(true);
+    setActivity('Applying the exact current approval…');
+    try {
+      const result = await jsonResponse<ApplyResult>(
+        await fetch(`/api/focus-proposals/${proposal.proposalId}/apply`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-fcs-csrf': csrfToken },
+          body: JSON.stringify({
+            expectedImplementedRevision: review.review.implementedRevision,
+            idempotencyKey: pending.key,
+          }),
+          credentials: 'same-origin', cache: 'no-store',
+        }),
+        'The application outcome is uncertain. Retry recovers the receipt with the same key.',
+      );
+      setApplicationReceipt(result.receipt);
+      await refreshCommittedState();
+      pendingMutation.current = null;
+      setConfirmAction(null);
+      setActivity(`Application committed as implemented revision ${result.receipt.toRevision}. Run a fresh rehearsal and verification.`);
+    } catch (error) {
+      setActivity(mutationMessage(
+        error,
+        'The application outcome is uncertain. Retry recovers the receipt with the same key.',
+      ));
+    } finally {
+      setMutationBusy(false);
+    }
+  }
+
+  async function executeUndo() {
+    if (!history || history.activeRevision <= 1 || mutationBusy) return;
+    beginMutation('undo');
+    const pending = pendingMutation.current;
+    if (!pending) return;
+    setMutationBusy(true);
+    setActivity('Creating a later restoration revision…');
+    try {
+      await jsonResponse(
+        await fetch('/api/focus-revisions/1/undo', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-fcs-csrf': csrfToken },
+          body: JSON.stringify({
+            expectedImplementedRevision: history.activeRevision,
+            idempotencyKey: pending.key,
+          }),
+          credentials: 'same-origin', cache: 'no-store',
+        }),
+        'The undo outcome is uncertain. Retry recovers it with the same key.',
+      );
+      await refreshCommittedState();
+      pendingMutation.current = null;
+      setConfirmAction(null);
+      setActivity('Undo committed as a later revision. Earlier approval remains invalid.');
+    } catch (error) {
+      setActivity(mutationMessage(error, 'The undo outcome is uncertain. Retry recovers it with the same key.'));
+    } finally {
+      setMutationBusy(false);
+    }
+  }
+
+  async function executeReset() {
+    if (mutationBusy) return;
+    beginMutation('reset');
+    const pending = pendingMutation.current;
+    if (!pending) return;
+    setMutationBusy(true);
+    setActivity('Resetting only this anonymous workspace…');
+    try {
+      const reset = await jsonResponse<ResetResult>(
+        await fetch('/api/session/reset', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-fcs-csrf': csrfToken },
+          body: JSON.stringify({ idempotencyKey: pending.key }),
+          credentials: 'same-origin', cache: 'no-store',
+        }),
+        'The reset outcome is uncertain. Retry recovers it with the same key.',
+      );
+      await refreshCommittedState(reset.data.csrfToken);
+      pendingMutation.current = null;
+      setConfirmAction(null);
+      setApplicationReceipt(null);
+      setVerification(null);
+      setActivity(`Workspace reset recovered generation ${reset.data.generation}.`);
+    } catch (error) {
+      setActivity(mutationMessage(error, 'The reset outcome is uncertain. Retry recovers it with the same key.'));
+    } finally {
+      setMutationBusy(false);
     }
   }
 
@@ -438,7 +718,7 @@ export function FocusContractStudio() {
       <section aria-labelledby="review-heading" className="hero" id="review">
         <div className="hero-heading">
           <div>
-            <p className="eyebrow">Package 2 · Observe → Precedent → Proposal</p>
+            <p className="eyebrow">Package 5 · Observe → Review → Apply → Verify → Undo</p>
             <h1 id="review-heading">Review one real focus decision</h1>
           </div>
           <div className="state-chips" aria-label="Current decision state">
@@ -450,16 +730,16 @@ export function FocusContractStudio() {
           </div>
         </div>
 
-        {proposal ? <ProposalBanner proposal={proposal} /> : null}
+        {proposal ? <ProposalBanner activeRevision={review.review.implementedRevision} proposal={proposal} /> : null}
 
         <div className="review-grid">
           <section aria-labelledby="observe-heading" className="panel dialog-panel">
             <p className="stage-number">01 · Observe</p>
             <h2 id="observe-heading">Live delete-account dialog</h2>
             <p className="panel-copy">
-              Revision {review.review.implementedRevision} intentionally focuses the
-              destructive Delete action first. Open the native dialog to capture the
-              browser&apos;s actual first focus target.
+              Revision {review.review.implementedRevision} renders the committed focus
+              configuration. Open the native dialog to capture the browser&apos;s actual
+              first focus target.
             </p>
             <div className="configuration-card">
               <span>Active variant</span>
@@ -522,7 +802,7 @@ export function FocusContractStudio() {
                 ))}
               </div>
             ) : (
-              <p>No eligible precedent was returned. No agent proposal can be created.</p>
+              <p>No eligible precedent was returned. No agent proposal can be created; a reviewer may accept responsibility for a novel proposal.</p>
             )}
             <button
               className="button button-primary"
@@ -536,21 +816,138 @@ export function FocusContractStudio() {
                   ? 'Recover proposal outcome'
                   : 'Create Cancel proposal'}
             </button>
+            {review.retrieval.disposition !== 'results' && !proposal ? (
+              <div className="reviewer-novel-path">
+                <label>
+                  <input
+                    checked={novelResponsibilityAccepted}
+                    onChange={(event) => setNovelResponsibilityAccepted(event.currentTarget.checked)}
+                    type="checkbox"
+                  />
+                  I accept responsibility for a novel Cancel-first proposal without supporting precedent.
+                </label>
+                <button
+                  className="button button-secondary"
+                  disabled={!canCreateReviewerNovel || proposalBusy}
+                  onClick={() => void createReviewerNovelProposal()}
+                  type="button"
+                >
+                  {recoveringProposal ? 'Recover reviewer proposal outcome' : 'Create reviewer novel proposal'}
+                </button>
+              </div>
+            ) : null}
           </section>
         </div>
 
         {verification ? <VerificationResult verification={verification} /> : null}
 
-        {proposal ? <ProposalDiff /> : null}
+        {proposal ? (
+          <ProposalReview
+            busy={mutationBusy}
+            implemented={review.review.implemented}
+            onAction={beginMutation}
+            proposal={proposal}
+          />
+        ) : null}
 
-        <section aria-labelledby="boundary-heading" className="boundary-panel">
-          <p className="stage-number">03 · Proposal boundary</p>
-          <h2 id="boundary-heading">Review is visible; apply is intentionally unavailable</h2>
-          <p>
-            Package 2 may stage an immutable proposal. It cannot approve or apply one.
-            The native dialog continues to render implemented revision 1 and focus Delete.
-          </p>
+        {confirmAction ? (
+          <section aria-labelledby="confirmation-heading" className="confirmation-panel">
+            <h2 id="confirmation-heading">Confirm {confirmAction}</h2>
+            <p>
+              This deliberate visible action uses one recoverable key. Evidence and
+              verification cannot authorize it.
+            </p>
+            <div className="rehearsal-actions">
+              <button
+                className="button button-primary"
+                disabled={mutationBusy}
+                onClick={() => {
+                  if (confirmAction === 'apply') void executeApply();
+                  else if (confirmAction === 'undo') void executeUndo();
+                  else if (confirmAction === 'reset') void executeReset();
+                  else void executeReview(confirmAction);
+                }}
+                ref={confirmationButton}
+                type="button"
+              >
+                {mutationBusy ? `Recovering ${confirmAction}…` : `Confirm ${confirmAction}`}
+              </button>
+              <button
+                className="button button-secondary"
+                disabled={mutationBusy}
+                onClick={() => {
+                  pendingMutation.current = null;
+                  setConfirmAction(null);
+                }}
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        <section aria-labelledby="history-heading" className="boundary-panel">
+          <p className="stage-number">05 · Durable history and recovery</p>
+          <h2 id="history-heading">Chronological committed state</h2>
+          {history?.records.length ? (
+            <ol className="history-list">
+              {history.records.map((record) => (
+                <li key={`${record.kind}-${record.id}`}>
+                  <strong>{record.kind}</strong>{' '}
+                  <span>{historyLabel(record)}</span>
+                </li>
+              ))}
+            </ol>
+          ) : <p>No committed Package 5 history is available yet.</p>}
+          <div className="rehearsal-actions">
+            <button
+              className="button button-secondary"
+              disabled={!history || history.activeRevision <= 1 || mutationBusy}
+              onClick={() => beginMutation('undo')}
+              type="button"
+            >
+              Undo to revision 1
+            </button>
+            <button
+              className="button button-danger"
+              disabled={mutationBusy}
+              onClick={() => beginMutation('reset')}
+              type="button"
+            >
+              Reset this workspace
+            </button>
+          </div>
         </section>
+
+        <dialog aria-labelledby="receipt-heading" className="receipt-dialog" ref={receiptDialog}>
+          <h2 id="receipt-heading">Application committed</h2>
+          {applicationReceipt ? (
+            <p>
+              Receipt <code>{applicationReceipt.receiptId}</code> advanced revision{' '}
+              {applicationReceipt.fromRevision} to {applicationReceipt.toRevision}.
+            </p>
+          ) : null}
+          <p>Run a fresh raw rehearsal before independent verification can project precedent.</p>
+          <div className="rehearsal-actions">
+            <button
+              autoFocus
+              className="button button-secondary"
+              onClick={() => receiptDialog.current?.close()}
+              ref={receiptCancel}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              onClick={() => receiptDialog.current?.close()}
+              type="button"
+            >
+              Rehearse revision {applicationReceipt?.toRevision ?? ''}
+            </button>
+          </div>
+        </dialog>
 
         <p aria-live="polite" className="activity-status" id="rehearsal-status" role="status">
           {activity}
@@ -574,6 +971,9 @@ function VerificationResult({ verification }: { verification: VerificationView }
       <h2 id="verification-heading">Raw rehearsal verification</h2>
       <p className="verification-overall">
         Overall result: <strong>{verification.overallResult}</strong>
+      </p>
+      <p>
+        Runtime precedent projected: <strong>{verification.projectedPrecedentCount ?? 0}</strong>
       </p>
       <div className="verification-manifest">
         <p>
@@ -613,44 +1013,105 @@ function VerificationResult({ verification }: { verification: VerificationView }
   );
 }
 
-function ProposalBanner({ proposal }: { proposal: ProposalView }) {
+function historyLabel(record: HistoryRecord): string {
+  if (record.kind === 'proposal') return `${record.proposalDigest8 ?? record.id.slice(0, 8)} · ${record.status}`;
+  if (record.kind === 'decision') return `${record.action} · proposal ${record.proposalId?.slice(0, 8)}`;
+  if (record.kind === 'application') return `revision ${record.fromRevision} → ${record.toRevision}`;
+  if (record.kind === 'revision') return `revision ${record.revision} · ${record.source}`;
+  if (record.kind === 'verification') return `revision ${record.revision} · ${record.result}${record.projected ? ' · projected' : ''}`;
+  if (record.kind === 'projection') return `${record.behavior} → ${record.outcomeKey}`;
+  if (record.kind === 'rehearsal') return `revision ${record.revision} · ${record.state} · ${record.environment}`;
+  if (record.kind === 'reset' || record.kind === 'failure') return `${record.code ?? record.kind} · ${record.correlationId?.slice(0, 8) ?? record.id.slice(0, 8)}`;
+  return record.id.slice(0, 8);
+}
+
+function ProposalBanner({
+  activeRevision,
+  proposal,
+}: {
+  activeRevision: number;
+  proposal: ProposalView;
+}) {
   return (
     <section aria-label="Proposal state" className="proposal-banner">
       <div>
         <p className="proposal-label">{proposal.label}</p>
         <p>Proposal {proposal.proposalDigest8} is staged for exact UI review.</p>
       </div>
-      <strong>Implemented revision remains {proposal.baseImplementedRevision}</strong>
+      <strong>
+        {proposal.applied
+          ? `Implemented revision ${activeRevision}`
+          : `Implemented revision remains ${activeRevision}`}
+      </strong>
     </section>
   );
 }
 
-function ProposalDiff() {
+function ProposalReview({
+  busy,
+  implemented,
+  onAction,
+  proposal,
+}: {
+  busy: boolean;
+  implemented: ActiveFocusReviewResult['review']['implemented'];
+  onAction: (action: 'approve' | 'reject' | 'revoke' | 'edit' | 'apply' | 'undo' | 'reset') => void;
+  proposal: ProposalView;
+}) {
   return (
     <section aria-labelledby="proposal-heading" className="proposal-section">
-      <p className="stage-number">03 · Proposal</p>
-      <h2 id="proposal-heading">Exact field change</h2>
+      <p className="stage-number">03 · Immutable proposal review</p>
+      <h2 id="proposal-heading">Complete exact authority</h2>
+      <dl className="proposal-authority">
+        <div><dt>Status</dt><dd>{proposal.label} · {proposal.status}</dd></div>
+        <div><dt>Digest</dt><dd><code>{proposal.proposalDigest ?? proposal.proposalDigest8}</code></dd></div>
+        <div><dt>Base revision</dt><dd>{proposal.baseImplementedRevision}</dd></div>
+        <div><dt>Author</dt><dd>{proposal.authorKind ?? 'agent'}</dd></div>
+        <div><dt>Parent</dt><dd>{proposal.parentProposalId ?? 'None'}</dd></div>
+        <div><dt>Created</dt><dd>{proposal.createdAt ?? 'Committed time unavailable'}</dd></div>
+        <div><dt>Summary</dt><dd>{proposal.summary ?? 'Focus Cancel first.'}</dd></div>
+      </dl>
       <div className="table-scroll">
         <table aria-label="Proposed focus change">
           <thead>
             <tr>
               <th scope="col">Field</th>
-              <th scope="col">Implemented revision 1</th>
+              <th scope="col">Implemented revision {proposal.baseImplementedRevision}</th>
               <th scope="col">Proposed</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <th scope="row">Initial focus</th>
-              <td>Delete button</td>
-              <td>Cancel button</td>
+              <td>{fullTargetLabel(implemented.initialFocus)}</td>
+              <td>{fullTargetLabel(proposal.configuration?.initialFocus ?? 'cancel-button')}</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p className="support-note">
-        Supported by D001 · outcome Cancel button · evidence only, never approval.
+        {proposal.fieldEvidence.length > 0
+          ? proposal.fieldEvidence.map((entry) =>
+              `Supported by ${entry.recordId} · outcome ${fullTargetLabel(entry.outcomeKey)}`,
+            ).join(' · ')
+          : 'Reviewer-authored novel change · no precedent supports this proposed value.'}
+        {' '}EVIDENCE ONLY — NEVER APPROVAL.
       </p>
+      <div className="rehearsal-actions" aria-label="Visible proposal decisions">
+        {proposal.status === 'proposed' ? (
+          <>
+            <button className="button button-primary" disabled={busy} onClick={() => onAction('approve')} type="button">Approve exact proposal</button>
+            <button className="button button-secondary" disabled={busy} onClick={() => onAction('reject')} type="button">Reject proposal</button>
+            <button className="button button-secondary" disabled={busy} onClick={() => onAction('edit')} type="button">Edit as child proposal</button>
+          </>
+        ) : null}
+        {proposal.status === 'approved' ? (
+          <>
+            <button className="button button-primary" disabled={busy} onClick={() => onAction('apply')} type="button">Apply approved proposal</button>
+            <button className="button button-secondary" disabled={busy} onClick={() => onAction('revoke')} type="button">Revoke approval</button>
+          </>
+        ) : null}
+      </div>
     </section>
   );
 }

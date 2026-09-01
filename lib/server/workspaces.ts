@@ -680,6 +680,18 @@ export async function resetWorkspace(input: {
       suffixStatements: [
       input.db
         .prepare(
+          `INSERT INTO audit_events (
+             id, workspace_id, actor_kind, action, target_kind, target_id,
+             result, correlation_id, safe_detail_json, occurred_at
+           ) VALUES (?, ?, 'reviewer', 'workspace.reset', 'workspace', ?,
+                     'success', ?, ?, ?)`,
+        )
+        .bind(
+          crypto.randomUUID(), nextWorkspaceId, nextWorkspaceId, crypto.randomUUID(),
+          JSON.stringify({ generation: prior.generation + 1 }), input.now,
+        ),
+      input.db
+        .prepare(
           `UPDATE idempotency_records
               SET state = 'committed', result_kind = 'workspace', result_id = ?
             WHERE id = ? AND workspace_id = ? AND state = 'started'`,

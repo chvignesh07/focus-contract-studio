@@ -1,0 +1,32 @@
+{
+  "schema_version": "fcs-package5-local-gate-v1",
+  "package": 5,
+  "status": "PASS",
+  "command": "npm run verify:package5:core",
+  "source": {
+    "file_count": 61,
+    "aggregate_sha256": "ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c"
+  },
+  "checks": {
+    "inherited_package4": "PASS",
+    "package5_node": "PASS",
+    "package5_d1": "PASS",
+    "package5_routes": "PASS",
+    "package5_dom": "PASS",
+    "package5_coverage": "PASS",
+    "package5_browser": "PASS",
+    "typecheck_lint_build": "PASS",
+    "dependency_audit": "PASS",
+    "source_inventory": "PASS"
+  },
+  "tests": {
+    "passed": 355,
+    "failed": 0,
+    "total": 355
+  },
+  "external": {
+    "hosted": "NOT_RUN",
+    "supported_chatgpt": "NOT_RUN",
+    "package6": "NOT_RUN"
+  }
+}

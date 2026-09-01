@@ -1,0 +1,316 @@
+{
+  "schema_version": "fcs-package5-source-manifest-v1",
+  "package": 5,
+  "algorithm": "sha256",
+  "inventory": "EXACT_PACKAGE5_IMPLEMENTATION_AND_GATE_SOURCE",
+  "normalization": "TASK_CHECKBOX_MARKERS_UNCHECKED_ONLY",
+  "file_count": 61,
+  "aggregate_sha256": "ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c",
+  "files": [
+    {
+      "path": "app/api/focus-history/route.ts",
+      "bytes": 819,
+      "sha256": "5060a62f20a56ceb5d03fed4f85d28135e02b124f56979c076a3b92c90b1457d"
+    },
+    {
+      "path": "app/api/focus-proposals/[proposalId]/apply/route.ts",
+      "bytes": 1939,
+      "sha256": "3757cdcfe2eb0fbe16650ada18215a7ace98f3af80af5be8bd1489ccdb17e5fc"
+    },
+    {
+      "path": "app/api/focus-proposals/[proposalId]/review/route.ts",
+      "bytes": 1552,
+      "sha256": "36705a019eefb193a5a524413bae0ad266fb42f62eb5986005ccb789ead4281c"
+    },
+    {
+      "path": "app/api/focus-proposals/reviewer/route.ts",
+      "bytes": 1370,
+      "sha256": "bf3d93440eca4f3ce14d0be71e4d437fe15b0f834354c15dc5cbf3c26df98fc7"
+    },
+    {
+      "path": "app/api/focus-revisions/[revision]/undo/route.ts",
+      "bytes": 2125,
+      "sha256": "444e0cae352141f869c7bae8fdc3254a1869de8b0dee6280563885ccd847c059"
+    },
+    {
+      "path": "app/delete-account-dialog.tsx",
+      "bytes": 14341,
+      "sha256": "2f1ab379273cbd1c55b96afe0479e25c1d18c628106a5e37c16aaadcb81feb12"
+    },
+    {
+      "path": "app/focus-contract-studio.tsx",
+      "bytes": 41411,
+      "sha256": "eafdd8038f053a5f65bfa57a04c51e711371f813af77c63901e17b4d8379bb27"
+    },
+    {
+      "path": "app/globals.css",
+      "bytes": 12282,
+      "sha256": "79427e31ab1d10fa2d372d6b7ae526da50e68eaedbe5793e1f6bb76a3c0ad528"
+    },
+    {
+      "path": "db/package5-schema.ts",
+      "bytes": 2032,
+      "sha256": "26391fd3f43eb403db528eb71cdb4ade0b57a8c8c86add9b3bd8ec2261f2e7d4"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.json",
+      "bytes": 1096,
+      "sha256": "50d8bbe6a0353cbc04e5df93ac0b004692eca279c8d287f4748efcb585267341"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.md",
+      "bytes": 2209,
+      "sha256": "9e63b9cc1dc671635b668d284360a55cbde3f614b4d525dedec6a040f7d088cd"
+    },
+    {
+      "path": "drizzle/0004_package5_review_apply_undo.sql",
+      "bytes": 19792,
+      "sha256": "81876fb0d096dba99bffe8dffa3839ef232aac62dde462b6f4856749217a9dc1"
+    },
+    {
+      "path": "lib/domain/package5.ts",
+      "bytes": 4134,
+      "sha256": "e211216264c0dd8647e715097e074ff4e75efa6c4fe3e19ebcb5f17193ea36ce"
+    },
+    {
+      "path": "lib/domain/proposal.ts",
+      "bytes": 7080,
+      "sha256": "0b0b9f78d1e7107ac97d4e04d720098ff200208d00b80aaf845e32a2edb2ab26"
+    },
+    {
+      "path": "lib/server/active-focus-review.ts",
+      "bytes": 16180,
+      "sha256": "96e1329243dd667503211add95a1c6695c3bb6343519450ec16e26bd6c430f97"
+    },
+    {
+      "path": "lib/server/create-proposal.ts",
+      "bytes": 18576,
+      "sha256": "35b4a536062fbe8ce42b64694e39e62235c3dbdae1f0dfa8d7af8baf59741b32"
+    },
+    {
+      "path": "lib/server/package5-apply-history-undo.ts",
+      "bytes": 29697,
+      "sha256": "ebbe8d7a8b026682d78b212b092be6dd3979570d2477c1aa6ba219d31938c694"
+    },
+    {
+      "path": "lib/server/package5-operation-policy.ts",
+      "bytes": 1055,
+      "sha256": "2d90d729373dca149589657c0423c7491f47fb14b64de0ede56c83f7e7daf42f"
+    },
+    {
+      "path": "lib/server/package5-review.ts",
+      "bytes": 25741,
+      "sha256": "afd0cc552fdd719b6767b0a3cc71c7abec1796509595c837560639351b6a83f8"
+    },
+    {
+      "path": "lib/server/verify-focus-contract.ts",
+      "bytes": 29343,
+      "sha256": "3c5be4e63e33821c45985651d1796221ccc5af120ae0419c6a7dfd9e6d8b4ac2"
+    },
+    {
+      "path": "lib/server/workspaces.ts",
+      "bytes": 22381,
+      "sha256": "09f1ee3cef0dd6ea3143a1f59fc5366f0e6a6d99ffb4d5258b3e1954be52f969"
+    },
+    {
+      "path": "package.json",
+      "bytes": 11684,
+      "sha256": "94c9344c6d479394da48cea02e2248e9a6217989899c301c497712e29b992856"
+    },
+    {
+      "path": "playwright.config.ts",
+      "bytes": 3572,
+      "sha256": "b487e742489acb999c8ee3265ab0072d9f50725b11860bdd924f79c5f06605eb"
+    },
+    {
+      "path": "scripts/package5-evidence-binding.mjs",
+      "bytes": 5990,
+      "sha256": "96d57bb9df45313ae40b64351ee5dab627a4589d7a10959444e5657c6e55e9cf"
+    },
+    {
+      "path": "scripts/package5-local-gate.mjs",
+      "bytes": 1719,
+      "sha256": "b9200c49a86e087a06bdd452840656220ab5631b1f6cc2ed43c1c68c530e8c08"
+    },
+    {
+      "path": "scripts/package5-source-manifest.mjs",
+      "bytes": 5540,
+      "sha256": "3339fddecb7251b09e250f49a10444e2db6979e27907d986008b5438fd0b2aab"
+    },
+    {
+      "path": "scripts/package5-verify-package4-frozen.mjs",
+      "bytes": 2282,
+      "sha256": "64dc9821219840f3773d03a8a29c622f2b9ef6b44305ac5de3de3ac26414a3dd"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/ceo-plan.md",
+      "bytes": 3156,
+      "sha256": "fe7b42aaec565397d5a86464174c795186876ae7e8981267e28a1541f724cc17"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/checklists/package5.md",
+      "bytes": 6910,
+      "sha256": "a33cd88138ac36534f0f230c80a8252a19c8919057d0648b8c52a42db07dcd3b"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/checklists/requirements.md",
+      "bytes": 1434,
+      "sha256": "99e0dd728b44783a712bdae458bd7f48f30288e94044b63d1449cdbe902010ee"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/contracts/apply-api.md",
+      "bytes": 880,
+      "sha256": "fda0973ace497c45af3cbec2e469759be581ab2aa4a2f58aafbf0b019418192a"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/contracts/history-undo-reset.md",
+      "bytes": 1013,
+      "sha256": "f3e8af425ca9571a2a8bb3a08275da3cf085b1b3b202a1bab33a25d4891afce1"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/contracts/review-api.md",
+      "bytes": 966,
+      "sha256": "e08f02facb2df2c95aab4ba3fc1e2001ce3627de60c988a85f8625ec7e4c63d6"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/data-model.md",
+      "bytes": 6001,
+      "sha256": "258ae565c38efd4b50695894e1473d9a1d5a1e2934a2d401455d6094cec53a6f"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/eng-plan.md",
+      "bytes": 7897,
+      "sha256": "580ddb98a7ff768a00158e5fb57cfcf33c5020990d038701adb497e7e44e5712"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/plan.md",
+      "bytes": 13552,
+      "sha256": "71b00707f007f61e4d2dd8169e0c77406fa59c99b72ee48f5fefafcae3434aa7"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/quickstart.md",
+      "bytes": 1836,
+      "sha256": "788d5eaca8cb27eb2f7c9ef91dc38e381b4c01e5f9bd6408895ebe76cc53ac88"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/research.md",
+      "bytes": 5763,
+      "sha256": "0f833e765fc5d715a73ee473c9db13dfbea77ccfbd23f8a1eb34c2a9e8f097d3"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/spec.md",
+      "bytes": 15313,
+      "sha256": "b5ddfb8d0ba66d6ec4dc3af01d5325f04d07b44cff5656c015111eb63a9dd37a"
+    },
+    {
+      "path": "specs/003-package-5-review-apply-undo/tasks.md",
+      "bytes": 11575,
+      "sha256": "a9ef3bee014783c3fb22ed680f8f42806a5f11e283db17588125a0d2a9d7afca"
+    },
+    {
+      "path": "tests/package2-node/repository-consistency.test.ts",
+      "bytes": 6571,
+      "sha256": "7df93c2ab7408727907b24f8995777b8b3044b68e013d298e969083af244d042"
+    },
+    {
+      "path": "tests/package5-browser/review-apply-undo.spec.ts",
+      "bytes": 11581,
+      "sha256": "2047bfac1f5d5718b8a52b9329e51ce8ed273e429f6f19dc74d84d172e1b71c4"
+    },
+    {
+      "path": "tests/package5-dom/focus-contract-studio.test.tsx",
+      "bytes": 14548,
+      "sha256": "661cb47a7f796253868b2a701b5ec196d5e2b3427c56e74c227b3e68dbe47a48"
+    },
+    {
+      "path": "tests/package5-node/fixtures/package5-operation-policy-incomplete.test.ts",
+      "bytes": 265,
+      "sha256": "5829c95ecbf35a9cfc7908688bd8fdc2e62efe61bbf4cd79f1d19f7a83712a97"
+    },
+    {
+      "path": "tests/package5-node/package5-coverage-threshold.test.ts",
+      "bytes": 1021,
+      "sha256": "5fff99d439137d989d6f35b51d7b2eb6c10793e3d3255a8797f622788ddde335"
+    },
+    {
+      "path": "tests/package5-node/package5-domain.test.ts",
+      "bytes": 5297,
+      "sha256": "eec65899820f95818708f4ae5318cddc31ca00d0dcc0b991f9ef2ea09e4b0ca4"
+    },
+    {
+      "path": "tests/package5-node/package5-operation-policy.test.ts",
+      "bytes": 1634,
+      "sha256": "32cc733fff020c27a4b9828e6cfbae819226428a3674338e2d0d7b7abb9769fc"
+    },
+    {
+      "path": "tests/package5-node/package5-scripts.test.ts",
+      "bytes": 2566,
+      "sha256": "d1c0a140f0fa26f75912449f273e786a42a81f89c68001d1efb340372c1a6c9f"
+    },
+    {
+      "path": "tests/package5-node/source-evidence.test.ts",
+      "bytes": 4148,
+      "sha256": "3846b8e33564e7c4352a4d906fd06b3ad40cc2ec32730fff20e93db6b8af06f7"
+    },
+    {
+      "path": "tests/package5/apply-concurrency.test.ts",
+      "bytes": 1920,
+      "sha256": "d687fcc8f74794bd833cc3495e3d4bab8e8917d8915bce620be98beeecde7e8e"
+    },
+    {
+      "path": "tests/package5/apply.test.ts",
+      "bytes": 8630,
+      "sha256": "5261a56655a8b3847d52390ecefcf1cfc96be5332597694d79e33c40f47d23f4"
+    },
+    {
+      "path": "tests/package5/d1-vitest-setup.ts",
+      "bytes": 331,
+      "sha256": "283f40ea2007bc0bc54bc5f5f2437f36d921b108f6f172265b58239a83e1b174"
+    },
+    {
+      "path": "tests/package5/helpers.ts",
+      "bytes": 2793,
+      "sha256": "a42671dd331fa65fb950da8b8b6c6557c7d59a574d01fca091b6ee58477e4bc3"
+    },
+    {
+      "path": "tests/package5/history-undo-reset.test.ts",
+      "bytes": 8086,
+      "sha256": "b487937a5adc1d37e868a9f2c344e48c84a8b2839f948eded7c10e9e353e04ab"
+    },
+    {
+      "path": "tests/package5/review.test.ts",
+      "bytes": 10957,
+      "sha256": "1121e808bde46c14722b6b1b4bf0a6eafa92cbd7c91e350ef8b03c89fce0322e"
+    },
+    {
+      "path": "tests/package5/routes.test.ts",
+      "bytes": 9771,
+      "sha256": "fa8ea3f952aba9c0f8d3b208a0c681eb62e4da177cc497f6131312c7c2072768"
+    },
+    {
+      "path": "tests/package5/schema-enforcement.test.ts",
+      "bytes": 2322,
+      "sha256": "192c0ea2de7b2dbd5c7c88e77776c6376bb99fe4b54101caf5628bf13d26c856"
+    },
+    {
+      "path": "tests/package5/verification-projection.test.ts",
+      "bytes": 10716,
+      "sha256": "e0500f58f5d306caebf86ed7f8c370b790a05373e97b00c479414f7d96852cea"
+    },
+    {
+      "path": "vitest.package5-dom.config.ts",
+      "bytes": 246,
+      "sha256": "47fc3812c7d8d134fe05c1fe15d1d72c7639b630673afdc171cdba35ff9216ef"
+    },
+    {
+      "path": "vitest.package5.config.ts",
+      "bytes": 1118,
+      "sha256": "a9f9f751e732a278a712303f6573be2090c7412f982636096bfb331b4141d087"
+    },
+    {
+      "path": "wrangler.package5.jsonc",
+      "bytes": 420,
+      "sha256": "6954fd8a45e4b3f63440ac748e6f5d0d98204b9d8b3abfbcf4252cf127f05ded"
+    }
+  ]
+}

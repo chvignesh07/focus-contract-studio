@@ -503,6 +503,87 @@ thead th {
   margin: 13px 0 0;
 }
 
+.proposal-authority {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.proposal-authority div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #faf7f1;
+}
+
+.proposal-authority dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.proposal-authority dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.confirmation-panel {
+  margin-top: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  border: 2px solid var(--indigo);
+  border-radius: 16px;
+  background: var(--surface-strong);
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--indigo);
+  background: #f7f4ee;
+}
+
+.reviewer-novel-path {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.reviewer-novel-path label {
+  align-items: start;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.receipt-dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 24px;
+  overflow: auto;
+  border: 1px solid #a9a095;
+  border-radius: 16px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  box-shadow: 0 28px 90px rgb(18 15 20 / 28%);
+}
+
+.receipt-dialog::backdrop {
+  background: rgb(28 24 34 / 62%);
+}
+
 .activity-status,
 .tool-status {
   margin: 14px 0 0;
@@ -622,6 +703,7 @@ thead th {
   .panel,
   .proposal-section,
   .boundary-panel,
+  .confirmation-panel,
   .verification-result {
     padding: 18px;
   }
@@ -650,6 +732,10 @@ thead th {
   }
 
   .verification-checks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .proposal-authority {
     grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -7,27 +7,35 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 const repositoryRoot = path.dirname(fileURLToPath(import.meta.url));
-const packageNumber = process.env.FCS_PLAYWRIGHT_PACKAGE === '3' ? '3' : '2';
+const requestedPackage = process.env.FCS_PLAYWRIGHT_PACKAGE;
+const packageNumber = requestedPackage === '5' || requestedPackage === '3'
+  ? requestedPackage
+  : '2';
 const port = 43_127;
 process.env.PLAYWRIGHT_BROWSERS_PATH ??= path.join(
   repositoryRoot,
   '.playwright-browsers',
 );
 
-function package3ServerCommand(): string {
-  const persistence = mkdtempSync(path.join(tmpdir(), 'fcs-package3-browser-d1-'));
+function d1ServerCommand(): string {
+  const persistencePrefix = `fcs-package${packageNumber}-browser-d1-`;
+  const persistence = mkdtempSync(path.join(tmpdir(), persistencePrefix));
   const wrangler = path.join(repositoryRoot, 'node_modules/.bin/wrangler');
   const config = path.join(repositoryRoot, 'dist/server/wrangler.json');
   process.once('exit', () => {
-    if (path.basename(persistence).startsWith('fcs-package3-browser-d1-')) {
+    if (path.basename(persistence).startsWith(persistencePrefix)) {
       rmSync(persistence, { recursive: true, force: true });
     }
   });
-  for (const migration of [
+  const migrations = [
     'drizzle/0001_package1_domain.sql',
     'drizzle/0002_package2_vertical_slice.sql',
     'drizzle/0003_package3_raw_observer_verifier.sql',
-  ]) {
+  ];
+  if (packageNumber === '5') {
+    migrations.push('drizzle/0004_package5_review_apply_undo.sql');
+  }
+  for (const migration of migrations) {
     const result = spawnSync(
       wrangler,
       [
@@ -55,7 +63,7 @@ function package3ServerCommand(): string {
     );
     if (result.status !== 0) {
       rmSync(persistence, { recursive: true, force: true });
-      throw new Error(`Package 3 local migration failed: ${result.stderr || result.stdout}`);
+      throw new Error(`Package ${packageNumber} local migration failed: ${result.stderr || result.stdout}`);
     }
   }
   return [
@@ -85,8 +93,8 @@ function package3ServerCommand(): string {
 }
 
 const webServerCommand =
-  packageNumber === '3'
-    ? package3ServerCommand()
+  packageNumber === '3' || packageNumber === '5'
+    ? d1ServerCommand()
     : `node scripts/package2-local-server.mjs --port ${port}`;
 
 export default defineConfig({

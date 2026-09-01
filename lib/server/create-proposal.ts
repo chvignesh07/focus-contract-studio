@@ -51,6 +51,11 @@ export type CreateProposalResult = {
     applied: false;
     label: 'NOT APPLIED';
     createdAt: string;
+    proposalDigest: string;
+    configuration: CreateProposalInput['configuration'];
+    summary: string;
+    authorKind: 'agent';
+    parentProposalId: null;
   };
 };
 
@@ -111,6 +116,8 @@ function publicResult(row: ProposalRow): CreateProposalResult {
     baseImplementedRevision: number;
     fieldEvidence: FieldEvidenceSupport[];
     createdAt: string;
+    configuration: CreateProposalInput['configuration'];
+    summary: string;
   };
   if (
     !Number.isSafeInteger(document.baseImplementedRevision) ||
@@ -136,6 +143,11 @@ function publicResult(row: ProposalRow): CreateProposalResult {
       applied: false,
       label: 'NOT APPLIED',
       createdAt: document.createdAt,
+      proposalDigest: row.proposal_hash,
+      configuration: document.configuration,
+      summary: document.summary,
+      authorKind: 'agent',
+      parentProposalId: null,
     },
   };
 }

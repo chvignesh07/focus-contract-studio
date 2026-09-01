@@ -78,7 +78,13 @@ test('repository package identity and current execution state are explicit', () 
   });
   assert.equal(state.packages?.package4?.authorization, 'AUTHORIZED');
   assert.match(state.packages?.package4?.overall_result ?? '', /^(?:IN_PROGRESS|PASS)$/u);
-  assert.deepEqual(state.packages?.package5, { authorization: 'NOT_AUTHORIZED' });
+  assert.deepEqual(state.packages?.package5, {
+    authorization: 'AUTHORIZED',
+    overall_result: 'PASS',
+    local_result: 'PASS',
+    hosted_status: 'NOT_RUN',
+    exact_commit_clone: 'TERMINAL_POST_COMMIT',
+  });
 });
 
 test('Package 0 summaries are INCONCLUSIVE while unexecuted hosted rows remain NOT_RUN', () => {
