@@ -5,7 +5,7 @@
   "command": "npm run verify:package5:core",
   "source": {
     "file_count": 61,
-    "aggregate_sha256": "ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c"
+    "aggregate_sha256": "5ddb4b6d47c7b7097cdae8390a036496dc4d11e4538907c7fcb7b41d13d7fe15"
   },
   "checks": {
     "inherited_package4": "PASS",

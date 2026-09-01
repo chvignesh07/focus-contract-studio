@@ -1,4 +1,4 @@
-<!-- package5-source-binding file_count=61 sha256=ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c -->
+<!-- package5-source-binding file_count=61 sha256=5ddb4b6d47c7b7097cdae8390a036496dc4d11e4538907c7fcb7b41d13d7fe15 -->
 # Package 5 Verification
 
 Status: **LOCAL PACKAGE 5 PASS; EXTERNAL NOT RUN**
@@ -13,6 +13,7 @@ Status: **LOCAL PACKAGE 5 PASS; EXTERNAL NOT RUN**
 | Eight-class bounded history, including rehearsal/reset/failure | `PASS` |
 | DOM review branches, confirmation focus/live status, and receipt recovery | `PASS` |
 | Built browser desktop/320/375/true 200% page zoom | `PASS` |
+| Post-close focus return, including one explicit animation-frame boundary | `PASS`; `40/40` journeys, zero retries |
 | Reload after proposal/projection/undo/reset | `PASS` |
 | Axe, native dialog, keyboard, focused-control visibility, reduced motion | `PASS` |
 | Safety-core frozen coverage thresholds | `PASS` at 100/100/100 |

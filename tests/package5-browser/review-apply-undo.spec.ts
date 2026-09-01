@@ -86,6 +86,9 @@ async function completePackage5Journey(page: Page, profileName: string, zoom: nu
   await expect(page.locator('#delete-button')).toBeInViewport();
   await page.keyboard.press('Escape');
   await expect(openingDialog).toBeHidden();
+  await expect(page.locator('#delete-trigger')).toBeFocused();
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+  await expect(page.locator('#delete-trigger')).toBeFocused();
   await expect(page.getByRole('status')).toContainText('Browser report recorded');
 
   await activateByKeyboard(page.getByRole('button', { name: 'Create Cancel proposal' }));

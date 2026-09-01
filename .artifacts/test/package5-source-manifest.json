@@ -5,7 +5,7 @@
   "inventory": "EXACT_PACKAGE5_IMPLEMENTATION_AND_GATE_SOURCE",
   "normalization": "TASK_CHECKBOX_MARKERS_UNCHECKED_ONLY",
   "file_count": 61,
-  "aggregate_sha256": "ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c",
+  "aggregate_sha256": "5ddb4b6d47c7b7097cdae8390a036496dc4d11e4538907c7fcb7b41d13d7fe15",
   "files": [
     {
       "path": "app/api/focus-history/route.ts",
@@ -214,8 +214,8 @@
     },
     {
       "path": "tests/package5-browser/review-apply-undo.spec.ts",
-      "bytes": 11581,
-      "sha256": "2047bfac1f5d5718b8a52b9329e51ce8ed273e429f6f19dc74d84d172e1b71c4"
+      "bytes": 11808,
+      "sha256": "64f94361c90fb61dc133f5a470a24630816e8cc211a51ca0cde4b7f603f5143e"
     },
     {
       "path": "tests/package5-dom/focus-contract-studio.test.tsx",

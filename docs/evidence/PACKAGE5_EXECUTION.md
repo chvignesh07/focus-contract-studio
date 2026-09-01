@@ -1,7 +1,7 @@
-<!-- package5-source-binding file_count=61 sha256=ff0ac86d8b2c3b092ffcbf331b7513e4cb9ae981205769d82a3b01702b01480c -->
+<!-- package5-source-binding file_count=61 sha256=5ddb4b6d47c7b7097cdae8390a036496dc4d11e4538907c7fcb7b41d13d7fe15 -->
 # Package 5 Execution Evidence
 
-Status date: **2026-08-31 EDT**
+Status date: **2026-09-01 EDT**
 
 Foundational red proof: `PASS`
 
@@ -12,6 +12,7 @@ Foundational red proof: `PASS`
 - The first projection journey exposed stale visible history after verification; verification now refreshes the bounded read model.
 - Initial adversarial review exposed unsupported evidence on reviewer children/novel proposals, missing history classes, non-production coverage evidence, incomplete reload/focus proof, and device-scale rather than 200% page zoom. Each finding was reproduced, fixed at the shared boundary, and retained as regression coverage.
 - The first corrected full core gate exposed a double focus-restoration race after the native dialog closed. A trace showed two observation requests: `closeDialog` and `onClose` each queued return focus. `onClose` is now the single owner; the 200% journey passed three repeated focused runs before the full matrix passed.
+- Two later exact-clone Package 6 gates exposed a remaining Package 5 test race: the browser returned focus immediately, but the intentional next-animation-frame restoration could still steal focus from the next action. An immediate `#delete-trigger` assertion alone produced `39/40`; retaining that assertion, crossing exactly one animation frame inline, and asserting the trigger again produced `40/40` with zero retries and no production change.
 
 Focused green evidence:
 
@@ -21,6 +22,7 @@ Focused green evidence:
 | Package 5 real D1 | `24/24` across 7 files |
 | Package 5 DOM | `6/6` |
 | Package 5 built browser | `4/4` desktop, 320 px, 375 px, true 200% page zoom |
+| Package 5 focus-return stress | `40/40` across the four profiles with `--repeat-each=10` and zero retries |
 | Safety-core coverage | `100% lines / 100% branches / 100% functions` |
 | Server-operation production-source coverage | `100% lines / 100% branches / 100% functions`; thresholds `90/85/90` |
 | Coverage threshold negative control | `PASS`: planted incomplete fixture is rejected |
