@@ -114,6 +114,7 @@ export async function applyProposal(input: {
   cookieHeader: string | null;
   now: number;
   sessionSecret: string;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: unknown;
 }): Promise<ApplyProposalResult> {
   const parsed = applyRequestSchema.safeParse(input.input);
@@ -135,6 +136,7 @@ export async function applyProposal(input: {
     requestHash,
   });
   if (replay) return replay;
+  await input.admitOperation?.(session.workspace.id);
   const candidate = await input.db.prepare(
     `SELECT p.id, p.variant_id, p.base_implemented_revision, p.proposal_hash,
             p.status, v.active_implemented_revision
@@ -589,6 +591,7 @@ export async function undoRevision(input: {
   cookieHeader: string | null;
   now: number;
   sessionSecret: string;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: unknown;
 }): Promise<UndoRevisionResult> {
   const parsed = undoRequestSchema.safeParse(input.input);
@@ -608,6 +611,7 @@ export async function undoRevision(input: {
     key: request.idempotencyKey, requestHash,
   });
   if (replay) return replay;
+  await input.admitOperation?.(session.workspace.id);
   const active = await input.db.prepare(
     `SELECT v.id, v.active_implemented_revision
        FROM workspace_view_state s JOIN component_variants v

@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { reviewProposal } from '../../../../../lib/server/package5-review.ts';
+import { workspaceAdmission } from '../../../../../lib/server/admission.ts';
 import { errorResponse, jsonNoStore, methodNotAllowed } from '../../../../../lib/server/http.ts';
 import { readStrictJsonMutation } from '../../../../../lib/server/request-security.ts';
 import { runtimeSecurityConfig } from '../../../../../lib/server/runtime-config.ts';
@@ -33,6 +34,12 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       proposalId: (await context.params).proposalId,
       now,
       sessionSecret: configuration.sessionSecret,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'review',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       input: body,
     });
     return jsonNoStore(result, 201);

@@ -9,6 +9,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "WRANGLER_SEND_METRICS=false WRANGLER_WRITE_LOGS=false WRANGLER_LOG_PATH=.wrangler/logs MINIFLARE_REGISTRY_PATH=.wrangler/registry wrangler dev --config dist/server/wrangler.json",
+    "setup:browsers": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright install --with-deps chromium",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit",
     "test:package0:authority": "node --experimental-strip-types --test tests/package0/authority-import.test.ts",
@@ -46,7 +47,7 @@
     "test:package5:node": "npm run test:package5:node:core && node --experimental-strip-types --test tests/package5-node/source-evidence.test.ts",
     "test:package5:d1": "vitest run --config vitest.package5.config.ts",
     "test:package5:dom": "vitest run --config vitest.package5-dom.config.ts",
-    "test:package5:browser:built": "FCS_PLAYWRIGHT_PACKAGE=5 playwright test",
+    "test:package5:browser:built": "FCS_PLAYWRIGHT_PACKAGE=5 PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --config playwright.config.ts",
     "test:package5:browser": "npm run build && npm run test:package5:browser:built",
     "test:package5:coverage:safety-core": "node --experimental-strip-types --experimental-test-coverage --test-coverage-branches=100 --test-coverage-lines=95 --test-coverage-functions=95 --test-coverage-include=lib/domain/focus-configuration.ts --test-coverage-include=lib/domain/package5.ts --test tests/package5-node/package5-domain.test.ts",
     "test:package5:coverage:server-operations": "node --experimental-strip-types --experimental-test-coverage --test-coverage-branches=85 --test-coverage-lines=90 --test-coverage-functions=90 --test-coverage-include=lib/server/package5-operation-policy.ts --test tests/package5-node/package5-operation-policy.test.ts",
@@ -95,12 +96,27 @@
     ,"test:package7:browser:built": "FCS_PLAYWRIGHT_PACKAGE=7 PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --config playwright.config.ts"
     ,"test:package7:browser": "npm run build && npm run test:package7:browser:built"
     ,"test:package7": "npm run test:package7:node:core && npm run test:package7:d1 && npm run test:package7:dom"
+    ,"test:package8:node:core": "node --experimental-strip-types --test tests/package8-node/admission-wiring.test.ts tests/package8-node/browser-setup.test.ts tests/package8-node/package8-scripts.test.ts tests/package8-node/security-headers.test.ts"
+    ,"test:package8:node": "npm run test:package8:node:core && node --experimental-strip-types --test tests/package8-node/source-evidence.test.ts"
+    ,"test:package8:d1": "vitest run --config vitest.package8.config.ts tests/package8/admission.test.ts"
+    ,"test:package8:seed": "vitest run --config vitest.package8.config.ts tests/package1/seed-reset.test.ts"
+    ,"test:package8:memory": "vitest run --config vitest.package8.config.ts tests/package2/proposal-create.test.ts tests/package2/memory-counterfactual.test.ts"
+    ,"test:package8:browser:built": "FCS_PLAYWRIGHT_PACKAGE=8 PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --config playwright.config.ts"
     ,"verify:package7:source-binding": "node scripts/package7-source-manifest.mjs"
     ,"verify:package7:evidence-binding": "node scripts/package7-evidence-binding.mjs"
     ,"audit:package7:offline": "npm audit --offline --omit=dev && npm audit --offline --audit-level=high"
     ,"verify:package7:core": "node scripts/package7-verify-package6-frozen.mjs && npm run typecheck && npm run lint && npm run test:package2:node:functional-regression && npm run test:package5:node:core && npm run test:package5:d1 && npm run test:package6:node:core && npm run test:package6:d1 && npm run test:package6:dom && npm run test:package7 && npm run build && npm run test:package6:browser:built && npm run test:package7:browser:built && npm run audit:package7:offline"
     ,"record:package7:local-gate": "npm run verify:package7:core && node scripts/package7-source-manifest.mjs --write && node scripts/package7-local-gate.mjs --write"
     ,"verify:package7": "npm run verify:package7:core && node --experimental-strip-types --test tests/package7-node/source-evidence.test.ts && npm run verify:package7:source-binding && npm run verify:package7:evidence-binding"
+    ,"verify:package8:clean-d1": "node scripts/package8-clean-d1.mjs"
+    ,"verify:package8:benchmark": "node scripts/package4-development-benchmark.mjs --output .artifacts/retrieval/rrf-dev-report.json"
+    ,"verify:package8:release": "node scripts/package8-release-checks.mjs"
+    ,"verify:package8:source-binding": "node scripts/package8-source-manifest.mjs"
+    ,"verify:package8:evidence-binding": "node scripts/package8-evidence-binding.mjs"
+    ,"verify:package8:core": "node scripts/package8-verify-package7-frozen.mjs && npm run typecheck && npm run lint && npm run test:package8:node:core && npm run test:package8:d1 && npm run test:package8:seed && npm run test:package8:memory && npm run verify:package8:clean-d1 && npm run verify:package8:benchmark && npm run build && npm run test:package8:browser:built && npm run audit:package7:offline && npm run verify:package8:release"
+    ,"record:package8:local-gate": "npm run verify:package8:core && node scripts/package8-source-manifest.mjs --write && node scripts/package8-local-gate.mjs --write"
+    ,"verify:package8": "npm run verify:package8:core && node --experimental-strip-types --test tests/package8-node/source-evidence.test.ts && npm run verify:package8:source-binding && npm run verify:package8:evidence-binding"
+    ,"verify": "npm run verify:package8"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

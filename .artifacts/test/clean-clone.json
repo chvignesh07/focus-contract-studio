@@ -1,0 +1,14 @@
+{
+  "schema_version": "fcs-package8-clean-clone-v1",
+  "evidence_id": "E-015",
+  "package": 8,
+  "status": "TERMINAL_POST_COMMIT",
+  "source_commit": null,
+  "command": "git clone --no-local --single-branch <repository> <disposable-directory>",
+  "locked_install": "TERMINAL_POST_COMMIT",
+  "browser_setup": "TERMINAL_POST_COMMIT",
+  "canonical_verify": "TERMINAL_POST_COMMIT",
+  "production_build": "TERMINAL_POST_COMMIT",
+  "cleanup": "TERMINAL_POST_COMMIT",
+  "external_status": "NOT_RUN"
+}

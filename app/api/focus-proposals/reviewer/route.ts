@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { createReviewerProposal } from '../../../../lib/server/package5-review';
+import { workspaceAdmission } from '../../../../lib/server/admission';
 import { errorResponse, jsonNoStore, methodNotAllowed } from '../../../../lib/server/http';
 import { readStrictJsonMutation } from '../../../../lib/server/request-security';
 import { runtimeSecurityConfig } from '../../../../lib/server/runtime-config';
@@ -30,6 +31,12 @@ export async function POST(request: Request): Promise<Response> {
       cookieHeader: request.headers.get('cookie'),
       now,
       sessionSecret: configuration.sessionSecret,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'proposal',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       input: body,
     }), 201);
   } catch (error) {

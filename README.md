@@ -1,89 +1,100 @@
 # Focus Contract Studio
 
-Focus Contract Studio is a WebMCP-native accessibility review product. Package 0 established repository custody and local platform probes; its mandatory hosted supported-client observation remains unresolved. On 2026-08-30, the founder authorized public source publication and local Package 1/2 implementation while keeping that hosted row as an explicit release blocker. This decision does not relabel Package 0 as passed and does not authorize Sites deployment or hosted mutation.
+Focus Contract Studio turns an accessibility focus review into a governed, reversible change. Retrieval may support a proposal; it can never approve or authorize one. The user reviews the exact diff in the visible page, applies it through guarded D1 state transitions, rehearses the result in the browser, verifies six focus behaviors, and can undo it.
 
-## Package 0 stack
+Package 8 is complete only as a **local pre-live candidate**. Package 0 remains **INCONCLUSIVE** overall because its mandatory hosted supported-ChatGPT observation is still `NOT_RUN`. This repository does not claim a deployed Site, public URL, supported-client compatibility, Chrome trace, holdout result, founder-manual accessibility result, publication, or Devpost submission.
 
-The untouched base was generated with `@openai/create-sites@0.2.0` using the `d1` and `auth` add-ons and npm. That exact 17-file scaffold is preserved in the first commit. The working tree uses Node.js 22+, Vinext, Next.js 16, React 19, Vite 8, the OpenAI Sites Vite plugin, Cloudflare's Vite plugin, Wrangler, D1, and Drizzle. Runtime and local Cloudflare tooling were subsequently patched with exact compatible pins; exact resolved versions are locked in `package-lock.json`, and both original and verified stack facts are recorded in `docs/evidence/BOOTSTRAP_PROBES.md`.
+## 60-second judge path
 
-The optional generated auth helper is not product authority. Focus Contract Studio remains anonymous unless the required hosted header anti-spoofing and repeat-sign-in byte-stability probes pass.
+1. Read the current Delete-versus-Cancel focus mismatch and its cited synthetic precedent.
+2. Create a proposal. The preview remains visibly `NOT APPLIED`.
+3. Open the review panel and choose an explicit UI decision.
+4. Apply the approved exact diff. The model-facing create tool cannot approve or apply it.
+5. Run the dialog rehearsal and verification; inspect the six behavior results.
+6. Undo to the prior revision or reset the isolated anonymous demo.
 
-## Local setup
+The human workflow remains complete when WebMCP is unavailable.
 
-Requirements: Node.js 22.13 or newer and npm.
+## Supported local setup
+
+Requirements: exact Node.js `22.22.3`, npm `10.9.8`, Git, and the platform prerequisites installed by Playwright.
 
 ```sh
 npm ci
-npm run verify:package0
-npm run verify:package1
-npm run verify:package2
-npm run dev
+npm run setup:browsers
+npm run verify
 ```
 
-`verify:package0` runs typecheck, lint, authority/seal validation, WebMCP lifecycle and cancellation tests, direct fresh-D1 probes, the Cloudflare Workers Vitest compatibility probe with remote bindings disabled, a production build, and dependency audits that reject any runtime finding or any critical/high complete-graph finding. A separate minimal HTTP request is recorded in the bootstrap evidence because it requires a running local Worker.
+`setup:browsers` installs the pinned Chromium build into the ignored project-local `.playwright-browsers/` directory. The canonical `verify` command checks the frozen Package 7 commit, typecheck, lint, Package 8 Node/D1/seed tests, a clean numbered-migration database, the deterministic development benchmark, production build, the real built-Worker browser journey, accessibility automation, offline dependency audit, dependency/license inventory, secret and reachable-history scans, bundle scan, local links, pinned CI, release inputs, source binding, and evidence binding.
 
-The Package 0 gate also scans the tracked tree and every reachable Git commit for machine-specific home and temporary-directory prefixes. Publishable evidence uses stable placeholders, so public source history does not disclose the development machine's local filesystem layout.
+Useful narrow commands:
 
-## Package 1 local data plane
+```sh
+npm run verify:package8:clean-d1
+npm run test:package8:seed
+npm run verify:package8:benchmark
+npm run test:package8:browser
+npm run verify:package8:release
+npm run build
+```
 
-Package 1 adds the complete additive Revision 2 D1 schema and a fail-closed anonymous workspace boundary. A signed `__Host-fcs_session` cookie carries a random 256-bit bearer token; D1 stores only domain-separated digests. Reload resolves the same server-owned workspace, while reset rotates the token and creates one isolated deterministic generation with recoverable idempotency. The seed contains exactly two Delete Account variants, implemented revision 1 focusing Delete, and synthetic precedent D001 recommending Cancel. D1 triggers enforce append-only evidence rows, monotonic revision/view pointers, and the proposal, observation, and idempotency transition vocabularies.
+For local interactive development, provide `FCS_PUBLIC_ORIGIN` plus distinct project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` values. Each secret is the unpadded base64url encoding of exactly 32 random bytes. Never commit these values. Then run `npm run dev`.
 
-The session routes require project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` secrets plus `FCS_PUBLIC_ORIGIN`; values must never be committed. Each HMAC value must be a distinct canonical unpadded base64url encoding of exactly 32 random bytes. Missing, short, padded, malformed, or reused values fail closed. New workspace creation and new reset mutations each pass an atomic server-global D1 fuse capped at 32 admissions per 60-second window. Reload and lost-response reset replay do not consume new-mutation capacity. This caller-independent fuse bounds anonymous storage pressure without pretending that Origin or an identity header authenticates an operator; its deployment thresholds remain provisional until the separately gated hosted load tests run.
+## Architecture and trust boundaries
 
-`npm run verify:package1` runs the unchanged Package 0 gate plus Package 1 migration/upgrade, `STRICT` constraint, foreign-key, state-machine, query-plan, streaming body-limit, admission-concurrency, cookie, CSRF/origin, route, two-session isolation, reset/replay, bounded cleanup, privacy, typecheck, lint, production-build, and dependency-security checks. All Worker/D1 tests run with remote bindings disabled. The proposal/retrieval cycle follows D1's documented transaction requirement by placing `PRAGMA defer_foreign_keys = on` inside the atomic batch. Package 1 local success does not resolve Package 0's hosted supported-client row and does not prove a deployed Site.
+| Layer | Responsibility | Cannot authorize |
+|---|---|---|
+| React/Vinext page | Visible review, approval controls, rehearsal, history, undo/reset, privacy disclosure | Model text alone |
+| WebMCP adapter | Exactly four narrow imperative tools using the same application operations as the UI | Review, rehearsal capture, undo, reset, workspace selection |
+| Server operations | Session/workspace resolution, strict validation, replay recovery, bounded admission | Caller-supplied identity or workspace |
+| D1 | Isolation, guarded atomic batches, constraints/triggers, receipts, append-only evidence | Retrieval relevance by itself |
+| Retrieval/verifier | Deterministic RRF evidence and independent focus-event checks | Approval or mutation permission |
 
-The project-scoped `.npmrc` works around an npm 10.9.8 peer-placement crash for the Cloudflare Vitest pool. The affected Vitest packages remain exact direct dependencies; the lockfile remains authoritative.
+The anonymous bearer stays in a secure host-only cookie; D1 stores only its one-way digest. The workspace ID is server-resolved. Idempotency recovery occurs before admission, so a lost-response replay remains recoverable without permitting a new mutation. Over-limit attempts leave product state unchanged.
 
-The preserved `0.2.0` scaffold originally used `vinext start`, which executes through Node and cannot resolve the native `cloudflare:workers` binding module once a D1 route exists. The verified start command now matches the current Sites template: it runs the built Worker through Wrangler using `dist/server/wrangler.json`.
+## Exact WebMCP surface
 
-Reviewed numbered SQL is the sole migration authority. The weaker Drizzle generator path is fail-closed, its CLI dependency has been removed, and both the runtime and complete locked dependency graphs currently audit at zero known vulnerabilities. The historical Package 0 audit artifact remains preserved as evidence of that earlier candidate rather than being rewritten.
+The page registers exactly:
 
-The temporary hosted D1 probe is fail-closed. Its page checkbox is only a human guard, and caller Origin is only a CSRF layer. Both run and cleanup require a separately supplied operator token whose SHA-256 digest is configured as a hosted secret, verified owner-only access as an external prerequisite, and distinct server-enforced windows capped at 15 minutes. Run and cleanup cannot be enabled together. Cleanup requires the run flag off while owner and operator authorization remain, works from a new browser without a cleanup cookie, and cannot begin until the durable run window plus a five-second drain has elapsed. Atomic gate-plus-schema acquisition rechecks the database clock, preventing both pre-acquisition and post-acquisition delayed runners from recreating schema after zero cleanup. Finalization verifies the exact gate and work-table definitions before removing only the three probe-owned names. Collision, replay, concurrency, lease, forgery, zero-row, cleanup-failure, schema-ownership, and zero-residual protections have local regressions. This is probe safety, not hosted proof.
+- `read_active_focus_review`
+- `create_focus_contract_proposal`
+- `apply_approved_focus_contract`
+- `verify_focus_contract`
 
-## Package 2 local vertical slice
+Create never applies, apply never approves, retrieval never authorizes, and all tool output is bounded. A supported ChatGPT-client run and conditional Chrome trace remain `NOT_RUN`; the local shim/browser tests are not substitutes for those external results.
 
-Package 2 materializes the sealed 36-record RRF fixture, persists the 34 product records and their profiles/lineage, and runs one deterministic active-focus retrieval path. The first viewport shows implemented revision 1 with Delete focused, D001 recommending Cancel, and a visible decision mismatch. A native modal rehearsal captures the live allowlisted DOM manifest and first browser `focusin` without storing typed text. The persisted result is labeled untrusted browser telemetry, is limited to one immutable graph per workspace/variant/revision, converges under replay and concurrency, and cannot authorize any proposal or mutation. The user can then create a durable Cancel proposal whose diff remains visibly `NOT APPLIED` after reload; approval and application are intentionally absent.
+## Security and privacy
 
-Evidence tokens are short-lived HMAC capabilities bound to the private session bearer, server-resolved workspace, variant, implemented revision, canonical context, ordered result packet, and issue second. Create reruns retrieval before staging. One guarded D1 batch persists the query, ranked results, per-field support, proposal, idempotency outcome, and final success audit; database triggers reject unsupported citations, forged mappings, changed-field gaps, JSON/column drift, replay collisions, and duplicate equivalent open proposals.
+Every dynamic response receives a per-request nonce CSP with no wildcard, `unsafe-inline`, or `unsafe-eval`; `X-Content-Type-Options: nosniff`; `Referrer-Policy: no-referrer`; `Origin-Agent-Cluster: ?1`; and a same-origin `tools=(self)` Permissions Policy alongside disabled camera, geolocation, microphone, and payment features. The built-Worker browser tests check the response headers, every script/style nonce, zero CSP violations, origin isolation, exact four-tool registration, and current-source reflow/focus/Axe behavior at 320px, 375px, and true 200% zoom.
 
-The product registers exactly two top-level imperative Site tools: `read_active_focus_review` and `create_focus_contract_proposal`. Neither schema accepts identity, workspace, role, approval, apply, CSRF, session, or arbitrary retrieval input. The ordinary web UI remains complete when Site tools are unavailable. Registration teardown and cancellation are tested, and all outputs are bounded.
+Anonymous access expires after eight hours. Reset rotates the session while preserving its anonymous admission lineage. Request-driven cleanup removes at most ten expired workspaces after a 24-hour grace period; no immediate backup deletion is claimed. Per anonymous workspace lineage/hour the locally enforced limits are 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets. Hosted capacity tuning is still unverified.
 
-`npm run verify:package2` runs every Package 0/1 regression plus the Package 2 Node, real Workerd/D1, DOM, and built-Worker Playwright suites; TypeScript, ESLint, production build, dependency audits, and source/evidence binding are mandatory. Browser checks cover native initial focus, a deliberate autofocus-divergence rejection, the exact tabbable set, configured Tab/Shift+Tab wrap, modal background pointer/keyboard inertness, durable reload, open-dialog and page controls at 320/375 px and 200% layout zoom, reduced motion, and axe serious/critical violations. The browser cache is project-local and ignored; all new direct browser-test dependencies are exact-version pinned.
+Use synthetic demo data only. Do not enter credentials or sensitive, regulated, customer, employee, or production information. The app stores bounded proposals, reviews, revisions, receipts, audits, and allowlisted focus-event evidence; it does not store raw session tokens, typed values, reasons, email/name identity headers, IP addresses, or user agents. The platform may retain its own logs and analytics under its policies. No data-residency or production-security certification is claimed. See [Security and Privacy](docs/quality/SECURITY_AND_PRIVACY.md).
 
-Local Package 2 completion does not resolve Package 0: supported ChatGPT tool execution remains `NOT_RUN`, remote bindings remain disabled, and no saved/deployed Site is claimed.
+## Accessibility
 
-## Authority and safety
+The product uses a visible UI approval path, native/dialog semantics, deterministic focus return, keyboard-operable controls, responsive layouts, reduced-motion handling, and a complete no-WebMCP fallback. Local automation exercises keyboard behavior and rejects serious/critical axe findings on the built Worker. Founder-manual assistive-technology evaluation and any WCAG-conformance claim remain `NOT_RUN`/unmade.
 
-Start with `START_HERE.md`; then read `docs/evidence/EXECUTION_STATE.md` for current package sequencing. Revision 2.0 controls product authority, and the execution-state document does not amend it. Retrieval can support a proposal but can never approve or authorize a mutation. No Clivus source code or private data is included. Hosted writes, deployment, credentials, publication, public pushes, and Devpost actions require explicit founder approval.
+## Benchmark truth
 
-## Public source
+The 36 precedent records and queries are synthetic. RRF development benchmark v2 is sealed and rerun deterministically; its 12/12 development dispositions are not a holdout result and do not establish general superiority. Benchmark v1 remains preserved and labeled invalid. The one-time release holdout is explicitly outside Package 8 and remains `NOT_RUN`.
 
-The source repository is publicly and anonymously cloneable at [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio). GitHub's authoritative license endpoint detects the root license as Apache-2.0. The sanitized initial-publication receipt is `.artifacts/release/public-repository.json`; it proves source custody and anonymous access only, never a Sites save or deployment.
+## CI, evidence, and release boundary
 
-## Evidence
+[The verify workflow](.github/workflows/verify.yml) uses read-only permissions, exact commit-pinned checkout/setup actions, Ubuntu 24.04, Node `22.22.3`, locked installation, explicit project-local browser setup, and the canonical verification command. Cache reuse is disabled as a correctness dependency.
 
-- `docs/evidence/AUTHORITY_VALIDATION.json` — product-repository authority import validation.
-- `docs/evidence/EXECUTION_STATE.md` — current product-local package status and the narrow precedence over historical phase labels; JSON companion is machine-tested.
-- `docs/evidence/BOOTSTRAP_PROBES.md` — truthful Package 0 probe matrix.
-- `docs/evidence/PACKAGE0_SECURITY_HARDENING.md` — red/green evidence for the local D1 boundary repair.
-- `docs/evidence/PACKAGE0_EXTERNAL_RUNBOOK.md` — four separately approved external checkpoints; its JSON companion is machine-tested.
-- `docs/evidence/CLIENT_MATRIX.md` — real-client and conditional-client status.
-- `docs/evidence/PROVENANCE_LEDGER.md` — generated inputs, dependencies, assets, and AI-use provenance.
-- `docs/evidence/PACKAGE0_ADVERSARIAL_REVIEW.md` — bounded Package 0 finding dispositions and external boundary; it is not the reserved release-candidate `E-018` review.
-- `docs/evidence/FOUNDER_EXECUTION_DECISION_2026-08-30.md` — scoped authorization to publish source and implement Packages 1/2 locally while preserving the unresolved hosted release blocker.
-- `.artifacts/release/public-repository.json` — sanitized public visibility, license, anonymous-access, and exact-SHA observations.
-- `docs/evidence/PACKAGE1_VERIFICATION.md` — Package 1 local exit-gate methods, results, and hosted limitations.
-- `.artifacts/test/package1-local-gate.json` — machine-readable local D1/session/isolation result summary.
-- `.artifacts/security/package1-security.json` — anonymous-boundary and privacy control summary.
-- `docs/evidence/PACKAGE2_VERIFICATION.md` — source-bound Package 2 retrieval, proposal, UI, WebMCP, accessibility, and hosted-limit evidence.
-- `.artifacts/test/package2-local-gate.json` — canonical Package 2 local gate summary.
-- `.artifacts/browser/package2-local-journey.json` — built-Worker, disposable-D1 Playwright and axe summary.
-- `.artifacts/security/package2-security.json` — Package 2 proposal/tool boundary, audit, and secret-scan summary.
+[Build inputs](release/BUILD_INPUTS.json) contain only authorized pre-deploy inputs: exact toolchain, commands, lockfile hash, authority revision, and fixture-manifest hash. They deliberately contain no source commit, self-hash, Sites identifiers, deployed URL, video, Devpost, or post-deploy fact. Deployment, tag/push, publication, hosted mutation, and submission follow the separately approval-gated [deployment runbook](docs/delivery/DEPLOYMENT_AND_OPERATIONS.md); none occurred in Package 8.
 
-Stage 1 evidence is intentionally split into structural consistency, live checkout verification, and independently reviewed sanitized Sites receipts. A final binding verifier recomputes receipt hashes and binds the saved lineage to the actual checkout; every local result still states that it does not independently prove hosted facts or Stage 1 completion. The exact future single-owner sequence and commands are in the external runbook.
+Primary local evidence:
 
-Local success is not a claim that the Site is deployed, public, or callable from ChatGPT. Those claims require their named hosted and real-client `PASS` evidence.
+- [Package 8 checkpoint](docs/evidence/PACKAGE8_CHECKPOINT.md)
+- [Package 8 implementation reviews](docs/evidence/PACKAGE8_REVIEWS.md), distinct from unstarted `E-018` Review 1
+- [Execution state](docs/evidence/EXECUTION_STATE.md) and [evidence registry](docs/delivery/EVIDENCE_REGISTRY.md)
+- [Provenance ledger](docs/evidence/PROVENANCE_LEDGER.md), [third-party notices](THIRD_PARTY_NOTICES.md), and deterministic dependency/license inventory
+- Machine-readable local gate, source manifest, clean-D1 result, and security scan summaries under `.artifacts/`
 
-## License
+## Provenance and AI use
 
-Copyright 2026 Vignesh. Focus Contract Studio's original repository content is licensed under the Apache License, Version 2.0; see `LICENSE`. Dependencies, generated third-party material, external documentation, fonts, and trademarks retain their own terms.
+This is a new isolated project. No Clivus source, service, database, corpus, prompt, model, identifier, history, or private data is included. The RRF formula is a clean-room implementation of the cited 2009 method over original synthetic fixtures. Codex/ChatGPT assisted official-source research, implementation, tests, documentation, and review; Claude provided an earlier advisory plan review. The entrant directed and reviewed the work. The Site calls no hidden model API: deterministic application code owns persistence, ranking, authorization, application, and verification.
+
+Original repository content is licensed under Apache License 2.0; see [LICENSE](LICENSE). Dependencies and generated material retain their own terms. [Third-party notices](THIRD_PARTY_NOTICES.md) record every locked package and explicitly surface reviewed LGPL, MPL, CC-BY, and Python-license obligations.

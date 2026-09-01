@@ -205,6 +205,7 @@ export async function createProposal(input: {
   cookieHeader: string | null;
   now: number;
   sessionSecret: string;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: unknown;
 }): Promise<CreateProposalResult> {
   const parsed = createProposalInputSchema.safeParse(input.input);
@@ -236,6 +237,7 @@ export async function createProposal(input: {
     requestHash,
   );
   if (recovered) return recovered;
+  await input.admitOperation?.(resolved.workspace.id);
 
   const issuedAt = parseEvidenceTokenIssuedAt(
     value.evidenceQueryToken,

@@ -98,6 +98,7 @@ export async function startFocusRehearsal(input: {
   workspaceId: string;
   now: number;
   environment: StartRehearsalInput['environment'];
+  admitOperation?: (workspaceId: string) => Promise<void>;
 }): Promise<StartedFocusRehearsal> {
   if (!validServerTime(input.now)) {
     throw rehearsalError('INVALID_REHEARSAL', 'The rehearsal input is invalid.', 400);
@@ -106,6 +107,7 @@ export async function startFocusRehearsal(input: {
   if (!request.success) {
     throw rehearsalError('INVALID_REHEARSAL', 'The rehearsal input is invalid.', 400);
   }
+  await input.admitOperation?.(input.workspaceId);
   const active = await activeRevision(input.db, input.workspaceId);
   if (!active) {
     throw rehearsalError('REHEARSAL_UNAVAILABLE', 'The rehearsal is unavailable.', 409);
@@ -227,6 +229,7 @@ export async function finalizeFocusRehearsal(input: {
   workspaceId: string;
   rehearsalSessionId: string;
   now: number;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: FinalizeRehearsalInput | unknown;
 }): Promise<FinalizedFocusRehearsal> {
   if (!validServerTime(input.now) || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(input.rehearsalSessionId)) {
@@ -265,6 +268,7 @@ export async function finalizeFocusRehearsal(input: {
     }
     throw rehearsalError('REHEARSAL_CONFLICT', 'The rehearsal could not be finalized.', 409);
   }
+  await input.admitOperation?.(input.workspaceId);
   if (input.now > row.expires_at) {
     throw rehearsalError('REHEARSAL_EXPIRED', 'The rehearsal has expired.', 409);
   }

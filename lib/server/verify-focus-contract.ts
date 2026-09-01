@@ -608,6 +608,7 @@ export async function verifyFocusContract(input: {
   rehearsalSessionId: string;
   implementedRevision: number;
   now: number;
+  admitOperation?: (workspaceId: string) => Promise<void>;
 }): Promise<VerificationResult> {
   if (
     !Number.isSafeInteger(input.now) ||
@@ -634,6 +635,7 @@ export async function verifyFocusContract(input: {
     outputHash,
   });
   if (replay) return replay;
+  await input.admitOperation?.(input.workspaceId);
   if (
     loaded.evidence.active_implemented_revision !==
     loaded.verifierInput.implementedRevision

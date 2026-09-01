@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { startRehearsalInputSchema } from '../../../../lib/domain/focus-rehearsal';
+import { workspaceAdmission } from '../../../../lib/server/admission';
 import { FcsError } from '../../../../lib/server/errors';
 import {
   errorResponse,
@@ -40,6 +41,12 @@ export async function POST(request: Request): Promise<Response> {
       workspaceId: session.workspace.id,
       now,
       environment: parsed.data.environment,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'rehearsal',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
     });
     return jsonNoStore({ ok: true, rehearsal }, 201);
   } catch (error) {

@@ -278,6 +278,7 @@ export async function createReviewerProposal(input: {
   cookieHeader: string | null;
   now: number;
   sessionSecret: string;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: unknown;
 }): Promise<CreateReviewerProposalResult> {
   const parsed = reviewerProposalRequestSchema.safeParse(input.input);
@@ -326,6 +327,7 @@ export async function createReviewerProposal(input: {
     if (!recovered) throw new Error('Committed reviewer proposal is unavailable.');
     return reviewerProposalResult(recovered, true);
   }
+  await input.admitOperation?.(session.workspace.id);
   const idempotencyId = crypto.randomUUID();
   const queryId = crypto.randomUUID();
   const proposalId = crypto.randomUUID();
@@ -435,6 +437,7 @@ export async function reviewProposal(input: {
   proposalId: string;
   now: number;
   sessionSecret: string;
+  admitOperation?: (workspaceId: string) => Promise<void>;
   input: unknown;
 }): Promise<ReviewProposalResult> {
   const parsed = reviewRequestSchema.safeParse(input.input);
@@ -475,6 +478,7 @@ export async function reviewProposal(input: {
     input.db, session.workspace.id, input.proposalId, request, requestHash,
   );
   if (recovered) return recovered;
+  await input.admitOperation?.(session.workspace.id);
   const reviewerDigest = await sha256Hex(session.sessionToken);
   if (request.action === 'edit') {
     try {

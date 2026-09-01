@@ -21,15 +21,15 @@ Preserve workspace isolation, exact review/apply integrity, bounded untrusted ev
 | Auth-header spoof/identity merge | Optional feature only after Sites-hosted overwrite/strip probe; exact validated email bytes HMACed, no lowercase/normalization; raw identity transient. | Signed-out forged-header and repeated sign-in probes. |
 | Tool overexposure | Top-level same-origin tools, no `exposedTo`, narrow strict schemas, ≤1.5K result target, exact four-tool inventory. | Real client/Chrome/DevTools audit. |
 | Raw-content capture | Observer accepts only stable IDs/enums; no input values/text/clipboard; bounded events/time. | Sensitive-marker E2E and D1/log scan. |
-| Abuse/storage exhaustion | Body/event/result limits, proposed per-operation limits, workspace TTL/access expiry, request-driven bounded purge. | Deployed load/limit tests before defaults become confirmed. |
-| Secret/license/supply chain | No model key; generated lockfile; exact direct pins; secret/license/vulnerability scans; provenance ledger. | Frozen-commit CI and clean clone. |
+| Abuse/storage exhaustion | Body/event/result limits, locally enforced per-lineage operation limits that survive reset, eight-hour access expiry, 24-hour cleanup grace, request-driven purge capped at 10 rows. | Atomic concurrency/over-limit/replay tests locally; deployed load tuning remains unconfirmed. |
+| Secret/license/supply chain | No model key; generated lockfile; exact direct pins; secret/reachable-history/dependency/license/bundle scans; notices and provenance ledger. | Package 8 local gate and terminal exact-commit clean clone; hosted release remains separate. |
 
 ## Session and workspace design
 
 ### Anonymous baseline
 
 - Cookie name: `__Host-fcs_session`; Secure, HttpOnly, Path=/, no Domain, suitable SameSite after hosted probe.
-- Store only a one-way digest of the 256-bit random bearer token; the raw cookie bytes exist only for the request, key the short-lived evidence-token HMAC, and are never persisted/logged. Rotate on reset/sign-in transition and after the configured age.
+- Store only a one-way digest of the 256-bit random bearer token; the raw cookie bytes exist only for the request, key the short-lived evidence-token HMAC, and are never persisted/logged. Anonymous access expires after eight hours; reset rotates immediately and expiry creates a fresh token/workspace.
 - Session resolves exactly one active workspace generation. Workspace IDs never come from client payload.
 - A fresh signed-out profile receives a new isolated workspace and full hero flow.
 
@@ -66,15 +66,14 @@ Implement the exact guard/finalizer design in `docs/architecture/ARCHITECTURE.md
 
 ## Browser and WebMCP headers
 
-Start from generated Sites headers. Probe before adding:
+Package 8 applies these source-controlled headers through the supported Vinext/Next request proxy:
 
-- CSP compatible with generated bundles and no unsafe dynamic HTML;
-- `X-Content-Type-Options: nosniff`;
-- `Referrer-Policy: no-referrer` or strict same-origin equivalent;
-- frame policy consistent with top-level ChatGPT browser behavior;
-- Chrome `window.originAgentCluster === true`, deployed `Origin-Agent-Cluster`, and `document.featurePolicy.allowsFeature("tools")`.
+- a fresh per-request nonce CSP with `default-src 'self'`, `base-uri 'none'`, `object-src 'none'`, `frame-ancestors 'none'`, same-origin form/connect/font, data-only image addition, and nonce-only script/style execution;
+- `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`;
+- `Origin-Agent-Cluster: ?1`;
+- `Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), tools=(self)`.
 
-Chrome defaults `tools` to self for top-level same-origin contexts, but record the actual deployment. Add `Origin-Agent-Cluster: ?1` or `Permissions-Policy: tools=(self)` only if Sites permits and the probe proves compatibility. `?0` blocks Chrome WebMCP.
+The local built-Worker browser tests observe a distinct valid nonce, nonce propagation to every script/style element, zero CSP violations, `window.originAgentCluster === true`, the exact four tools, and no serious/critical axe finding. They also exercise the current Package 8 source at 320px, 375px, and true 200% zoom for reflow, 44px targets, keyboard focus visibility, native-dialog initial/return focus, and Axe. This is local source/runtime evidence only. Sites header preservation, supported-ChatGPT behavior, and the conditional real Chrome WebMCP trace remain `NOT_RUN`; no deployment compatibility claim is made.
 
 ## Data inventory and retention
 
@@ -89,21 +88,25 @@ Chrome defaults `tools` to self for top-level same-origin contexts, but record t
 | IP/user-agent | Not stored by app | Platform logs may exist under Sites policies. |
 | Sites traffic analytics | Platform-managed | Sites automatically records unique visitors/page views; app adds no SDK. |
 
-Anonymous TTL is **access expiry**, followed by request-driven bounded cleanup: eligible requests purge at most 10 workspaces beyond a documented grace period using explicit whole-workspace cascades. If no requests occur, physical rows may remain until later access/manual cleanup. Do not claim immediate deletion from platform backups.
+Anonymous TTL is **eight-hour access expiry**, followed by request-driven bounded cleanup after a **24-hour grace period**: eligible requests purge at most 10 workspaces using explicit whole-workspace cascades. If no requests occur, physical rows may remain until later access/manual cleanup. Do not claim immediate deletion from platform backups.
 
 The current public Sites documentation reviewed for this release does not state a residency guarantee for deployed code, D1, generated artifacts, or logs. The product therefore makes no residency promise and forbids sensitive/regulated data.
 
-## Proposed limits — not confirmed until hosted load tests
+## Locally enforced limits — hosted tuning not confirmed
 
-Initial candidates:
+Package 8 enforces:
 
 - JSON body 16 KiB; tool result target 1.5K characters;
 - proposal summary 280, rationale 320 stored/120 tool excerpt;
 - 64 observation events/30 seconds/session;
-- 10 proposals, 10 reviews, 6 applies, 12 verifications, 5 resets per workspace/hour;
+- 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets per anonymous workspace lineage/hour; reset preserves that lineage;
 - 36 eligible rows, top-12/ranker, top-3 UI/top-2 tool.
 
-Record deployed p95/error/load evidence before labeling these confirmed. Limit failure must preserve active revision and idempotency recovery.
+These values are confirmed by local atomic D1 tests, including concurrent saturation, zero unauthorized product change, and same-key replay after a full window. Record deployed p95/error/load evidence before presenting the thresholds as production-tuned capacity. Limit failure must preserve active revision and idempotency recovery.
+
+## Logging and redaction
+
+Application code does not persist raw session/CSRF/evidence tokens, identity headers, reasons, typed values, email/name, IP addresses, or user agents. Errors expose bounded public codes and correlation IDs rather than raw inputs. Package 8 scans tracked source, every HEAD-reachable commit, evidence, and the production bundle for credential-shaped material and machine-local paths; independent local Gitleaks directory/history runs are retained as empty finding arrays. Platform logs may still exist under Sites policies, so the page discloses that boundary and makes no platform-retention promise.
 
 ## Disclosure
 

@@ -7,7 +7,7 @@ export type DeclaredQuery = {
 
 export const workspaceQueryInventory = {
   resolveCurrentWorkspace: {
-    sql: `SELECT id, generation, subject_key, csrf_digest, access_expires_at, purged_at
+    sql: `SELECT id, generation, subject_key, admission_subject_key, csrf_digest, access_expires_at, purged_at
             FROM workspaces INDEXED BY idx_workspaces_subject_current
            WHERE subject_kind = ? AND subject_key = ? AND purged_at IS NULL
            LIMIT 1`,
@@ -15,7 +15,7 @@ export const workspaceQueryInventory = {
     expectedIndex: 'idx_workspaces_subject_current',
   },
   resolveWorkspaceHistory: {
-    sql: `SELECT id, generation, subject_key, csrf_digest, access_expires_at, purged_at
+    sql: `SELECT id, generation, subject_key, admission_subject_key, csrf_digest, access_expires_at, purged_at
             FROM workspaces INDEXED BY idx_workspaces_subject_history
            WHERE subject_kind = ? AND subject_key = ?
            ORDER BY purged_at IS NULL DESC, purged_at DESC

@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 import { z } from 'zod';
 
 import { applyProposal } from '../../../../../lib/server/package5-apply-history-undo.ts';
+import { workspaceAdmission } from '../../../../../lib/server/admission.ts';
 import { FcsError } from '../../../../../lib/server/errors.ts';
 import { errorResponse, jsonNoStore, methodNotAllowed } from '../../../../../lib/server/http.ts';
 import { readStrictJsonMutation } from '../../../../../lib/server/request-security.ts';
@@ -41,6 +42,12 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       cookieHeader: request.headers.get('cookie'),
       now,
       sessionSecret: configuration.sessionSecret,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'apply',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       input: { proposalId: (await context.params).proposalId, ...parsed.data },
     });
     return jsonNoStore(result, 201);

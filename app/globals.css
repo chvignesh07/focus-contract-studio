@@ -442,6 +442,26 @@ code {
   font-size: 0.78rem;
 }
 
+.privacy-disclosure { margin-top: 18px; }
+
+.privacy-disclosure ul {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+  padding-left: 22px;
+  color: var(--muted);
+}
+
+.privacy-disclosure a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
 .comparison {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

@@ -1,4 +1,5 @@
 import { sites } from '@openai/sites-vite-plugin';
+import path from 'node:path';
 import tailwindcss from '@tailwindcss/postcss';
 import vinext from 'vinext';
 import { defineConfig } from 'vite';
@@ -11,6 +12,7 @@ const { d1, r2 } = hostingConfig;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
+const proxySourcePath = path.resolve('proxy.ts').split(path.sep).join('/');
 
 const localBindingConfig = {
   main: 'vinext/server/app-router-entry',
@@ -51,6 +53,16 @@ export default defineConfig(async () => {
       : undefined,
     plugins: [
       vinext(),
+      {
+        name: 'fcs:stable-proxy-diagnostic-path',
+        enforce: 'post',
+        transform(code: string, id: string) {
+          if (!id.includes('virtual:vinext-rsc-entry')) return null;
+          const absoluteDiagnostic = `filePath: ${JSON.stringify(proxySourcePath)}`;
+          if (!code.includes(absoluteDiagnostic)) return null;
+          return code.replaceAll(absoluteDiagnostic, 'filePath: "./proxy.ts"');
+        },
+      },
       sites(),
       cloudflare({
         viteEnvironment: { name: 'rsc', childEnvironments: ['ssr'] },

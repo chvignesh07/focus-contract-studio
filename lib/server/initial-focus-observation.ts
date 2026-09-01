@@ -141,6 +141,7 @@ export async function commitInitialFocusObservation(input: {
   workspaceId: string;
   now: number;
   environment: 'browser' | 'playwright';
+  admitOperation?: (workspaceId: string) => Promise<void>;
   firstTargetId: 'dialog-title' | 'reason-input' | 'cancel-button' | 'delete-button';
   clientOffsetMs: number;
   manifest: unknown;
@@ -190,6 +191,7 @@ export async function commitInitialFocusObservation(input: {
     active,
   );
   if (replay) return observationResult(active, replay);
+  await input.admitOperation?.(input.workspaceId);
 
   const sessionId = crypto.randomUUID();
   const manifestId = crypto.randomUUID();

@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 import { z } from 'zod';
 
 import { rehearsalSessionIdSchema } from '../../../lib/domain/focus-rehearsal';
+import { workspaceAdmission } from '../../../lib/server/admission';
 import { FcsError } from '../../../lib/server/errors';
 import {
   errorResponse,
@@ -47,6 +48,12 @@ export async function POST(request: Request): Promise<Response> {
       db: env.DB,
       workspaceId: session.workspace.id,
       now,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'verification',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       ...parsed.data,
     });
     return jsonNoStore({ ok: true, verification }, 201);

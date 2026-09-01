@@ -4,6 +4,7 @@ import {
   finalizeRehearsalInputSchema,
   rehearsalSessionIdSchema,
 } from '../../../../../lib/domain/focus-rehearsal';
+import { workspaceAdmission } from '../../../../../lib/server/admission';
 import { FcsError } from '../../../../../lib/server/errors';
 import {
   errorResponse,
@@ -54,6 +55,12 @@ export async function POST(
       workspaceId: session.workspace.id,
       rehearsalSessionId,
       now,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'rehearsal',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       input: parsed.data,
     });
     return jsonNoStore({ ok: true, rehearsal }, 201);

@@ -5,7 +5,10 @@ import { FcsError } from '../../../../lib/server/errors';
 import { errorResponse, jsonNoStore, methodNotAllowed } from '../../../../lib/server/http';
 import { readStrictJsonMutation } from '../../../../lib/server/request-security';
 import { runtimeSecurityConfig } from '../../../../lib/server/runtime-config';
-import { admitGlobalOperation } from '../../../../lib/server/admission';
+import {
+  admitGlobalOperation,
+  admitWorkspaceOperation,
+} from '../../../../lib/server/admission';
 import {
   cleanupExpiredWorkspaces,
   resetWorkspace,
@@ -52,7 +55,14 @@ export async function POST(request: Request): Promise<Response> {
       now,
       sessionSecret: configuration.sessionSecret,
       csrfSecret: configuration.csrfSecret,
-      admitReset: async () => {
+      admitReset: async (workspaceId) => {
+        await admitWorkspaceOperation({
+          db: env.DB,
+          workspaceId,
+          operation: 'reset',
+          now,
+          secret: configuration.rateLimitSecret,
+        });
         await admitGlobalOperation({
           db: env.DB,
           operation: 'workspace_reset',

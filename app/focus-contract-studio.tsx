@@ -1,5 +1,7 @@
 'use client';
 
+import '../lib/client/zod-jitless';
+
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -1472,6 +1474,54 @@ export function FocusContractStudio() {
             </div>
           </section>
         </div>
+
+        <section
+          aria-labelledby="privacy-disclosure-heading"
+          className="boundary-panel privacy-disclosure"
+        >
+          <p className="stage-number">Privacy · Security · Limits</p>
+          <h2 id="privacy-disclosure-heading">Privacy and public-demo limits</h2>
+          <p>
+            This is a synthetic public demo. No credential is required for the
+            anonymous workflow. Do not enter personal, confidential, regulated, or
+            production data. Optional sign-in is disabled unless a later hosted
+            anti-spoofing probe passes.
+          </p>
+          <ul>
+            <li>
+              The app stores a one-way session digest, focus revisions, proposals,
+              review decisions, receipts, safe audit facts, bounded summaries, and
+              allowlisted rehearsal IDs/events/manifests. It does not store the raw
+              browser token, reason-field text, email, full name, IP address, or user
+              agent.
+            </li>
+            <li>
+              Anonymous access expires after 8 hours. Reset ends access and rotates
+              the token immediately. After a 24-hour grace period, eligible requests
+              delete at most 10 expired workspace graphs; no immediate backup deletion
+              is claimed.
+            </li>
+            <li>
+              Per anonymous workspace lineage/hour limits are 10 proposals, 10
+              reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5
+              resets. Reset preserves that admission lineage. Request bodies,
+              observation events, retrieval results, and WebMCP outputs are bounded.
+            </li>
+            <li>
+              If deployed on ChatGPT Sites, Sites-managed page-view and unique-visitor
+              analytics and platform logs may apply. This app adds no analytics SDK
+              and makes no data-residency or compliance guarantee.
+            </li>
+          </ul>
+          <p>
+            Source, license, and issue contact:{' '}
+            <a href="https://github.com/chvignesh07/focus-contract-studio">
+              github.com/chvignesh07/focus-contract-studio
+            </a>
+            . This demo is not a production-readiness, WCAG-conformance, OpenAI, or
+            Devpost endorsement claim.
+          </p>
+        </section>
 
         <dialog
           aria-describedby="receipt-description"

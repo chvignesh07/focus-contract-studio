@@ -1,0 +1,10 @@
+{
+  "schema_version": "fcs-package8-clean-d1-v1",
+  "package": 8,
+  "status": "PASS",
+  "remote_bindings": false,
+  "migration_directory": "drizzle",
+  "migration_files": 5,
+  "repeated_apply": "PASS",
+  "minimum_schema_objects": 40
+}

@@ -57,7 +57,7 @@ release/
   release/RELEASE_ATTESTATION.json
 ```
 
-Markdown files contain concise, human-readable summaries and raw-artifact hashes. `.artifacts/` contains machine output, traces, screenshots, and reports and is excluded from production bundles. Secrets, raw authenticated headers, raw cookies, IPs, full emails, names, typed values, and private browser/account content are never stored.
+Markdown files contain concise, human-readable summaries and artifact hashes. `.artifacts/` contains machine output, traces, screenshots, and reports and is excluded from production bundles. Secrets, unredacted authenticated headers, browser session bearer values, IPs, full emails, names, typed values, and private browser/account content are never stored.
 
 ## Required evidence
 
@@ -67,19 +67,19 @@ Markdown files contain concise, human-readable summaries and raw-artifact hashes
 | `E-002` | Benchmark seal | `docs/retrieval/fixtures/rrf/SHA256SUMS-v2` | Exact v2 inputs, schemas, evaluator, and calibration are frozen. | File hashes | `PASS` in planning pack |
 | `E-003` | Benchmark calibration | `docs/retrieval/fixtures/rrf/RRF_V2_CALIBRATION.json` | Feasible pre-implementation baselines and predicted v2 gates; not product evidence. | Evaluator/input hashes | `PASS` in planning pack |
 | `E-004` | Bootstrap | `docs/evidence/BOOTSTRAP_PROBES.md` | Generated framework/versions, build, bindings, access, D1, WebMCP, identity, cookie, test harness, and conditional Chrome facts. | Probe commit + Sites probe version | `NOT_RUN` |
-| `E-005` | Build inputs | `release/BUILD_INPUTS.json` | Exact toolchain, commands, lockfile, authority, and fixture inputs committed before deploy. | Contained in `C` | `NOT_RUN` |
-| `E-006` | Unit/contracts | `.artifacts/test/unit.json` | Schemas, hashes, evidence-token vectors/tamper/expiry/boundaries, state machines, rank vectors, verifier rules, UI reducers. | `C` | `NOT_RUN` |
-| `E-007` | D1 integration | `.artifacts/test/d1.json` | Migrations, constraints, isolation, read-no-write, atomic evidence+proposal persistence, guarded writes, zero-row checks, rollback, idempotency, concurrency. | `C` | `NOT_RUN` |
-| `E-008` | Component/UI | `.artifacts/test/component.json` | Visible states, exact review controls, dialog semantics, live announcements. | `C` | `NOT_RUN` |
-| `E-009` | Browser automation | `.artifacts/browser/playwright.json` | Complete anonymous human journey, keyboard, two-profile isolation, reload, stale failure, undo. | `C` + local/owner/public environment | `NOT_RUN` |
-| `E-010` | Accessibility automation | `.artifacts/accessibility/axe.json` | No serious/critical automated violations on every key state. | `C` + browser/version | `NOT_RUN` |
-| `E-011` | Observer/verifier | `.artifacts/test/verifier-independence.json` | Raw event privacy/immutability; six rules; each deliberate divergence fails; dependency boundary. | `C` | `NOT_RUN` |
-| `E-012` | Memory causal proof | `.artifacts/test/memory-counterfactual.json` | Same agent proposal accepted with D001 and rejected without; no application/approval change. | `C` + fixture IDs/digests | `NOT_RUN` |
-| `E-013` | Retrieval development | `.artifacts/retrieval/rrf-dev-report.json` | 12/12 dev dispositions, golden parity, zero forbidden, 100-repeat determinism; no holdout import. | `C` + v2 hashes | `NOT_RUN` |
-| `E-014` | Coverage | `.artifacts/test/coverage-summary.json` | Frozen safety-core/global coverage thresholds. | `C` | `NOT_RUN` |
-| `E-015` | Build/clean clone | `.artifacts/test/clean-clone.json` | Locked install, typecheck, lint, canonical verify, production build from a fresh clone. | `C` + toolchain | `NOT_RUN` |
-| `E-016` | Security/supply chain | `.artifacts/security/release-security.json` | Headers/config, secret/history/dependency/license/bundle scans; no unresolved critical/high. | `C` | `NOT_RUN` |
-| `E-017` | Provenance | `docs/evidence/PROVENANCE_LEDGER.md` | New-project/Clivus boundary, dependency/assets/AI disclosure, license obligations. | `C` | `NOT_RUN` |
+| `E-005` | Build inputs | `release/BUILD_INPUTS.json` | Exact toolchain, commands, lockfile, authority, and fixture inputs committed before deploy. | Contained in `C` | `PASS` local pre-live input; final `C` not assigned |
+| `E-006` | Unit/contracts | `.artifacts/test/unit.json` | Schemas, hashes, evidence-token vectors/tamper/expiry/boundaries, state machines, rank vectors, verifier rules, UI reducers. | `C` | `PASS` frozen local evidence; final `C` identity pending |
+| `E-007` | D1 integration | `.artifacts/test/d1.json` | Migrations, constraints, isolation, read-no-write, atomic evidence+proposal persistence, guarded writes, zero-row checks, rollback, idempotency, concurrency. | `C` | `PASS` frozen local evidence plus Package 8 admission/clean-D1 tests; final `C` identity pending |
+| `E-008` | Component/UI | `.artifacts/test/component.json` | Visible states, exact review controls, dialog semantics, live announcements. | `C` | `PASS` frozen local evidence; final `C` identity pending |
+| `E-009` | Browser automation | `.artifacts/browser/playwright.json` | Complete anonymous human journey, keyboard, two-profile isolation, reload, stale failure, undo. | `C` + local/owner/public environment | `PASS` frozen/local built-Worker evidence; owner/public identity pending |
+| `E-010` | Accessibility automation | `.artifacts/accessibility/axe.json` | No serious/critical automated violations on every key state. | `C` + browser/version | `PASS` frozen/local automation plus Package 8 built-Worker 320/375/true-200%-zoom keyboard/reflow/Axe checks; manual evidence pending |
+| `E-011` | Observer/verifier | `.artifacts/test/verifier-independence.json` | Allowlisted observation-event privacy/immutability; six rules; each deliberate divergence fails; dependency boundary. | `C` | `PASS` frozen local evidence; final `C` identity pending |
+| `E-012` | Memory causal proof | `.artifacts/test/memory-counterfactual.json` | Same agent proposal accepted with D001 and rejected without; no application/approval change. | `C` + fixture IDs/digests | `PASS` local deterministic counterfactual; final `C` identity pending |
+| `E-013` | Retrieval development | `.artifacts/retrieval/rrf-dev-report.json` | 12/12 dev dispositions, golden parity, zero forbidden, 100-repeat determinism; no holdout import. | `C` + v2 hashes | `PASS` local development only; holdout remains `NOT_RUN` |
+| `E-014` | Coverage | `.artifacts/test/coverage-summary.json` | Frozen safety-core/global coverage thresholds. | `C` | `PASS` frozen local coverage gates; final `C` identity pending |
+| `E-015` | Build/clean clone | `.artifacts/test/clean-clone.json` | Locked install, typecheck, lint, canonical verify, production build from a fresh clone. | `C` + toolchain | `TERMINAL_POST_COMMIT` |
+| `E-016` | Security/supply chain | `.artifacts/security/release-security.json` | Headers/config, secret/history/dependency/license/bundle scans; no unresolved critical/high. | `C` | `PASS` local pre-live scans; hosted headers and final `C` identity pending |
+| `E-017` | Provenance | `docs/evidence/PROVENANCE_LEDGER.md` | New-project/Clivus boundary, dependency/assets/AI disclosure, license obligations. | `C` | `PASS` local pre-live ledger/notices; final `C` identity pending |
 | `E-018` | Review 1 | `docs/evidence/ADVERSARIAL_REVIEW_1.md` | Local authority/security/retrieval/UX audit; every finding disposition and retest. | Reviewed commit(s), final `C` candidate | `NOT_RUN` |
 | `E-019` | Deployment mapping | `.artifacts/release/sites-deployment.json` | Sites project/version `V` was built from `C`; owner/public deployment timestamps and `U`. | `C`, `V`, `U` | `NOT_RUN` |
 | `E-020` | Public smoke | `.artifacts/browser/public-journey.json` | Signed-out first run, two-profile isolation, full hero, persistence, recovery, public availability. | `C`, `V`, `U` | `NOT_RUN` |

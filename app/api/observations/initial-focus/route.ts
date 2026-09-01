@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { FcsError } from '../../../../lib/server/errors';
+import { workspaceAdmission } from '../../../../lib/server/admission';
 import {
   errorResponse,
   jsonNoStore,
@@ -46,6 +47,12 @@ export async function POST(request: Request): Promise<Response> {
       workspaceId: session.workspace.id,
       now,
       environment: 'browser',
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'rehearsal',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       ...parsed.data,
     });
     return jsonNoStore({ ok: true, observation }, 201);

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "fcs-build-inputs-v1",
+  "product": "Focus Contract Studio",
+  "release": "webmcp-challenge-2026",
+  "gitTag": "webmcp-challenge-2026",
+  "nodeVersion": "v22.22.3",
+  "packageManager": "npm@10.9.8",
+  "lockfileSha256": "c7170285e3d1277a28a35c7177f0771c782d62471da0b60c1635f021e437e729",
+  "authorityRevision": "2.0",
+  "fixtureManifest": "docs/retrieval/fixtures/rrf/SHA256SUMS-v2",
+  "fixtureManifestSha256": "d671c490ec1c20d88c9c1a35b3ae262a3395ce3624e9bfe0b9394ebddfcef8f7",
+  "verifyCommand": "npm run verify",
+  "buildCommand": "npm run build"
+}

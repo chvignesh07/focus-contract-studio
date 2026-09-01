@@ -63,6 +63,23 @@
       "publication_status": "NOT_RUN",
       "devpost_status": "NOT_RUN",
       "exact_commit_clone": "TERMINAL_POST_COMMIT"
+    },
+    "package8": {
+      "authorization": "AUTHORIZED",
+      "overall_result": "PASS",
+      "local_result": "PASS",
+      "hosted_status": "NOT_RUN",
+      "supported_client_status": "NOT_RUN",
+      "chrome_trace_status": "NOT_RUN",
+      "deploy_status": "NOT_RUN",
+      "holdout_status": "NOT_RUN",
+      "founder_manual_status": "NOT_RUN",
+      "push_status": "NOT_RUN",
+      "merge_status": "NOT_RUN",
+      "publication_status": "NOT_RUN",
+      "devpost_status": "NOT_RUN",
+      "review1_status": "NOT_RUN",
+      "exact_commit_clone": "TERMINAL_POST_COMMIT"
     }
   }
 }

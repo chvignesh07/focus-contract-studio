@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { createProposal } from '../../../lib/server/create-proposal';
+import { workspaceAdmission } from '../../../lib/server/admission';
 import {
   errorResponse,
   jsonNoStore,
@@ -34,6 +35,12 @@ export async function POST(request: Request): Promise<Response> {
       cookieHeader: request.headers.get('cookie'),
       now,
       sessionSecret: configuration.sessionSecret,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'proposal',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
       input: body,
     });
     return jsonNoStore(result, 201);

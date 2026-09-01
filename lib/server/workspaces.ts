@@ -36,6 +36,7 @@ type BootstrapInput = {
 
 type WorkspaceRow = WorkspaceSummary & {
   subject_key: string;
+  admission_subject_key: string | null;
   csrf_digest: string;
   access_expires_at: number;
   purged_at: number | null;
@@ -239,6 +240,7 @@ async function createSeededWorkspace(options: {
   db: D1Database;
   workspaceId: string;
   subjectKey: string;
+  admissionSubjectKey: string;
   csrfDigest: string;
   generation: number;
   now: number;
@@ -250,6 +252,7 @@ async function createSeededWorkspace(options: {
     db,
     workspaceId,
     subjectKey,
+    admissionSubjectKey,
     csrfDigest,
     generation,
     now,
@@ -262,13 +265,14 @@ async function createSeededWorkspace(options: {
     seedInsert(
       db,
       `workspaces (
-         id, subject_kind, subject_key, csrf_digest, generation,
+         id, subject_kind, subject_key, admission_subject_key, csrf_digest, generation,
          created_at, last_access_at, access_expires_at, grace_expires_at
        )`,
-      `?, 'anonymous', ?, ?, ?, ?, ?, ?, ?`,
+      `?, 'anonymous', ?, ?, ?, ?, ?, ?, ?, ?`,
       [
         workspaceId,
         subjectKey,
+        admissionSubjectKey,
         csrfDigest,
         generation,
         now,
@@ -420,6 +424,7 @@ export async function bootstrapWorkspace(
     db: input.db,
     workspaceId,
     subjectKey,
+    admissionSubjectKey: subjectKey,
     csrfDigest,
     generation: 1,
     now: input.now,
@@ -572,7 +577,7 @@ export async function resetWorkspace(input: {
   now: number;
   sessionSecret: string;
   csrfSecret: string;
-  admitReset?: () => Promise<void>;
+  admitReset?: (workspaceId: string) => Promise<void>;
 }): Promise<{
   workspace: WorkspaceSummary;
   csrfToken: string;
@@ -655,7 +660,7 @@ export async function resetWorkspace(input: {
   if (prior.purged_at !== null || prior.access_expires_at < input.now) {
     throw new FcsError('SESSION_EXPIRED', 'The session has expired.', 401);
   }
-  await input.admitReset?.();
+  await input.admitReset?.(prior.id);
   const idempotencyId = await deterministicUuid(
     `fcs-reset-idempotency-v1:${prior.id}:${input.idempotencyKey}`,
   );
@@ -664,6 +669,7 @@ export async function resetWorkspace(input: {
       db: input.db,
       workspaceId: nextWorkspaceId,
       subjectKey: nextSubjectKey,
+      admissionSubjectKey: prior.admission_subject_key ?? prior.subject_key,
       csrfDigest: nextCsrfDigest,
       generation: prior.generation + 1,
       now: input.now,

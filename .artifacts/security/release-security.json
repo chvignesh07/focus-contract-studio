@@ -1,0 +1,35 @@
+{
+  "schema_version": "fcs-package8-release-security-v1",
+  "package": 8,
+  "status": "PASS",
+  "environment": "local-source-built-worker-no-remote-bindings",
+  "checks": {
+    "strict_nonce_csp_runtime": "PASS",
+    "nosniff_referrer_origin_isolation_runtime": "PASS",
+    "webmcp_tools_self_permissions_policy_runtime": "PASS",
+    "shared_workspace_admission_and_replay": "PASS",
+    "session_ttl_rotation_cleanup_and_privacy_disclosure": "PASS",
+    "tracked_source_secret_and_machine_path_scan": "PASS",
+    "head_reachable_history_scan": "PASS",
+    "gitleaks_worktree": "PASS",
+    "gitleaks_history": "PASS",
+    "dependency_license_inventory": "PASS",
+    "production_bundle_scan": "PASS",
+    "local_markdown_links": "PASS",
+    "pinned_read_only_ci": "PASS",
+    "package7_ancestry_and_safe_tracked_paths": "PASS"
+  },
+  "findings": {
+    "critical": 0,
+    "high": 0,
+    "unresolved_license": 0
+  },
+  "dependency_inventory_sha256": "a57087c378084f72a06c66ce9c8fb7c34fb0b87f37763f072284f03c5e761246",
+  "third_party_notices_sha256": "6ce56f058f763d12f5ed75c6943858dd4f9545c1458ba1018b24a7192bdf5693",
+  "external": {
+    "hosted_headers": "NOT_RUN",
+    "supported_client": "NOT_RUN",
+    "chrome_trace": "NOT_RUN",
+    "deployment": "NOT_RUN"
+  }
+}

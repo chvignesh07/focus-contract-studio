@@ -7,7 +7,8 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 // keep application reads typed and mirror every Revision 2 domain table.
 export const workspaces = sqliteTable('workspaces', {
   id: text('id').primaryKey(), subjectKind: text('subject_kind').notNull(),
-  subjectKey: text('subject_key').notNull(), csrfDigest: text('csrf_digest').notNull(),
+  subjectKey: text('subject_key').notNull(), admissionSubjectKey: text('admission_subject_key'),
+  csrfDigest: text('csrf_digest').notNull(),
   generation: integer('generation').notNull(), createdAt: integer('created_at').notNull(),
   lastAccessAt: integer('last_access_at').notNull(), accessExpiresAt: integer('access_expires_at').notNull(),
   graceExpiresAt: integer('grace_expires_at').notNull(), purgedAt: integer('purged_at'),

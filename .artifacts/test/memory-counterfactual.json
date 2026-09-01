@@ -1,0 +1,19 @@
+{
+  "schema_version": "fcs-memory-counterfactual-v1",
+  "evidence_id": "E-012",
+  "package": 8,
+  "status": "PASS",
+  "command": "npm run test:package8:memory",
+  "remote_bindings": false,
+  "tests": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "proposal": "Cancel initial focus with evidence record D001",
+  "with_eligible_D001": "PROPOSAL_CREATED_NOT_APPLIED",
+  "without_eligible_D001": "REJECTED_NO_MUTATION",
+  "approval_change": 0,
+  "application_change": 0,
+  "holdout_status": "NOT_RUN"
+}

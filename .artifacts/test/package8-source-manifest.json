@@ -1,0 +1,275 @@
+{
+  "schema_version": "fcs-package8-source-manifest-v1",
+  "package": 8,
+  "algorithm": "sha256",
+  "inventory": "EXACT_PACKAGE8_IMPLEMENTATION_DOCUMENTATION_AND_GATE_SOURCE",
+  "file_count": 53,
+  "aggregate_sha256": "eb15681ad3dd47427bd3a267d31eb5c24796ffc9d70e4dcd56d3ae5cd9ef3ecc",
+  "files": [
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 885,
+      "sha256": "5729a26d95a5343e981533700cbcbce06dd0a3f24511ae166659a8c27cf76fc6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8907,
+      "sha256": "78bfa2a4bc9aae8ed553446adc132df1c4474edc8e57ff0293d96cc96263dd75"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 95867,
+      "sha256": "6ce56f058f763d12f5ed75c6943858dd4f9545c1458ba1018b24a7192bdf5693"
+    },
+    {
+      "path": "app/api/focus-proposals/[proposalId]/apply/route.ts",
+      "bytes": 2177,
+      "sha256": "32eeb2707b52d538272d2c01dbc19a3f0876ba10eaff02f59e31fc963cf2366b"
+    },
+    {
+      "path": "app/api/focus-proposals/[proposalId]/review/route.ts",
+      "bytes": 1791,
+      "sha256": "27179f0275fb53ea37d0376aa2ec8e3a98caedb0d9db41b87e25b0fcd8629ecc"
+    },
+    {
+      "path": "app/api/focus-proposals/reviewer/route.ts",
+      "bytes": 1605,
+      "sha256": "7bbc6013708980345f4a45aa09cc7d1c2dd75258ddf03536a7dbc2d23bbcf1b7"
+    },
+    {
+      "path": "app/api/focus-proposals/route.ts",
+      "bytes": 1605,
+      "sha256": "750a6ceeb8fc6b4dfe071135a95079a73bbd006c104f3f05e0d26c750c8d40ec"
+    },
+    {
+      "path": "app/api/focus-revisions/[revision]/undo/route.ts",
+      "bytes": 2362,
+      "sha256": "20216519cca02648509f0be70eace72896be72fa4ddd1eff4d2d73960ea001f6"
+    },
+    {
+      "path": "app/api/observations/initial-focus/route.ts",
+      "bytes": 1985,
+      "sha256": "68d774fc786be7fb4293ab3da719d82a9a4c7c2c62f8f0a19292171b38fbb7b8"
+    },
+    {
+      "path": "app/api/rehearsals/[rehearsalSessionId]/finalize/route.ts",
+      "bytes": 2342,
+      "sha256": "5cf9bcc2c99e94aa3c3e758dcf684b44dd3740cfe13f63d3b539ee834ac5ccf9"
+    },
+    {
+      "path": "app/api/rehearsals/start/route.ts",
+      "bytes": 1933,
+      "sha256": "9ab4c9859b9f7d42c6922531fcaca0a4c64a29591daf621540c5f29825590ac3"
+    },
+    {
+      "path": "app/api/session/reset/route.ts",
+      "bytes": 2670,
+      "sha256": "d3429be3ebccf9e95f66267a467011bdfd36bdbdac493d42603fd54427853511"
+    },
+    {
+      "path": "app/api/verifications/route.ts",
+      "bytes": 2068,
+      "sha256": "8e31a36d8c1502d9e9f5f4bd96fb0e8565be5351a17d5b3a0c71dbdbe04ade9b"
+    },
+    {
+      "path": "app/focus-contract-studio.tsx",
+      "bytes": 68237,
+      "sha256": "6b63ffee708d363a5e8dd85f339cbf5a1750096c340278fbba1cbd9d9bd36e5a"
+    },
+    {
+      "path": "app/globals.css",
+      "bytes": 21147,
+      "sha256": "151687fae111c5e55eb2b021c853776a0768fa1cfaaad553a04b831db50cf668"
+    },
+    {
+      "path": "docs/delivery/EVIDENCE_REGISTRY.md",
+      "bytes": 12778,
+      "sha256": "68726a8f7e7bac3a799ddbf58a9c898949a567c8281496f5d1a60fae08783ffa"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.json",
+      "bytes": 2558,
+      "sha256": "a6511ce91238e3d2818d787d182b445eb907b2aa70212ac916f0e9d3ccb9f287"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.md",
+      "bytes": 4001,
+      "sha256": "bac4a3037aa8f379dd3490bc857ec86abace0be8d0cebf41353b04a2934a935d"
+    },
+    {
+      "path": "docs/evidence/PROVENANCE_LEDGER.md",
+      "bytes": 5122,
+      "sha256": "b6b0300f171338ee5dbc7bb182471a2d4f35741ab34165b29465b92f77cd2c91"
+    },
+    {
+      "path": "docs/quality/SECURITY_AND_PRIVACY.md",
+      "bytes": 10629,
+      "sha256": "be8b855a88565570c1446bc89209a1e76d8d6034d64e2d28552c448ce5cfd679"
+    },
+    {
+      "path": "db/schema.ts",
+      "bytes": 12825,
+      "sha256": "53616327bce60a9359c3bf31937952be577bca48956244e5784e922ea5a67a18"
+    },
+    {
+      "path": "drizzle/0005_package8_admission_lineage.sql",
+      "bytes": 647,
+      "sha256": "58fcb6ccdb158c5538b4b26dc6115ef43aef6ee72194683ccfb860476ffd302e"
+    },
+    {
+      "path": "lib/client/zod-jitless.ts",
+      "bytes": 58,
+      "sha256": "8d1d9a38e86a8b4f0e2914b01ed3cbfedae4c5337e3a48c6ad42f93d1b67e77b"
+    },
+    {
+      "path": "lib/server/admission.ts",
+      "bytes": 5131,
+      "sha256": "765f1e91af5a91a34825f1a68a5c721249c044678bc405d6443006c08a47ade6"
+    },
+    {
+      "path": "lib/server/create-proposal.ts",
+      "bytes": 18690,
+      "sha256": "0fedb54ac5ac57b6d70876f84a8d1ae7e7b4934801af47fe6f2fc632dfe10ffe"
+    },
+    {
+      "path": "lib/server/focus-rehearsal.ts",
+      "bytes": 12924,
+      "sha256": "f3aaf9eb2af0a8ccf28d1dea2204b28a5507edfffc4cd09ed9a2405851499a92"
+    },
+    {
+      "path": "lib/server/initial-focus-observation.ts",
+      "bytes": 9936,
+      "sha256": "358a0a937f32c5bee609aef05c9f28899ca29f21d88c1d4af030a17a4d938a8c"
+    },
+    {
+      "path": "lib/server/query-inventory.ts",
+      "bytes": 2762,
+      "sha256": "e90105889272804b048237dd1a56abbf9a4c72e5744697c683d352c6a1539828"
+    },
+    {
+      "path": "lib/server/package5-apply-history-undo.ts",
+      "bytes": 30402,
+      "sha256": "fd934e1d4fa9740fab89f7a7fa0cfb11dcedab4b93ff5fba9013b6a4ce9505b8"
+    },
+    {
+      "path": "lib/server/package5-review.ts",
+      "bytes": 25967,
+      "sha256": "f872afa5ebd2cb10493700cd02639fed7b63dac2b4d328676c92947551c8686a"
+    },
+    {
+      "path": "lib/server/security-headers.ts",
+      "bytes": 1071,
+      "sha256": "6138c6917be18f66ea727efc03c49a0572b803a35d78991d7830b7bd8e72fad9"
+    },
+    {
+      "path": "lib/server/verify-focus-contract.ts",
+      "bytes": 29705,
+      "sha256": "018634c0d0593a8c713f7c760087caeaa8ebaf4cc1f14252e133dc9e64fdbb44"
+    },
+    {
+      "path": "lib/server/workspaces.ts",
+      "bytes": 23678,
+      "sha256": "232fbdf719d5cb0abe1bebe657be97730e82186cc998f56c96bd5f8c6db05e34"
+    },
+    {
+      "path": "package.json",
+      "bytes": 18266,
+      "sha256": "3ed47448ecd235f6028b728e477c872becb3593559b0c0e80ee888633d4cd9a2"
+    },
+    {
+      "path": "playwright.config.ts",
+      "bytes": 3909,
+      "sha256": "f1a9830a642d28fe1b60e9f3c186ea983177e7d6e6af3cb068958e1ad2b66ab6"
+    },
+    {
+      "path": "proxy.ts",
+      "bytes": 757,
+      "sha256": "4e7456b93162cdc06939cc700ce0a7f67b4916e1946c356e550e6e25783b5ab4"
+    },
+    {
+      "path": "release/BUILD_INPUTS.json",
+      "bytes": 572,
+      "sha256": "758552e8958cc8d4d92b8ccd24e05b2efa362744ef3bef830d40d2160383a6e9"
+    },
+    {
+      "path": "scripts/package8-clean-d1.mjs",
+      "bytes": 3130,
+      "sha256": "0fd7264377babff4944180d4a63dfce0852ef2ac4dd53df6dd3897a8eac4756f"
+    },
+    {
+      "path": "scripts/package8-evidence-binding.mjs",
+      "bytes": 10358,
+      "sha256": "5ba84ec9f0d959df617098161ef10506e5a775086ed41a27fed8af4e62048c37"
+    },
+    {
+      "path": "scripts/package8-local-gate.mjs",
+      "bytes": 2720,
+      "sha256": "7ecef43ea66ff5311e38004e81b891a0953c3a9fc7e2e66a7d3317218dada358"
+    },
+    {
+      "path": "scripts/package8-release-checks.mjs",
+      "bytes": 19359,
+      "sha256": "190716d0d1bd03ff1090bd5b3d9fb5641d6282c33b7715bbbe7a72da920971d7"
+    },
+    {
+      "path": "scripts/package8-source-manifest.mjs",
+      "bytes": 4782,
+      "sha256": "859551bf87461281724c2db65c08b36ebc8b1ae14edf21300ed0784d4b1968dd"
+    },
+    {
+      "path": "scripts/package8-verify-package7-frozen.mjs",
+      "bytes": 2738,
+      "sha256": "cb84a956ce1ac9f72ca69f8bbf81408b618f3567df239d82287015609a5dc7d8"
+    },
+    {
+      "path": "tests/package8-browser/security-runtime.spec.ts",
+      "bytes": 8164,
+      "sha256": "e7b56f0a2b8cb9df3b479bd0c44569ada9d6aac5fda18f46b1d0cfdcc8b94689"
+    },
+    {
+      "path": "tests/package8-node/admission-wiring.test.ts",
+      "bytes": 1299,
+      "sha256": "b4d6c05dcfd9a6a94db1d24aba1da32a623248cd9183d1db015218ca03b049e0"
+    },
+    {
+      "path": "tests/package8-node/browser-setup.test.ts",
+      "bytes": 1094,
+      "sha256": "578ff055c79057bd386cff1e8797d16d5f2a52456e853cf5700d0fb9d87e66e8"
+    },
+    {
+      "path": "tests/package8-node/package8-scripts.test.ts",
+      "bytes": 4829,
+      "sha256": "0193d4b9848d307a622dfc61e328237339f5cdbb201a96d2da39a82911692b8f"
+    },
+    {
+      "path": "tests/package8-node/security-headers.test.ts",
+      "bytes": 1335,
+      "sha256": "b1c3966e2208365fd409d87ac7f617923da0940682ed37b02cf2c75341596b87"
+    },
+    {
+      "path": "tests/package8-node/source-evidence.test.ts",
+      "bytes": 4084,
+      "sha256": "b22ef4a63453071933fab40d0b2e1aa1558af2b47f59c95e81f0411e4342dc0c"
+    },
+    {
+      "path": "tests/package8/admission.test.ts",
+      "bytes": 10648,
+      "sha256": "fbee71f6c202640d553183134a50fafcd9c11241f0a874638071f6fcdb4a92f5"
+    },
+    {
+      "path": "tests/package8/d1-vitest-setup.ts",
+      "bytes": 331,
+      "sha256": "06925e20f0c2dd5f2b070ae4277a4ae2057e23e57f3a9d779baf1f4cfcc8d113"
+    },
+    {
+      "path": "vite.config.ts",
+      "bytes": 2384,
+      "sha256": "f8d445be5a887e74a163da758bcff1188ceec5ecdad30b80fda53e96962ba0e4"
+    },
+    {
+      "path": "vitest.package8.config.ts",
+      "bytes": 1236,
+      "sha256": "7a4e0a46a34e76df1d6d59b9603d7af3cedf6a3f2c6be06fc9698fd2c1512b69"
+    }
+  ]
+}
