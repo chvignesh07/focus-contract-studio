@@ -72,7 +72,7 @@ test('unapproved, rejected, revoked, malformed authority, and old revision creat
   await expect(applyProposal({
     db: env.DB, cookieHeader: fixture.session.setCookie,
     now: package5Now + 4, sessionSecret: package5Secrets.sessionSecret, input: unapproved,
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'PROPOSAL_NOT_APPROVED' });
 
   await reviewProposal({
     db: env.DB, cookieHeader: fixture.session.setCookie,
@@ -87,7 +87,7 @@ test('unapproved, rejected, revoked, malformed authority, and old revision creat
     db: env.DB, cookieHeader: fixture.session.setCookie,
     now: package5Now + 6, sessionSecret: package5Secrets.sessionSecret,
     input: request(fixture.created.proposal.proposalId, '00000000-0000-4000-8000-000000005204'),
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'PROPOSAL_NOT_APPROVED' });
 
   await env.DB.prepare('DELETE FROM workspaces').run();
   const revoked = await approvePackage5Fixture(172);
@@ -101,7 +101,7 @@ test('unapproved, rejected, revoked, malformed authority, and old revision creat
     db: env.DB, cookieHeader: revoked.session.setCookie,
     now: package5Now + 6, sessionSecret: package5Secrets.sessionSecret,
     input: request(revoked.created.proposal.proposalId, '00000000-0000-4000-8000-000000005208'),
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'PROPOSAL_NOT_APPROVED' });
   await expect(applyProposal({
     db: env.DB, cookieHeader: revoked.session.setCookie,
     now: package5Now + 6, sessionSecret: package5Secrets.sessionSecret,
@@ -114,7 +114,7 @@ test('unapproved, rejected, revoked, malformed authority, and old revision creat
     db: env.DB, cookieHeader: old.session.setCookie,
     now: package5Now + 5, sessionSecret: package5Secrets.sessionSecret,
     input: { ...request(old.created.proposal.proposalId, '00000000-0000-4000-8000-000000005210'), expectedImplementedRevision: 2 },
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'STALE_REVISION' });
   expect(await env.DB.prepare(
     `SELECT
        (SELECT COUNT(*) FROM application_guards) AS guards,

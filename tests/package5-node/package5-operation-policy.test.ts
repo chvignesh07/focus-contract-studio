@@ -11,13 +11,13 @@ test('application policy closes every absent, authority, and revision branch', (
   assert.equal(applicationCandidateError(null, 1), 'PROPOSAL_NOT_FOUND');
   assert.equal(applicationCandidateError({
     status: 'proposed', baseImplementedRevision: 1, activeImplementedRevision: 1,
-  }, 1), 'APPLICATION_STALE');
+  }, 1), 'PROPOSAL_NOT_APPROVED');
   assert.equal(applicationCandidateError({
     status: 'approved', baseImplementedRevision: 2, activeImplementedRevision: 1,
-  }, 1), 'APPLICATION_STALE');
+  }, 1), 'STALE_REVISION');
   assert.equal(applicationCandidateError({
     status: 'approved', baseImplementedRevision: 1, activeImplementedRevision: 2,
-  }, 1), 'APPLICATION_STALE');
+  }, 1), 'STALE_REVISION');
   assert.equal(applicationCandidateError({
     status: 'approved', baseImplementedRevision: 1, activeImplementedRevision: 1,
   }, 1), null);

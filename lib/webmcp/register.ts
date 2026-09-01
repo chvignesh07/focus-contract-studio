@@ -1,9 +1,14 @@
 import {
+  createFcsWebMcpV2Tools,
   createPackage2Tools,
+  type RegisteredFcsWebMcpV2Tool,
   type RegisteredPackage2Tool,
 } from './contracts.ts';
 
-export type { RegisteredPackage2Tool } from './contracts.ts';
+export type {
+  RegisteredFcsWebMcpV2Tool,
+  RegisteredPackage2Tool,
+} from './contracts.ts';
 
 export type ModelContextLike = {
   registerTool: (
@@ -45,6 +50,77 @@ export class Package2ToolRegistry {
 
   dispose(): void {
     this.registrationController?.abort();
+    this.registrationController = undefined;
+  }
+}
+
+export type FcsWebMcpV2ModelContextLike = {
+  registerTool: (
+    tool: RegisteredFcsWebMcpV2Tool,
+    options: { signal: AbortSignal },
+  ) => Promise<void>;
+};
+
+type FcsWebMcpV2RegistryOptions = {
+  csrfToken: string;
+  fetcher: Parameters<typeof createFcsWebMcpV2Tools>[0]['fetcher'];
+  pageKey: string;
+  currentPageKey: () => string;
+};
+
+type RegistryGlobal = typeof globalThis & {
+  __fcsWebMcpV2Registration?: AbortController;
+};
+
+const registryGlobal = globalThis as RegistryGlobal;
+
+export class FcsWebMcpV2Registry {
+  private registrationController: AbortController | undefined;
+  private readonly options: FcsWebMcpV2RegistryOptions;
+
+  constructor(options: FcsWebMcpV2RegistryOptions) {
+    this.options = options;
+  }
+
+  get installed(): boolean {
+    return this.registrationController?.signal.aborted === false;
+  }
+
+  async install(modelContext: FcsWebMcpV2ModelContextLike): Promise<void> {
+    this.dispose();
+    registryGlobal.__fcsWebMcpV2Registration?.abort();
+    const controller = new AbortController();
+    registryGlobal.__fcsWebMcpV2Registration = controller;
+    this.registrationController = controller;
+    try {
+      for (const tool of createFcsWebMcpV2Tools({
+        csrfToken: this.options.csrfToken,
+        fetcher: this.options.fetcher,
+        lifecycleSignal: controller.signal,
+        isCurrent: () => this.options.currentPageKey() === this.options.pageKey,
+      })) {
+        controller.signal.throwIfAborted();
+        await modelContext.registerTool(tool, { signal: controller.signal });
+      }
+      controller.signal.throwIfAborted();
+    } catch (error) {
+      controller.abort();
+      if (this.registrationController === controller) {
+        this.registrationController = undefined;
+      }
+      if (registryGlobal.__fcsWebMcpV2Registration === controller) {
+        delete registryGlobal.__fcsWebMcpV2Registration;
+      }
+      throw error;
+    }
+  }
+
+  dispose(): void {
+    const controller = this.registrationController;
+    controller?.abort();
+    if (registryGlobal.__fcsWebMcpV2Registration === controller) {
+      delete registryGlobal.__fcsWebMcpV2Registration;
+    }
     this.registrationController = undefined;
   }
 }

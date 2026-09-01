@@ -63,6 +63,7 @@ test('repository package identity and current execution state are explicit', () 
   });
   assert.deepEqual(Object.keys(state.packages ?? {}), [
     'package0', 'package1', 'package2', 'package3', 'package4', 'package5',
+    'package6', 'package7',
   ]);
   assert.deepEqual(state.packages?.package0, {
     overall_result: 'INCONCLUSIVE',
@@ -85,6 +86,43 @@ test('repository package identity and current execution state are explicit', () 
     hosted_status: 'NOT_RUN',
     exact_commit_clone: 'TERMINAL_POST_COMMIT',
   });
+  assert.deepEqual(state.packages?.package6, {
+    authorization: 'AUTHORIZED',
+    overall_result: 'PASS',
+    local_result: 'PASS',
+    hosted_status: 'NOT_RUN',
+    real_client_status: 'NOT_RUN',
+    founder_manual_accessibility: 'NOT_RUN',
+    deployed_cold_evaluator: 'NOT_RUN',
+    exact_commit_clone: 'TERMINAL_POST_COMMIT',
+  });
+  assert.equal(state.packages?.package7?.authorization, 'AUTHORIZED');
+  assert.match(
+    state.packages?.package7?.overall_result ?? '',
+    /^(?:IN_PROGRESS|PASS)$/u,
+  );
+  assert.match(
+    state.packages?.package7?.local_result ?? '',
+    /^(?:IN_PROGRESS|PASS)$/u,
+  );
+  for (const key of [
+    'hosted_status',
+    'supported_client_status',
+    'chrome_trace_status',
+    'deploy_status',
+    'holdout_status',
+    'founder_manual_status',
+    'push_status',
+    'merge_status',
+    'publication_status',
+    'devpost_status',
+  ]) {
+    assert.equal(state.packages?.package7?.[key], 'NOT_RUN');
+  }
+  assert.equal(
+    state.packages?.package7?.exact_commit_clone,
+    'TERMINAL_POST_COMMIT',
+  );
 });
 
 test('Package 0 summaries are INCONCLUSIVE while unexecuted hosted rows remain NOT_RUN', () => {

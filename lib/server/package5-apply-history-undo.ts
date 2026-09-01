@@ -158,15 +158,21 @@ export async function applyProposal(input: {
   if (candidateError === 'PROPOSAL_NOT_FOUND') {
     throw new FcsError('PROPOSAL_NOT_FOUND', 'The proposal is unavailable.', 404);
   }
-  if (candidateError === 'APPLICATION_STALE') {
+  if (candidateError === 'PROPOSAL_NOT_APPROVED' || candidateError === 'STALE_REVISION') {
     await recordApplicationFailure({
       db: input.db,
       workspaceId: session.workspace.id,
       proposalId: request.proposalId,
-      code: 'APPLICATION_STALE',
+      code: candidateError,
       now: input.now,
     });
-    throw new FcsError('APPLICATION_STALE', 'The approved proposal is no longer current.', 409);
+    throw new FcsError(
+      candidateError,
+      candidateError === 'PROPOSAL_NOT_APPROVED'
+        ? 'The proposal is not approved for application.'
+        : 'The proposal revision is no longer current.',
+      409,
+    );
   }
   if (!candidate) throw new Error('Application candidate policy returned an impossible result.');
   const siblings = await input.db.prepare(
@@ -343,18 +349,29 @@ export async function applyProposal(input: {
     });
     if (raced) return raced;
     const state = await input.db.prepare(
-      `SELECT p.status, v.active_implemented_revision
+      `SELECT p.status, p.base_implemented_revision, v.active_implemented_revision
          FROM proposals p
          JOIN component_variants v
            ON v.workspace_id = p.workspace_id AND v.id = p.variant_id
         WHERE p.workspace_id = ? AND p.id = ?`,
     ).bind(session.workspace.id, request.proposalId).first<{
-      status: string; active_implemented_revision: number;
+      status: string;
+      base_implemented_revision: number;
+      active_implemented_revision: number;
     }>();
     if (!state) throw new FcsError('PROPOSAL_NOT_FOUND', 'The proposal is unavailable.', 404);
-    if (state.status !== 'approved' ||
-        state.active_implemented_revision !== request.expectedImplementedRevision) {
-      throw new FcsError('APPLICATION_STALE', 'The approved proposal is no longer current.', 409);
+    if (state.status !== 'approved') {
+      throw new FcsError(
+        'PROPOSAL_NOT_APPROVED',
+        'The proposal is not approved for application.',
+        409,
+      );
+    }
+    if (
+      state.base_implemented_revision !== request.expectedImplementedRevision ||
+      state.active_implemented_revision !== request.expectedImplementedRevision
+    ) {
+      throw new FcsError('STALE_REVISION', 'The proposal revision is no longer current.', 409);
     }
     throw new FcsError('APPLICATION_WRITE_FAILED', 'The proposal could not be applied.', 503, true);
   }

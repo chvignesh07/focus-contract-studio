@@ -7,13 +7,13 @@ export type ApplicationCandidate = {
 export function applicationCandidateError(
   candidate: ApplicationCandidate | null,
   expectedImplementedRevision: number,
-): 'PROPOSAL_NOT_FOUND' | 'APPLICATION_STALE' | null {
+): 'PROPOSAL_NOT_FOUND' | 'PROPOSAL_NOT_APPROVED' | 'STALE_REVISION' | null {
   if (!candidate) return 'PROPOSAL_NOT_FOUND';
+  if (candidate.status !== 'approved') return 'PROPOSAL_NOT_APPROVED';
   if (
-    candidate.status !== 'approved' ||
     candidate.baseImplementedRevision !== expectedImplementedRevision ||
     candidate.activeImplementedRevision !== expectedImplementedRevision
-  ) return 'APPLICATION_STALE';
+  ) return 'STALE_REVISION';
   return null;
 }
 

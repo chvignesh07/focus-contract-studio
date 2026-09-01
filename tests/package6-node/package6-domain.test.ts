@@ -115,6 +115,8 @@ test('every required operation state has one stable safe next action contract', 
 
 test('server public codes select truthful recovery states without leaking detail', () => {
   assert.equal(stateKindForPublicCode('VIEW_STATE_STALE'), 'staleState');
+  assert.equal(stateKindForPublicCode('STALE_REVISION'), 'staleState');
+  assert.equal(stateKindForPublicCode('PROPOSAL_NOT_APPROVED'), 'validationFailure');
   assert.equal(stateKindForPublicCode('SESSION_EXPIRED'), 'expiredSession');
   assert.equal(stateKindForPublicCode('RATE_LIMITED'), 'rateLimit');
   assert.equal(stateKindForPublicCode('INVALID_REQUEST'), 'validationFailure');

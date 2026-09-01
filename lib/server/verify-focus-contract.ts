@@ -72,6 +72,7 @@ type ReplayRow = {
   environment: 'browser' | 'playwright';
   verifier_output_hash: string;
   implemented_revision: number;
+  verified_at: number;
   commit_id: string;
   audit_id: string;
   projected_count: number;
@@ -98,6 +99,7 @@ export type VerificationResult = {
   eventDigest8: string;
   idempotentReplay: boolean;
   projectedPrecedentCount: number;
+  verifiedAt: string;
 };
 
 function notFound(): FcsError {
@@ -278,6 +280,7 @@ function result(
   output: VerifierOutput,
   idempotentReplay: boolean,
   projectedPrecedentCount: number,
+  verifiedAt: number,
 ): VerificationResult {
   return {
     receiptId,
@@ -297,6 +300,7 @@ function result(
     eventDigest8: input.eventDigest.slice(0, 8),
     idempotentReplay,
     projectedPrecedentCount,
+    verifiedAt: new Date(verifiedAt * 1_000).toISOString().replace('.000Z', 'Z'),
   };
 }
 
@@ -311,6 +315,7 @@ async function loadReplay(input: {
     .prepare(
       `SELECT r.id AS receipt_id, r.result, r.event_digest, r.manifest_digest,
               r.environment, r.verifier_output_hash, r.implemented_revision,
+              r.created_at AS verified_at,
               c.id AS commit_id, a.id AS audit_id,
               (SELECT COUNT(*) FROM runtime_precedent_provenance pp
                 WHERE pp.workspace_id = r.workspace_id
@@ -387,7 +392,14 @@ async function loadReplay(input: {
   ) {
     throw invalidEvidence();
   }
-  return result(replay.receipt_id, value, storedOutput, true, replay.projected_count);
+  return result(
+    replay.receipt_id,
+    value,
+    storedOutput,
+    true,
+    replay.projected_count,
+    replay.verified_at,
+  );
 }
 
 type ProjectionAuthority = {
@@ -795,5 +807,5 @@ export async function verifyFocusContract(input: {
       true,
     );
   }
-  return result(receiptId, value, output, false, projection.count);
+  return result(receiptId, value, output, false, projection.count, input.now);
 }

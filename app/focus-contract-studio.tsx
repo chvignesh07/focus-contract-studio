@@ -20,8 +20,8 @@ import type {
 } from '../lib/domain/initial-focus-manifest';
 import type { ActiveFocusReviewResult } from '../lib/server/active-focus-review';
 import {
-  Package2ToolRegistry,
-  type ModelContextLike,
+  FcsWebMcpV2Registry,
+  type FcsWebMcpV2ModelContextLike,
 } from '../lib/webmcp/register';
 import {
   DeleteAccountDialog,
@@ -168,10 +168,10 @@ type ApplicationReceiptView = {
 };
 
 type ToolState = 'registered' | 'unsupported' | 'error';
-type ToolDocument = Document & { modelContext?: ModelContextLike };
+type ToolDocument = Document & { modelContext?: FcsWebMcpV2ModelContextLike };
 
 const toolCopy: Record<ToolState, string> = {
-  registered: 'Two bounded Site tools are registered for this page.',
+  registered: 'Four bounded Site tools are registered for this page.',
   unsupported: 'Site tools are unavailable; the complete human workflow remains available.',
   error: 'Site tools could not be registered; the complete human workflow remains available.',
 };
@@ -438,6 +438,14 @@ export function FocusContractStudio() {
   const receiptDialog = useRef<HTMLDialogElement>(null);
   const receiptCancel = useRef<HTMLButtonElement>(null);
   const confirmationButton = useRef<HTMLButtonElement>(null);
+  const toolPageKey = page.kind === 'ready'
+    ? `${page.generation}:${page.activeVariant.slug}:${page.review.review.implementedRevision}`
+    : '';
+  const currentToolPageKey = useRef(toolPageKey);
+
+  useEffect(() => {
+    currentToolPageKey.current = toolPageKey;
+  }, [toolPageKey]);
 
   function setActivity(
     happened: string,
@@ -503,14 +511,15 @@ export function FocusContractStudio() {
   }, []);
 
   const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
-  const toolVariant = page.kind === 'ready' ? page.activeVariant.slug : null;
   useEffect(() => {
-    if (!toolCsrfToken) return;
+    if (!toolCsrfToken || !toolPageKey) return;
     const modelContext = (document as ToolDocument).modelContext;
     if (typeof modelContext?.registerTool !== 'function') return;
-    const registry = new Package2ToolRegistry({
+    const registry = new FcsWebMcpV2Registry({
       csrfToken: toolCsrfToken,
       fetcher: window.fetch.bind(window),
+      pageKey: toolPageKey,
+      currentPageKey: () => currentToolPageKey.current,
     });
     let mounted = true;
     void registry
@@ -525,7 +534,7 @@ export function FocusContractStudio() {
       mounted = false;
       registry.dispose();
     };
-  }, [toolCsrfToken, toolVariant]);
+  }, [toolCsrfToken, toolPageKey]);
 
   const acknowledgementKey =
     page.kind === 'ready' && proposal

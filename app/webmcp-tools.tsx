@@ -3,18 +3,18 @@
 import { useEffect, useState } from 'react';
 
 import {
-  Package2ToolRegistry,
-  type ModelContextLike,
+  FcsWebMcpV2Registry,
+  type FcsWebMcpV2ModelContextLike,
 } from '../lib/webmcp/register';
 
 type ToolState = 'registered' | 'unsupported' | 'error';
 
 type ToolDocument = Document & {
-  modelContext?: ModelContextLike;
+  modelContext?: FcsWebMcpV2ModelContextLike;
 };
 
 const copy: Record<ToolState, string> = {
-  registered: 'Two bounded Site tools are registered for this page.',
+  registered: 'Four bounded Site tools are registered for this page.',
   unsupported:
     'Site tools are unavailable here. The complete review still works on this page.',
   error:
@@ -29,9 +29,11 @@ export function WebMcpTools({ csrfToken }: { csrfToken: string }) {
     if (typeof modelContext?.registerTool !== 'function') {
       return;
     }
-    const registry = new Package2ToolRegistry({
+    const registry = new FcsWebMcpV2Registry({
       csrfToken,
       fetcher: window.fetch.bind(window),
+      pageKey: csrfToken,
+      currentPageKey: () => csrfToken,
     });
     let mounted = true;
     void registry

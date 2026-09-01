@@ -1,0 +1,165 @@
+{
+  "schema_version": "fcs-package7-source-manifest-v1",
+  "package": 7,
+  "algorithm": "sha256",
+  "inventory": "EXACT_PACKAGE7_IMPLEMENTATION_AND_GATE_SOURCE",
+  "file_count": 31,
+  "aggregate_sha256": "bfa8682ddffd38a970b845f6314e0a154b8fa7acb100d0b1985163cc7ec7746c",
+  "files": [
+    {
+      "path": "app/focus-contract-studio.tsx",
+      "bytes": 65848,
+      "sha256": "669a46d71292ae020044b6a6f019120a92852b6031d40b380e3624fe07e21af7"
+    },
+    {
+      "path": "app/webmcp-tools.tsx",
+      "bytes": 1545,
+      "sha256": "d3f9bbe5e5dd789ac5c54cc277438d98f134786b824e4babde741f792c44d53d"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.json",
+      "bytes": 1980,
+      "sha256": "683f82ecdeef6c311defc1335ab2896fdbc8a3285a891cd403871a3e2fb1fe4b"
+    },
+    {
+      "path": "docs/evidence/EXECUTION_STATE.md",
+      "bytes": 3182,
+      "sha256": "511ee9f4158f80c919379005a975e7cf272d4c7de09c0450a9fa728683bfb48f"
+    },
+    {
+      "path": "lib/domain/package6.ts",
+      "bytes": 7709,
+      "sha256": "f1ffacfb3eb8819b38004c17f8fdb0fc391d20eeaf81a5629d451c843a98a7b6"
+    },
+    {
+      "path": "lib/server/package5-apply-history-undo.ts",
+      "bytes": 30176,
+      "sha256": "faccc264d4c986d4397e5c169597e3ad81fa249f5831aa37ac6b8ddfe3f57d41"
+    },
+    {
+      "path": "lib/server/package5-operation-policy.ts",
+      "bytes": 1107,
+      "sha256": "b9780d12c635a751fac6ab7eb63dfdae8bbabcd64036a4bc0789d9ecff225196"
+    },
+    {
+      "path": "lib/server/verify-focus-contract.ts",
+      "bytes": 29595,
+      "sha256": "8476a6e4485fc1f977a353ad8d4346149b153ada966da58a8001bb01dffd58f4"
+    },
+    {
+      "path": "lib/webmcp/contracts.ts",
+      "bytes": 20228,
+      "sha256": "1338b0a6b3b548997a064da892f0f9738a55c8b72fb5bdf886f6387e678c0984"
+    },
+    {
+      "path": "lib/webmcp/register.ts",
+      "bytes": 3595,
+      "sha256": "b3684a6c441e6f936436b9c4d18f7a7ca712bc8a27bb67ae284b37e42dcbf52f"
+    },
+    {
+      "path": "package.json",
+      "bytes": 15828,
+      "sha256": "fad30055bbf0829a2c509406bdca6ed6f8d84daeac48a95f90ce55d1b30f08d0"
+    },
+    {
+      "path": "playwright.config.ts",
+      "bytes": 3728,
+      "sha256": "b69f507530a312f80da094fbbf5d1a36e7a36c7c251de9b8362bf701c945c725"
+    },
+    {
+      "path": "scripts/package7-evidence-binding.mjs",
+      "bytes": 6240,
+      "sha256": "555f708c3812951f15a008cae34a22bd42271376b8e29c0c5ad68d2ee238e131"
+    },
+    {
+      "path": "scripts/package7-local-gate.mjs",
+      "bytes": 2640,
+      "sha256": "b49fc62eb684555fa19b2e083a48b9c9ce96410644e90f69126ead052b5e5916"
+    },
+    {
+      "path": "scripts/package7-source-manifest.mjs",
+      "bytes": 3778,
+      "sha256": "47b3e5a1789660864d32d30d5ecbb3992a00025d0702d66f68c7bfaf613ce2ef"
+    },
+    {
+      "path": "scripts/package7-verify-package6-frozen.mjs",
+      "bytes": 2738,
+      "sha256": "e1b2eaba6215523cbef3958b5b2ff97082b2e88a87321e1ad112ff12462c6b37"
+    },
+    {
+      "path": "tests/package5-node/package5-operation-policy.test.ts",
+      "bytes": 1632,
+      "sha256": "8181b9c47f5ab3acba755edecd6f08d61a1b66c37a2cbde196367a853d950143"
+    },
+    {
+      "path": "tests/package5/apply.test.ts",
+      "bytes": 8639,
+      "sha256": "76b9c5a6d625ceb039c86b535a07c285c598dc688d8044db911ada5f6750d97d"
+    },
+    {
+      "path": "tests/package5/history-undo-reset.test.ts",
+      "bytes": 8098,
+      "sha256": "da266c82af5f50e893ab4a51803b3eb352968cd307fdae11b370e71b7049bbd9"
+    },
+    {
+      "path": "tests/package2-node/repository-consistency.test.ts",
+      "bytes": 7646,
+      "sha256": "434e7ff20ca88382ac21c49c84fc80c3b29873d66053a804106dc4a58124cd23"
+    },
+    {
+      "path": "tests/package6-node/package6-domain.test.ts",
+      "bytes": 4216,
+      "sha256": "53df33898248506fcfc96f258709d1d6c2093a5be39073ff074dd522c966e771"
+    },
+    {
+      "path": "tests/package7-browser/webmcp-v2.spec.ts",
+      "bytes": 4473,
+      "sha256": "6f3cc52484d085fa66c9d22cfe4c4e362bc75eede71b2a3015c66c10a433a4af"
+    },
+    {
+      "path": "tests/package7-dom/webmcp-v2-integration.test.tsx",
+      "bytes": 5505,
+      "sha256": "049ca3809c017703866170a1e6c80efe1bb3a1af3633b5a8c01ac88723348ac0"
+    },
+    {
+      "path": "tests/package7-node/package7-scripts.test.ts",
+      "bytes": 3273,
+      "sha256": "9b43eda6641bbaa7a0592fb4497248e9ae3b90f55b6b9555a682142c0678bdb6"
+    },
+    {
+      "path": "tests/package7-node/source-evidence.test.ts",
+      "bytes": 770,
+      "sha256": "545dffea97c83486fa27953d97cade9245385f600a02ca99d5b73f1512a4e36d"
+    },
+    {
+      "path": "tests/package7-node/webmcp-v2-contract.test.ts",
+      "bytes": 17881,
+      "sha256": "a8f15ee5107ca49d6a5a0c32cdb2c82ce547526996603c4ae6556a63223100ae"
+    },
+    {
+      "path": "tests/package7-node/webmcp-v2-lifecycle.test.ts",
+      "bytes": 4336,
+      "sha256": "329778a9de4f3592cd837470d65ffae27d1e37fd089d2b7f301c725181d1b13f"
+    },
+    {
+      "path": "tests/package7/d1-vitest-setup.ts",
+      "bytes": 331,
+      "sha256": "3775842ab997617145a33a5d8a1c7776943fd809f62b4b792f96ac240f45e70b"
+    },
+    {
+      "path": "tests/package7/webmcp-parity.test.ts",
+      "bytes": 14009,
+      "sha256": "5238734ae992204fc293bac622861089953731f146e22ee469958ae16fc2f7d5"
+    },
+    {
+      "path": "vitest.package7-dom.config.ts",
+      "bytes": 246,
+      "sha256": "5eb763d939a5cabb1afc970e19368a7613692d867ce144267594550167ffbb24"
+    },
+    {
+      "path": "vitest.package7.config.ts",
+      "bytes": 1103,
+      "sha256": "c922b0e4e357481b3cf189304e5072a438a08c99be45b58d86377b45f910e48f"
+    }
+  ]
+}

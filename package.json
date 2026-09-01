@@ -88,6 +88,19 @@
     ,"verify:package6:core": "node scripts/package6-verify-package5-frozen.mjs && npm run typecheck && npm run lint && npm run test:package6:node:core && npm run test:package6:d1 && npm run test:package6:dom && npm run test:package6:coverage && npm run build && npm run test:package6:browser:built && npm run audit:package0 && npm run verify:package6:design-cold"
     ,"record:package6:local-gate": "npm run verify:package6:core && node scripts/package6-source-manifest.mjs --write && node scripts/package6-local-gate.mjs --write"
     ,"verify:package6": "npm run verify:package6:core && node --experimental-strip-types --test tests/package6-node/source-evidence.test.ts && npm run verify:package6:source-binding && npm run verify:package6:evidence-binding"
+    ,"test:package7:node:core": "node --experimental-strip-types --test tests/package7-node/package7-scripts.test.ts tests/package7-node/webmcp-v2-contract.test.ts tests/package7-node/webmcp-v2-lifecycle.test.ts"
+    ,"test:package7:node": "npm run test:package7:node:core && node --experimental-strip-types --test tests/package7-node/source-evidence.test.ts"
+    ,"test:package7:d1": "vitest run --config vitest.package7.config.ts"
+    ,"test:package7:dom": "vitest run --config vitest.package7-dom.config.ts"
+    ,"test:package7:browser:built": "FCS_PLAYWRIGHT_PACKAGE=7 PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --config playwright.config.ts"
+    ,"test:package7:browser": "npm run build && npm run test:package7:browser:built"
+    ,"test:package7": "npm run test:package7:node:core && npm run test:package7:d1 && npm run test:package7:dom"
+    ,"verify:package7:source-binding": "node scripts/package7-source-manifest.mjs"
+    ,"verify:package7:evidence-binding": "node scripts/package7-evidence-binding.mjs"
+    ,"audit:package7:offline": "npm audit --offline --omit=dev && npm audit --offline --audit-level=high"
+    ,"verify:package7:core": "node scripts/package7-verify-package6-frozen.mjs && npm run typecheck && npm run lint && npm run test:package2:node:functional-regression && npm run test:package5:node:core && npm run test:package5:d1 && npm run test:package6:node:core && npm run test:package6:d1 && npm run test:package6:dom && npm run test:package7 && npm run build && npm run test:package6:browser:built && npm run test:package7:browser:built && npm run audit:package7:offline"
+    ,"record:package7:local-gate": "npm run verify:package7:core && node scripts/package7-source-manifest.mjs --write && node scripts/package7-local-gate.mjs --write"
+    ,"verify:package7": "npm run verify:package7:core && node --experimental-strip-types --test tests/package7-node/source-evidence.test.ts && npm run verify:package7:source-binding && npm run verify:package7:evidence-binding"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

@@ -44,7 +44,7 @@ test('history is current-workspace-only, bounded, chronological, and contains no
       expectedImplementedRevision: 1,
       idempotencyKey: '00000000-0000-4000-8000-000000005399',
     },
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'PROPOSAL_NOT_APPROVED' });
   const history = await getPackage5History({
     db: env.DB, cookieHeader: fixture.session.setCookie,
     now: package5Now + 6, sessionSecret: package5Secrets.sessionSecret,
@@ -56,7 +56,7 @@ test('history is current-workspace-only, bounded, chronological, and contains no
   expect(history.records.slice(4, 6).map(({ kind }) => kind).sort()).toEqual([
     'application', 'revision',
   ]);
-  expect(history.records.at(-1)).toMatchObject({ kind: 'failure', code: 'APPLICATION_STALE' });
+  expect(history.records.at(-1)).toMatchObject({ kind: 'failure', code: 'PROPOSAL_NOT_APPROVED' });
   const serialized = JSON.stringify(history);
   expect(serialized).not.toMatch(/csrf|cookie|sessionToken|proposal_json|configuration_json|rationale/iu);
   const one = await getPackage5History({
@@ -106,7 +106,7 @@ test('undo creates revision 3 from revision 1, replays once, and old approval ca
       expectedImplementedRevision: 1,
       idempotencyKey: '00000000-0000-4000-8000-000000005302',
     },
-  })).rejects.toMatchObject({ code: 'APPLICATION_STALE' });
+  })).rejects.toMatchObject({ code: 'PROPOSAL_NOT_APPROVED' });
 });
 
 test('undo downstream failure rolls back revision, pointer, idempotency, audit, and finalizer', async () => {
