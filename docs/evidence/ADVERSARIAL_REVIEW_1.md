@@ -448,3 +448,84 @@ byte-for-byte and does not alter Package 8's external or manual truth boundaries
 - Saved Sites version, deployment, supported-client proof, push, tag, merge, GitHub
   Release, Package 10, publication, and Devpost: `NOT_RUN`.
 - No external action: **YES**.
+
+## Package 9 Sites migration-boundary descendant hotfix addendum
+
+This descendant is limited to the local migration-boundary defect proven after
+`a665be3ddcf0d2ebac0c07c4aedc857a10624660`. It preserves every preceding byte of
+this evidence file, migration names 0001 through 0006, journal order, application
+code, hosting configuration, dependencies, and all external/manual truth
+boundaries.
+
+<!-- package9-migration-boundaries-r3-source-binding files=4 sha256=d3ccd663c7614d276e5ffe95ea31ced228533280f8d574bed0f64a23ab1c4a50 -->
+
+### Root cause and minimal repair
+
+- Migration 0006 has one table and six top-level triggers, but Drizzle emitted five
+  chunks. Its fifth chunk combined `trg_package8_admit_audit_mutation`,
+  `trg_package8_admit_rehearsal_start`, and
+  `trg_package8_admit_rehearsal_finalize`.
+- Wrangler 4.116.0 closes a compound block only when its accumulated text ends in
+  `END;` or `END` plus whitespace. The inner `CASE` token `END,` therefore remained
+  open and hid the next two trigger boundaries from the parser.
+- The only SQL-source delta is `END,` to `END ,` plus one literal
+  `--> statement-breakpoint` immediately after each of the first two admission
+  trigger endings. Removing breakpoint comments and insignificant whitespace makes
+  the prior and current SQL token streams byte-identical.
+- Migration totals: `180` top-level statements and `174` breakpoints. Migration
+  0006 now emits exactly seven chunks, each containing exactly one expected named
+  table/trigger definition.
+
+### Hash provenance and archive identity
+
+- Historical migration 0006 full-file SHA-256:
+  `ede4971b27cd93a417bd9147d236f9b53b329fd2a5124b63c61da9d1163889a5`.
+- Historical migration 0006 SQL-without-breakpoints SHA-256:
+  `ce66bc2568669742c1ac7be7c26b9ac51c7aedd02fb2eb321df62829d876c167`.
+- Historical Package 9 source binding and archive aggregate remain unchanged above:
+  `228ec8e487debc6b4cdada52ff16c56dcf74b1db8e655ab9c942842ff4f3c49d`
+  and `dc3e6e6c8dedcf8b493069b13061e8a190542cf9b823a83d41d2fbe6b5953fbd`.
+- Current migration 0006 full-file SHA-256:
+  `419ba2f2bc70dd7eadfc2fddded84a5c44a6742f518b86037c3b4beb9ddc38b2`.
+- Current migration 0006 SQL-without-breakpoints SHA-256:
+  `3672b158f14ad27a0757abba72f3d9e889f71b8877bf6b68abeca6b7deacd4d7`.
+- Archive identity: `PASS`. All seven packaged migration files (six SQL migrations
+  plus `meta/_journal.json`) are byte-identical to `drizzle/`; their ordered
+  `sha256  bytes  relative-path` manifest SHA-256 is
+  `eabe29d3dfdf64edfb54744ab0a5ccebd8d718cbb58222450d8fc3e2c851b3cf`.
+
+### Red-to-green and local verification
+
+- Before the regression, the prior Wrangler-oracle Node suite passed `4/4` and the
+  helper-based local D1 test passed `1/1`, demonstrating the blind spot.
+- Focused RED: `0/1 PASS`, `1/1 FAIL` with `5 !== 7`.
+- Full RED file: `4/5 PASS`, `1/5 FAIL`.
+- Focused GREEN: `1/1 PASS` after only the three authorized SQL edits.
+- Focused boundary/hash/totals checks: `3/3 PASS`; complete Package 9 migration
+  Node suite: `6/6 PASS`.
+- Fresh D1: `180/180 PASS`; rerun after a complete successful application executed `0` statements.
+  Each migration chunk is executed directly through one
+  `database.prepare(statement).run()` call.
+- Typecheck, lint, explicit production build, packaged byte checks, Package 8 D1
+  `17/17`, seed `7/7`, memory counterfactual `5/5`, clean-D1 rerun, browser `4/4`,
+  and offline audits: `PASS`.
+- The pre-commit inherited canonical run reached the live Gitleaks step after all
+  preceding checks passed, then correctly returned `INCONCLUSIVE` because that step
+  requires a clean committed worktree. Final clean-source canonical verification is
+  terminal post-commit evidence.
+
+### Independent review
+
+- Correctness reviewer `/root/migration_boundary_correctness_review`: `PASS`.
+- Security/data-integrity reviewer `/root/migration_boundary_security_review`: `PASS`
+  after both evidence-truthfulness findings were resolved.
+- Root is the only writer. Both reviewers are read-only.
+
+### Truth boundary
+
+- Hosted D1: `NOT_RUN`.
+- Final clean-commit canonical: `TERMINAL_POST_COMMIT`.
+- Saved Sites Version 3 was not retried. No Site version was saved or deployed.
+- Push, tag, merge, hosted D1 mutation, Sites access/environment/source changes,
+  GitHub Release, Package 10, media, publication, and Devpost: `NOT_RUN`.
+- No external action: **YES**.

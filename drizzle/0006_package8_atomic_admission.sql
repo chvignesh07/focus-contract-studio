@@ -120,7 +120,7 @@ BEGIN
            WHEN NEW.action = 'revision.undone' THEN 'undo'
            WHEN NEW.action = 'workspace.reset' THEN 'reset'
            ELSE 'verification'
-         END,
+         END ,
          (NEW.occurred_at / 3600) * 3600,
          3600,
          1,
@@ -131,6 +131,7 @@ BEGIN
     WHERE workspace_id IS NOT NULL
   DO UPDATE SET request_count = rate_limit_windows.request_count + 1;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_package8_admit_rehearsal_start
 BEFORE INSERT ON observation_sessions
@@ -165,6 +166,7 @@ BEGIN
     WHERE workspace_id IS NOT NULL
   DO UPDATE SET request_count = rate_limit_windows.request_count + 1;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_package8_admit_rehearsal_finalize
 BEFORE INSERT ON focus_rehearsal_commits

@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers';
-import { applyD1Migrations, type D1Migration } from 'cloudflare:test';
+import type { D1Migration } from 'cloudflare:test';
 import { expect, test } from 'vitest';
 
 const expectedMigrationNames = [
@@ -28,12 +28,49 @@ async function schema(database: D1Database) {
     .all<{ type: string; name: string; tbl_name: string; sql: string }>();
 }
 
-test('Sites-packaged Drizzle chunks apply to fresh D1 one prepare at a time and rerun safely', async () => {
-  await applyD1Migrations(
-    package9Env.PACKAGE9_DB,
-    package9Env.PACKAGE9_SITES_MIGRATIONS,
-    'package9_sites_migrations',
+async function applyOneStatementPerPrepare(
+  database: D1Database,
+  migrations: D1Migration[],
+) {
+  await database
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS package9_sites_migrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
+      )`,
+    )
+    .run();
+  const applied = new Set(
+    (
+      await database
+        .prepare('SELECT name FROM package9_sites_migrations')
+        .all<{ name: string }>()
+    ).results.map(({ name }) => name),
   );
+  let executedStatements = 0;
+
+  for (const migration of migrations) {
+    if (applied.has(migration.name)) continue;
+    for (const statement of migration.queries) {
+      await database.prepare(statement).run();
+      executedStatements += 1;
+    }
+    await database
+      .prepare('INSERT INTO package9_sites_migrations (name) VALUES (?)')
+      .bind(migration.name)
+      .run();
+  }
+
+  return executedStatements;
+}
+
+test('Sites-packaged Drizzle chunks apply to fresh D1 one prepare at a time and rerun after a complete successful application', async () => {
+  expect(
+    await applyOneStatementPerPrepare(
+      package9Env.PACKAGE9_DB,
+      package9Env.PACKAGE9_SITES_MIGRATIONS,
+    ),
+  ).toBe(180);
 
   expect(
     package9Env.PACKAGE9_SITES_MIGRATIONS.map(({ name }) => name),
@@ -50,11 +87,12 @@ test('Sites-packaged Drizzle chunks apply to fresh D1 one prepare at a time and 
     ]),
   );
 
-  await applyD1Migrations(
-    package9Env.PACKAGE9_DB,
-    package9Env.PACKAGE9_SITES_MIGRATIONS,
-    'package9_sites_migrations',
-  );
+  expect(
+    await applyOneStatementPerPrepare(
+      package9Env.PACKAGE9_DB,
+      package9Env.PACKAGE9_SITES_MIGRATIONS,
+    ),
+  ).toBe(0);
 
   expect((await schema(package9Env.PACKAGE9_DB)).results).toEqual(
     firstSchema.results,
