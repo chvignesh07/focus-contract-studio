@@ -62,7 +62,7 @@ CREATE UNIQUE INDEX idx_initial_focus_one_report_per_revision
 CREATE TRIGGER trg_initial_focus_commit_complete
 BEFORE INSERT ON initial_focus_observation_commits
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM observation_sessions s
       JOIN rendered_manifests m
@@ -87,7 +87,7 @@ BEGIN
             AND e.sequence = 2 AND e.event_type = 'focusin'
             AND e.target_id = NEW.first_target_id
        )
-  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -121,7 +121,7 @@ BEFORE UPDATE OF state, result_kind, result_id ON idempotency_records
 FOR EACH ROW
 WHEN OLD.operation = 'reset' AND OLD.state = 'started' AND NEW.state = 'committed'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM workspaces prior
       JOIN workspaces replacement
@@ -161,7 +161,7 @@ BEGIN
               AND e.target_kind = 'variant'
               AND e.target_key = 'delete-account-standard'
               AND e.edge_type = 'applies-to') = 1
-  ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -175,7 +175,7 @@ BEFORE INSERT ON audit_events
 FOR EACH ROW
 WHEN NEW.action = 'proposal.created' AND NEW.result = 'success'
 BEGIN
-  SELECT CASE WHEN EXISTS (
+  SELECT (CASE WHEN EXISTS (
     SELECT 1
       FROM proposals p
       JOIN implemented_focus_revisions base
@@ -207,9 +207,9 @@ BEGIN
              json_extract(base.configuration_json, '$.returnFocus')
          ELSE 1
        END
-  ) THEN RAISE(ABORT, 'EVIDENCE_FOR_UNCHANGED_FIELD') END;
+  ) THEN RAISE(ABORT, 'EVIDENCE_FOR_UNCHANGED_FIELD') END);
 
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM proposals p
       JOIN retrieval_queries q
@@ -401,5 +401,5 @@ BEGIN
             AND rr.result_order <= 3 AND rr.disposition = 'support'
          )
        )
-  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END);
 END;

@@ -529,3 +529,103 @@ boundaries.
 - Push, tag, merge, hosted D1 mutation, Sites access/environment/source changes,
   GitHub Release, Package 10, media, publication, and Devpost: `NOT_RUN`.
 - No external action: **YES**.
+## Package 9 Sites D1 CASE-parser R4 descendant hotfix addendum
+
+This descendant is limited to the local Cloudflare D1 trigger-parser compatibility
+repair based on `814745b3ce44569c61174eb7a413156955cde831`. It preserves every
+preceding byte of this evidence file and does not change migration names or order,
+application behavior, dependencies, hosting configuration, or any external/manual
+truth boundary.
+
+<!-- package9-sites-d1-case-parser-r4-source-binding files=8 sha256=1ca3b470b227f2289a2fc1d1562374b2fd3cf19dd77ddb1e91956978b77fc16c -->
+
+### Public compatibility model and incident boundary
+
+- [Empirical] Cloudflare workers-sdk issue
+  [#4727](https://github.com/cloudflare/workers-sdk/issues/4727) documents
+  `incomplete input` for a trigger containing an outer unparenthesized
+  `SELECT CASE ... END;` and documents `SELECT (CASE ... END);` as the narrow
+  compatibility form.
+- [Empirical] Wrangler `4.116.0` splits both the public broken and parenthesized
+  two-statement fixtures into two chunks locally. Wrangler's current splitter is
+  therefore not used as the sole oracle for the historical hosted failure.
+- [Empirical — user-provided, not independently accessed] Saved Sites Version 4
+  failed once with `incomplete input: SQLITE_ERROR`; the hosted D1 observation
+  showed zero user tables. Version 4 was not retried, and this local run did not
+  access or mutate hosted D1.
+
+### Minimal semantic-preserving repair
+
+- Repaired outer CASE statements: `42`: 18 in migration 0001, 4 in 0002, 10 in
+  0003, 6 in 0004, 0 in 0005, and 4 in 0006.
+- Each repair changes only `SELECT CASE ... END;` to
+  `SELECT (CASE ... END);`. The token-aware regression derives the expected bytes
+  from the exact base commit while ignoring comments and quoted strings, balancing
+  parentheses and nested CASE blocks, and leaving every nested CASE unwrapped.
+- Added only `drizzle/*.sql text eol=lf` to `.gitattributes`. The packaged scanner
+  rejects carriage returns and non-uppercase trigger `BEGIN` tokens and cross-checks
+  that every top-level trigger was scanned.
+- Migration 0005 bytes and `drizzle/meta/_journal.json` are unchanged; no migration
+  name, journal tag/order, or prior commit was rewritten. Runtime/application code,
+  dependencies, and hosting configuration are unchanged. The R3
+  whitespace/breakpoint provenance and all earlier hashes remain preserved above
+  and in the executable regression.
+
+### Current hashes and archive identity
+
+| Migration | Full-file SHA-256 | SQL-without-breakpoints SHA-256 |
+| --- | --- | --- |
+| 0001 | `8317f107cfe7dc5e1dd8e49cac2c23fc832dbeed2f4dd34e23f8713068b9bdd9` | `987da80aa99ba78e06029e54ab4b161316433d96c34618fc819dba8b07120cf2` |
+| 0002 | `8509a40ad83dd9d4595cb154a7cbb00028108fddc85317cf9e223f54747399fd` | `4b8db460bcadafb2919bca3aa4d4b398a47ab4e15d3b3a9525778ffce438f149` |
+| 0003 | `f3e59553d7ace92769bfc217d036b4da88c5de8411f692a395c669888d643a86` | `ce49766adf8d08733de39d9c2f863944c562d80c3ac700072da5bdf71db3cb79` |
+| 0004 | `d2681c1b0abd68fea35d2c01f3d7a2d2a993b51bc83a286472f78a54f71f44a0` | `1cfc151ced6ee28f063d92df3e5850cc95d2db9b990083e7548c83c3ae0c0477` |
+| 0005 | `b57b9e735d945d5ba0be27d6acec22865c005cbfc51b1148a10a0937e83a9f02` | `58fcb6ccdb158c5538b4b26dc6115ef43aef6ee72194683ccfb860476ffd302e` |
+| 0006 | `0d1f04cf366e7ff3115c5bf4cbbb4d58ffc61ddc1ad16d839d76df0ba3c15428` | `6bb860cc53e9377bdb59cf63dc04d80821760f7adbc7ab71a049878835f89c17` |
+
+- Archive identity: `PASS`. All six packaged SQL files and
+  `meta/_journal.json` are byte-identical to `drizzle/`; their ordered
+  `sha256  bytes  relative-path` manifest SHA-256 is
+  `902c4fb1f97bb75cfa26549c53e5fb586d0ea618b6172e7ad641e76b2b82febd`.
+- Migration totals: `180` top-level statements and `174` breakpoints.
+
+### Red-to-green and local verification
+
+- Public compatibility fixture: `1/1 PASS` for token-safe comment, quoted-string,
+  nested-CASE, parenthesized-CASE, and uppercase-`BEGIN` handling.
+- Focused RED: `0/2 PASS`, `2/2 FAIL`; the packaged scan reported all 42 hazards
+  plus the absent LF rule, and the exact-delta test rejected the five affected SQL
+  files.
+- Focused GREEN: `2/2 PASS` after only the 42 wrappers and one LF rule.
+- Complete migration Node suite: `9/9 PASS`.
+- Fresh D1: `180/180 PASS`; rerun after a complete successful application executed `0` statements.
+  Every migration statement uses one literal `database.prepare(statement).run()`
+  path. The initial restricted-sandbox run could not bind loopback (`EPERM`); the
+  authorized local-loopback rerun passed and made no external connection.
+- Typecheck, lint, explicit production build, and packaged byte checks: `PASS`.
+- Package 8 D1 `17/17`, deterministic seed `7/7`, memory counterfactual `5/5`,
+  clean-D1 repeat, development benchmark `12/12`, built Chromium `4/4`, and both
+  offline audits with zero vulnerabilities: `PASS`.
+- The pre-commit inherited gate passed every preceding stage and then correctly
+  returned `INCONCLUSIVE` only at the terminal live Gitleaks step because that step
+  requires a clean committed worktree. Three new Node checks raise the expected
+  exact clean-commit canonical total from `533` to `536`.
+
+### Independent review
+
+- Correctness reviewer `/root/sites_d1_case_correctness_review`: `PASS` after the
+  ambiguous unchanged-migration wording was narrowed to migration 0005 bytes and
+  journal/tag/order provenance.
+- Security/data-integrity reviewer `/root/sites_d1_case_security_review`: `PASS`
+  after optional `SELECT DISTINCT/ALL CASE` scanner bypasses were closed with
+  explicit fixtures and the same evidence wording was corrected.
+- Root is the only writer. Both reviewer lanes are read-only.
+
+### Truth boundary
+
+- Hosted D1: `NOT_RUN`.
+- Saved Sites Version 4: `NOT_RETRIED`.
+- Final clean-commit canonical: `TERMINAL_POST_COMMIT`.
+- No Site version was saved or deployed. Push, tag, merge, hosted D1 mutation,
+  Sites access/environment/source changes, GitHub Release, Package 10, media,
+  publication, and Devpost: `NOT_RUN`.
+- No external action: **YES**.

@@ -33,7 +33,7 @@ CREATE TRIGGER trg_variant_selection_success_audit_finalizer
 BEFORE INSERT ON audit_events
 WHEN NEW.action = 'variant.selected' AND NEW.result = 'success'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM variant_selection_commits selection
       JOIN workspace_view_state state
@@ -45,7 +45,7 @@ BEGIN
        AND NEW.actor_kind = 'browser'
        AND NEW.target_kind = 'variant-selection'
        AND NEW.correlation_id = selection.id
-  ) THEN RAISE(ABORT, 'VARIANT_SELECTION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'VARIANT_SELECTION_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -64,7 +64,7 @@ WHEN NEW.result = 'success' AND NEW.action IN (
   'verification.completed'
 )
 BEGIN
-  SELECT CASE WHEN COALESCE((
+  SELECT (CASE WHEN COALESCE((
     SELECT window.request_count
       FROM rate_limit_windows window
       JOIN workspaces workspace ON workspace.id = NEW.workspace_id
@@ -99,7 +99,7 @@ BEGIN
     WHEN NEW.action IN ('application.applied', 'revision.undone') THEN 6
     WHEN NEW.action = 'workspace.reset' THEN 5
     ELSE 12
-  END THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END;
+  END THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END);
 
   INSERT INTO rate_limit_windows (
     id, workspace_id, key_digest, operation, window_start,
@@ -136,7 +136,7 @@ END;
 CREATE TRIGGER trg_package8_admit_rehearsal_start
 BEFORE INSERT ON observation_sessions
 BEGIN
-  SELECT CASE WHEN COALESCE((
+  SELECT (CASE WHEN COALESCE((
     SELECT window.request_count
       FROM rate_limit_windows window
       JOIN workspaces workspace ON workspace.id = NEW.workspace_id
@@ -147,7 +147,7 @@ BEGIN
        )
        AND window.operation = 'rehearsal'
        AND window.window_start = (NEW.created_at / 3600) * 3600
-  ), 0) >= 12 THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END;
+  ), 0) >= 12 THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END);
 
   INSERT INTO rate_limit_windows (
     id, workspace_id, key_digest, operation, window_start,
@@ -171,7 +171,7 @@ END;
 CREATE TRIGGER trg_package8_admit_rehearsal_finalize
 BEFORE INSERT ON focus_rehearsal_commits
 BEGIN
-  SELECT CASE WHEN COALESCE((
+  SELECT (CASE WHEN COALESCE((
     SELECT window.request_count
       FROM rate_limit_windows window
       JOIN workspaces workspace ON workspace.id = NEW.workspace_id
@@ -182,7 +182,7 @@ BEGIN
        )
        AND window.operation = 'rehearsal'
        AND window.window_start = (NEW.finalized_at / 3600) * 3600
-  ), 0) >= 12 THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END;
+  ), 0) >= 12 THEN RAISE(ABORT, 'FCS_RATE_LIMITED') END);
 
   INSERT INTO rate_limit_windows (
     id, workspace_id, key_digest, operation, window_start,

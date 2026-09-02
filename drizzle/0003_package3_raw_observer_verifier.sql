@@ -68,7 +68,7 @@ BEGIN SELECT RAISE(ABORT, 'OBSERVATION_EVENTS_IMMUTABLE'); END;
 CREATE TRIGGER trg_initial_focus_commit_complete
 BEFORE INSERT ON initial_focus_observation_commits
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM observation_sessions s
       JOIN rendered_manifests m
@@ -93,7 +93,7 @@ BEGIN
             AND e.sequence = 2 AND e.event_type = 'focusin'
             AND e.target_id = NEW.first_target_id
        )
-  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -104,7 +104,7 @@ DROP TRIGGER trg_observation_sessions_transition;
 CREATE TRIGGER trg_observation_sessions_transition
 BEFORE UPDATE ON observation_sessions
 BEGIN
-  SELECT CASE WHEN NEW.id IS NOT OLD.id
+  SELECT (CASE WHEN NEW.id IS NOT OLD.id
     OR NEW.workspace_id IS NOT OLD.workspace_id
     OR NEW.variant_id IS NOT OLD.variant_id
     OR NEW.implemented_revision IS NOT OLD.implemented_revision
@@ -112,33 +112,33 @@ BEGIN
     OR NEW.nonce_digest IS NOT OLD.nonce_digest
     OR NEW.created_at IS NOT OLD.created_at
     OR NEW.expires_at IS NOT OLD.expires_at
-    THEN RAISE(ABORT, 'OBSERVATION_PAYLOAD_IMMUTABLE') END;
-  SELECT CASE WHEN NOT (
+    THEN RAISE(ABORT, 'OBSERVATION_PAYLOAD_IMMUTABLE') END);
+  SELECT (CASE WHEN NOT (
     (OLD.state = 'recording' AND NEW.state IN ('finalized', 'expired')) OR
     (OLD.state = 'finalized' AND NEW.state IN ('verified_pass', 'verified_fail')) OR
     (OLD.state = NEW.state AND EXISTS (
       SELECT 1 FROM focus_rehearsal_commits f
        WHERE f.workspace_id = OLD.workspace_id AND f.session_id = OLD.id
     ))
-  ) THEN RAISE(ABORT, 'OBSERVATION_TRANSITION_INVALID') END;
-  SELECT CASE WHEN NEW.state = 'finalized' AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_TRANSITION_INVALID') END);
+  SELECT (CASE WHEN NEW.state = 'finalized' AND (
     NEW.finalized_at IS NULL OR NEW.event_digest IS NULL OR NEW.manifest_digest IS NULL
-  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_INCOMPLETE') END;
-  SELECT CASE WHEN OLD.state IN ('finalized', 'verified_pass', 'verified_fail') AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_INCOMPLETE') END);
+  SELECT (CASE WHEN OLD.state IN ('finalized', 'verified_pass', 'verified_fail') AND (
     NEW.finalized_at IS NOT OLD.finalized_at
     OR NEW.event_digest IS NOT OLD.event_digest
     OR NEW.manifest_digest IS NOT OLD.manifest_digest
-  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_IMMUTABLE') END;
-  SELECT CASE WHEN NEW.state = 'expired' AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_IMMUTABLE') END);
+  SELECT (CASE WHEN NEW.state = 'expired' AND (
     NEW.finalized_at IS NOT NULL OR NEW.event_digest IS NOT NULL OR NEW.manifest_digest IS NOT NULL
-  ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END;
+  ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END);
 END;
 --> statement-breakpoint
 
 CREATE TRIGGER trg_initial_focus_one_report_per_revision
 BEFORE INSERT ON initial_focus_observation_commits
 BEGIN
-  SELECT CASE WHEN EXISTS (
+  SELECT (CASE WHEN EXISTS (
     SELECT 1
       FROM observation_sessions candidate
       JOIN initial_focus_observation_commits prior_commit
@@ -150,7 +150,7 @@ BEGIN
        AND candidate.id = NEW.session_id
        AND prior.variant_id = candidate.variant_id
        AND prior.implemented_revision = candidate.implemented_revision
-  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_EXISTS') END;
+  ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_EXISTS') END);
 END;
 --> statement-breakpoint
 
@@ -182,7 +182,7 @@ CREATE TABLE focus_rehearsal_commits (
 CREATE TRIGGER trg_focus_rehearsal_commit_complete
 BEFORE INSERT ON focus_rehearsal_commits
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM observation_sessions s
       JOIN rendered_manifests m
@@ -274,7 +274,7 @@ BEGIN
             AND returned.event_type = 'focus_return'
             AND returned.sequence = NEW.event_count
        )
-  ) THEN RAISE(ABORT, 'FOCUS_REHEARSAL_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'FOCUS_REHEARSAL_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -339,7 +339,7 @@ CREATE TRIGGER trg_verification_receipt_complete
 BEFORE INSERT ON verification_receipts
 WHEN NEW.verifier_version = 'focus-event-verifier-v1'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1 FROM verification_guards g
      WHERE g.workspace_id = NEW.workspace_id
        AND g.observation_session_id = NEW.observation_session_id
@@ -353,7 +353,7 @@ BEGIN
        AND g.environment = NEW.environment
        AND g.verifier_output_hash = NEW.verifier_output_hash
        AND g.created_at = NEW.created_at
-  ) THEN RAISE(ABORT, 'VERIFICATION_RECEIPT_UNGUARDED') END;
+  ) THEN RAISE(ABORT, 'VERIFICATION_RECEIPT_UNGUARDED') END);
 END;
 --> statement-breakpoint
 
@@ -441,7 +441,7 @@ CREATE TABLE verification_commits (
 CREATE TRIGGER trg_verification_commit_complete
 BEFORE INSERT ON verification_commits
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM verification_guards g
       JOIN verification_receipts r
@@ -521,7 +521,7 @@ BEGIN
               AND c.verification_receipt_id = r.id AND c.result <> 'pass'
          ))
        )
-  ) THEN RAISE(ABORT, 'VERIFICATION_COMMIT_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'VERIFICATION_COMMIT_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 

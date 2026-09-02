@@ -134,11 +134,11 @@ CREATE TRIGGER trg_focus_revision_configuration_insert
 BEFORE INSERT ON implemented_focus_revisions
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1 FROM fcs_focus_configuration_catalog_v2 c
      WHERE c.configuration_json = NEW.configuration_json
        AND c.configuration_hash = NEW.configuration_hash
-  ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END;
+  ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END);
 END;
 --> statement-breakpoint
 
@@ -146,14 +146,14 @@ CREATE TRIGGER trg_variant_active_revision_update
 BEFORE UPDATE OF active_implemented_revision ON component_variants
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1 FROM implemented_focus_revisions r
     WHERE r.workspace_id = NEW.workspace_id
       AND r.variant_id = NEW.id
       AND r.revision = NEW.active_implemented_revision
-  ) THEN RAISE(ABORT, 'ACTIVE_REVISION_NOT_FOUND') END;
-  SELECT CASE WHEN NEW.active_implemented_revision <> OLD.active_implemented_revision + 1
-    THEN RAISE(ABORT, 'ACTIVE_REVISION_NOT_NEXT') END;
+  ) THEN RAISE(ABORT, 'ACTIVE_REVISION_NOT_FOUND') END);
+  SELECT (CASE WHEN NEW.active_implemented_revision <> OLD.active_implemented_revision + 1
+    THEN RAISE(ABORT, 'ACTIVE_REVISION_NOT_NEXT') END);
 END;
 --> statement-breakpoint
 
@@ -407,10 +407,10 @@ CREATE TRIGGER trg_proposal_configuration_insert
 BEFORE INSERT ON proposals
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1 FROM fcs_focus_configuration_catalog_v2 c
      WHERE c.configuration_json = NEW.configuration_json
-  ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END;
+  ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END);
 END;
 --> statement-breakpoint
 
@@ -419,8 +419,8 @@ BEFORE INSERT ON proposals
 FOR EACH ROW
 WHEN NEW.parent_proposal_id IS NOT NULL
 BEGIN
-  SELECT CASE WHEN NEW.parent_proposal_id = NEW.id
-    THEN RAISE(ABORT, 'PROPOSAL_LINEAGE_CYCLE') END;
+  SELECT (CASE WHEN NEW.parent_proposal_id = NEW.id
+    THEN RAISE(ABORT, 'PROPOSAL_LINEAGE_CYCLE') END);
   WITH RECURSIVE ancestors(id, parent_proposal_id) AS (
     SELECT id, parent_proposal_id
       FROM proposals
@@ -433,10 +433,10 @@ BEGIN
         ON p.workspace_id = NEW.workspace_id
        AND p.id = a.parent_proposal_id
   )
-  SELECT CASE WHEN EXISTS (
+  SELECT (CASE WHEN EXISTS (
     SELECT 1 FROM ancestors
      WHERE id = NEW.id OR parent_proposal_id = NEW.id
-  ) THEN RAISE(ABORT, 'PROPOSAL_LINEAGE_CYCLE') END;
+  ) THEN RAISE(ABORT, 'PROPOSAL_LINEAGE_CYCLE') END);
 END;
 --> statement-breakpoint
 
@@ -694,7 +694,7 @@ BEGIN SELECT RAISE(ABORT, 'WORKSPACE_VIEW_STATE_IMMUTABLE'); END;
 CREATE TRIGGER trg_observation_sessions_transition
 BEFORE UPDATE ON observation_sessions
 BEGIN
-  SELECT CASE WHEN NEW.id IS NOT OLD.id
+  SELECT (CASE WHEN NEW.id IS NOT OLD.id
     OR NEW.workspace_id IS NOT OLD.workspace_id
     OR NEW.variant_id IS NOT OLD.variant_id
     OR NEW.implemented_revision IS NOT OLD.implemented_revision
@@ -702,22 +702,22 @@ BEGIN
     OR NEW.nonce_digest IS NOT OLD.nonce_digest
     OR NEW.created_at IS NOT OLD.created_at
     OR NEW.expires_at IS NOT OLD.expires_at
-    THEN RAISE(ABORT, 'OBSERVATION_PAYLOAD_IMMUTABLE') END;
-  SELECT CASE WHEN NOT (
+    THEN RAISE(ABORT, 'OBSERVATION_PAYLOAD_IMMUTABLE') END);
+  SELECT (CASE WHEN NOT (
     (OLD.state = 'recording' AND NEW.state IN ('finalized', 'expired')) OR
     (OLD.state = 'finalized' AND NEW.state IN ('verified_pass', 'verified_fail'))
-  ) THEN RAISE(ABORT, 'OBSERVATION_TRANSITION_INVALID') END;
-  SELECT CASE WHEN NEW.state = 'finalized' AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_TRANSITION_INVALID') END);
+  SELECT (CASE WHEN NEW.state = 'finalized' AND (
     NEW.finalized_at IS NULL OR NEW.event_digest IS NULL OR NEW.manifest_digest IS NULL
-  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_INCOMPLETE') END;
-  SELECT CASE WHEN OLD.state = 'finalized' AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_INCOMPLETE') END);
+  SELECT (CASE WHEN OLD.state = 'finalized' AND (
     NEW.finalized_at IS NOT OLD.finalized_at
     OR NEW.event_digest IS NOT OLD.event_digest
     OR NEW.manifest_digest IS NOT OLD.manifest_digest
-  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_IMMUTABLE') END;
-  SELECT CASE WHEN NEW.state = 'expired' AND (
+  ) THEN RAISE(ABORT, 'OBSERVATION_FINALIZATION_IMMUTABLE') END);
+  SELECT (CASE WHEN NEW.state = 'expired' AND (
     NEW.finalized_at IS NOT NULL OR NEW.event_digest IS NOT NULL OR NEW.manifest_digest IS NOT NULL
-  ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END;
+  ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END);
 END;
 --> statement-breakpoint
 CREATE TRIGGER trg_observation_sessions_immutable_delete
@@ -729,7 +729,7 @@ BEGIN SELECT RAISE(ABORT, 'OBSERVATION_SESSIONS_IMMUTABLE'); END;
 CREATE TRIGGER trg_proposals_transition
 BEFORE UPDATE ON proposals
 BEGIN
-  SELECT CASE WHEN NEW.id IS NOT OLD.id
+  SELECT (CASE WHEN NEW.id IS NOT OLD.id
     OR NEW.workspace_id IS NOT OLD.workspace_id
     OR NEW.variant_id IS NOT OLD.variant_id
     OR NEW.base_implemented_revision IS NOT OLD.base_implemented_revision
@@ -743,11 +743,11 @@ BEGIN
     OR NEW.proposal_hash IS NOT OLD.proposal_hash
     OR NEW.parent_proposal_id IS NOT OLD.parent_proposal_id
     OR NEW.created_at IS NOT OLD.created_at
-    THEN RAISE(ABORT, 'PROPOSAL_PAYLOAD_IMMUTABLE') END;
-  SELECT CASE WHEN NOT (
+    THEN RAISE(ABORT, 'PROPOSAL_PAYLOAD_IMMUTABLE') END);
+  SELECT (CASE WHEN NOT (
     (OLD.status = 'proposed' AND NEW.status IN ('superseded', 'approved', 'rejected', 'stale')) OR
     (OLD.status = 'approved' AND NEW.status IN ('revoked', 'applied', 'stale'))
-  ) THEN RAISE(ABORT, 'PROPOSAL_TRANSITION_INVALID') END;
+  ) THEN RAISE(ABORT, 'PROPOSAL_TRANSITION_INVALID') END);
 END;
 --> statement-breakpoint
 CREATE TRIGGER trg_proposals_immutable_delete
@@ -759,16 +759,16 @@ BEGIN SELECT RAISE(ABORT, 'PROPOSALS_IMMUTABLE'); END;
 CREATE TRIGGER trg_idempotency_records_transition
 BEFORE UPDATE ON idempotency_records
 BEGIN
-  SELECT CASE WHEN NEW.id IS NOT OLD.id
+  SELECT (CASE WHEN NEW.id IS NOT OLD.id
     OR NEW.workspace_id IS NOT OLD.workspace_id
     OR NEW.operation IS NOT OLD.operation
     OR NEW.idempotency_key IS NOT OLD.idempotency_key
     OR NEW.request_hash IS NOT OLD.request_hash
     OR NEW.created_at IS NOT OLD.created_at
     OR NEW.expires_at IS NOT OLD.expires_at
-    THEN RAISE(ABORT, 'IDEMPOTENCY_REQUEST_IMMUTABLE') END;
-  SELECT CASE WHEN NOT (OLD.state = 'started' AND NEW.state = 'committed')
-    THEN RAISE(ABORT, 'IDEMPOTENCY_TRANSITION_INVALID') END;
+    THEN RAISE(ABORT, 'IDEMPOTENCY_REQUEST_IMMUTABLE') END);
+  SELECT (CASE WHEN NOT (OLD.state = 'started' AND NEW.state = 'committed')
+    THEN RAISE(ABORT, 'IDEMPOTENCY_TRANSITION_INVALID') END);
 END;
 --> statement-breakpoint
 CREATE TRIGGER trg_idempotency_records_immutable_delete
@@ -951,7 +951,7 @@ BEFORE UPDATE OF state, result_kind, result_id ON idempotency_records
 FOR EACH ROW
 WHEN OLD.operation = 'reset' AND OLD.state = 'started' AND NEW.state = 'committed'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM workspaces prior
       JOIN workspaces replacement
@@ -994,7 +994,7 @@ BEGIN
               AND e.target_kind = 'variant'
               AND e.target_key IN ('delete-account-standard', 'delete-account-danger-emphasis')
               AND e.edge_type = 'applies-to') = 2
-  ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -1003,7 +1003,7 @@ BEFORE INSERT ON audit_events
 FOR EACH ROW
 WHEN NEW.action = 'proposal.created' AND NEW.result = 'success'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
     FROM proposals p
     JOIN retrieval_queries q
@@ -1024,7 +1024,7 @@ BEGIN
           AND e.proposal_id = p.id
           AND e.query_id = q.id
       )
-  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -1032,7 +1032,7 @@ CREATE TRIGGER trg_application_commit_complete
 BEFORE INSERT ON application_commits
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
     FROM application_guards g
     JOIN application_receipts r
@@ -1072,5 +1072,5 @@ BEGIN
           AND a.target_id = r.id
           AND a.result = 'success'
       )
-  ) THEN RAISE(ABORT, 'APPLICATION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'APPLICATION_INCOMPLETE') END);
 END;

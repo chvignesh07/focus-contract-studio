@@ -11,13 +11,17 @@ const repositoryRoot = path.resolve(
   '../..',
 );
 const package9Base = '825f7ee012d0ab7c59f95ca62581ad5b5e5c28b2';
-const migrationBoundaryBase = 'a665be3ddcf0d2ebac0c07c4aedc857a10624660';
+const d1CaseParserBase = '814745b3ce44569c61174eb7a413156955cde831';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
-const migrationBoundarySourcePaths = [
+const d1CaseParserSourcePaths = [
+  '.gitattributes',
+  'drizzle/0001_package1_domain.sql',
+  'drizzle/0002_package2_vertical_slice.sql',
+  'drizzle/0003_package3_raw_observer_verifier.sql',
+  'drizzle/0004_package5_review_apply_undo.sql',
   'drizzle/0006_package8_atomic_admission.sql',
   'tests/package9-node/sites-migration-packaging.test.ts',
   'tests/package9-node/source-evidence.test.ts',
-  'tests/package9/migration-packaging.test.ts',
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -36,7 +40,7 @@ function gitLines(args: string[]) {
 }
 
 function sourceIdentity() {
-  const files = migrationBoundarySourcePaths.map((relativePath) => {
+  const files = d1CaseParserSourcePaths.map((relativePath) => {
     const absolutePath = path.join(repositoryRoot, relativePath);
     const stat = lstatSync(absolutePath);
     assert.equal(stat.isFile() && !stat.isSymbolicLink(), true, relativePath);
@@ -58,17 +62,17 @@ function sourceIdentity() {
   };
 }
 
-test('the Package 9 migration-boundary descendant and local evidence are exactly source-bound', () => {
+test('the Package 9 D1 CASE-parser descendant and local evidence are exactly source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', migrationBoundaryBase, '--']),
+    ...gitLines(['diff', '--name-only', d1CaseParserBase, '--']),
     ...gitLines(['ls-files', '--others', '--exclude-standard']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
-    [...migrationBoundarySourcePaths, evidencePath].sort(),
+    [...d1CaseParserSourcePaths, evidencePath].sort(),
   );
 
-  const priorEvidence = git(['show', `${migrationBoundaryBase}:${evidencePath}`]);
+  const priorEvidence = git(['show', `${d1CaseParserBase}:${evidencePath}`]);
   const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
   assert.ok(
     evidence.startsWith(priorEvidence),
@@ -76,29 +80,31 @@ test('the Package 9 migration-boundary descendant and local evidence are exactly
   );
   assert.ok(
     priorEvidence.includes(
-      '<!-- package9-migration-source-binding files=12 sha256=228ec8e487debc6b4cdada52ff16c56dcf74b1db8e655ab9c942842ff4f3c49d -->',
+      '<!-- package9-migration-boundaries-r3-source-binding files=4 sha256=d3ccd663c7614d276e5ffe95ea31ced228533280f8d574bed0f64a23ab1c4a50 -->',
     ),
-    'the historical Package 9 source hash must remain provenance',
+    'the historical R3 source hash must remain provenance',
   );
 
   const identity = sourceIdentity();
   assert.match(
     evidence,
     new RegExp(
-      `<!-- package9-migration-boundaries-r3-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      `<!-- package9-sites-d1-case-parser-r4-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
       'u',
     ),
   );
   for (const claim of [
-    'Focused RED: `0/1 PASS`, `1/1 FAIL` with `5 !== 7`',
-    'Full RED file: `4/5 PASS`, `1/5 FAIL`',
-    'Focused GREEN: `1/1 PASS`',
+    'Public compatibility fixture: `1/1 PASS`',
+    'Focused RED: `0/2 PASS`, `2/2 FAIL`',
+    'Focused GREEN: `2/2 PASS`',
+    'Repaired outer CASE statements: `42`',
     'Migration totals: `180` top-level statements and `174` breakpoints',
     'Fresh D1: `180/180 PASS`; rerun after a complete successful application executed `0` statements',
     'Archive identity: `PASS`',
-    'Correctness reviewer `/root/migration_boundary_correctness_review`: `PASS`',
-    'Security/data-integrity reviewer `/root/migration_boundary_security_review`: `PASS`',
+    'Correctness reviewer `/root/sites_d1_case_correctness_review`: `PASS`',
+    'Security/data-integrity reviewer `/root/sites_d1_case_security_review`: `PASS`',
     'Hosted D1: `NOT_RUN`',
+    'Saved Sites Version 4: `NOT_RETRIED`',
     'Final clean-commit canonical: `TERMINAL_POST_COMMIT`',
   ]) {
     assert.ok(evidence.includes(claim), `missing Package 9 evidence: ${claim}`);

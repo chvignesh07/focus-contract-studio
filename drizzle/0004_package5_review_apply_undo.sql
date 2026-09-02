@@ -17,7 +17,7 @@ BEFORE INSERT ON audit_events
 FOR EACH ROW
 WHEN NEW.action = 'proposal.created' AND NEW.result = 'success'
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM proposals p
       JOIN retrieval_queries q
@@ -54,7 +54,7 @@ BEGIN
              WHERE e.workspace_id = p.workspace_id AND e.proposal_id = p.id
           ))
        )
-  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -66,7 +66,7 @@ CREATE TRIGGER trg_application_commit_complete
 BEFORE INSERT ON application_commits
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM application_guards g
       JOIN application_receipts r
@@ -114,7 +114,7 @@ BEGIN
             AND a.target_id = r.id
             AND a.result = 'success'
        )
-  ) THEN RAISE(ABORT, 'APPLICATION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'APPLICATION_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -144,7 +144,7 @@ CREATE TRIGGER trg_review_commit_complete
 BEFORE INSERT ON review_commits
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NEW.action <> 'edit' AND NOT EXISTS (
+  SELECT (CASE WHEN NEW.action <> 'edit' AND NOT EXISTS (
     SELECT 1
       FROM proposals p
       JOIN review_decisions d
@@ -191,9 +191,9 @@ BEGIN
             AND a.target_id = d.id
             AND a.result = 'success'
        )
-  ) THEN RAISE(ABORT, 'REVIEW_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'REVIEW_INCOMPLETE') END);
 
-  SELECT CASE WHEN NEW.action = 'edit' AND NOT EXISTS (
+  SELECT (CASE WHEN NEW.action = 'edit' AND NOT EXISTS (
     SELECT 1
       FROM proposals child
       JOIN proposals parent
@@ -237,7 +237,7 @@ BEGIN
             AND a.target_id = child.id
             AND a.result = 'success'
        )
-  ) THEN RAISE(ABORT, 'REVIEW_EDIT_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'REVIEW_EDIT_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -278,7 +278,7 @@ CREATE TRIGGER trg_undo_commit_complete
 BEFORE INSERT ON undo_commits
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM component_variants v
       JOIN implemented_focus_revisions created
@@ -320,7 +320,7 @@ BEGIN
             AND a.target_id = created.id
             AND a.result = 'success'
        )
-  ) THEN RAISE(ABORT, 'UNDO_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'UNDO_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
@@ -394,7 +394,7 @@ CREATE TRIGGER trg_precedent_projection_commit_complete
 BEFORE INSERT ON precedent_projection_commits
 FOR EACH ROW
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT (CASE WHEN NOT EXISTS (
     SELECT 1
       FROM runtime_precedent_provenance provenance
       JOIN verification_receipts verification
@@ -470,7 +470,7 @@ BEGIN
             AND a.target_id = record.id
             AND a.result = 'success'
        )
-  ) THEN RAISE(ABORT, 'PRECEDENT_PROJECTION_INCOMPLETE') END;
+  ) THEN RAISE(ABORT, 'PRECEDENT_PROJECTION_INCOMPLETE') END);
 END;
 --> statement-breakpoint
 
