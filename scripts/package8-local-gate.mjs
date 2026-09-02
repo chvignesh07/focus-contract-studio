@@ -41,14 +41,14 @@ export function buildPackage8LocalGate(repositoryRoot) {
     },
     tests: {
       inherited_package7: 482,
-      package8_node: 14,
-      package8_d1: 14,
+      package8_node: 16,
+      package8_d1: 17,
       deterministic_seed: 7,
       memory_counterfactual: 5,
       package8_browser: 4,
-      passed: 526,
+      passed: 531,
       failed: 0,
-      total: 526,
+      total: 531,
     },
     findings: {
       unresolved_critical: 0,

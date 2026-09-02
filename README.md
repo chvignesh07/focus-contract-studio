@@ -35,8 +35,13 @@ npm run test:package8:seed
 npm run verify:package8:benchmark
 npm run test:package8:browser
 npm run verify:package8:release
+npm run verify:package8:evidence-binding
 npm run build
 ```
+
+The standalone evidence-binding command requires exact clean HEAD/tree state. If its
+ignored live Gitleaks receipt is absent, it performs the required pinned scan once;
+if a current receipt exists, it validates and reuses it without a duplicate scan.
 
 For local interactive development, provide `FCS_PUBLIC_ORIGIN` plus distinct project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` values. Each secret is the unpadded base64url encoding of exactly 32 random bytes. Never commit these values. Then run `npm run dev`.
 
@@ -88,7 +93,7 @@ The 36 precedent records and queries are synthetic. RRF development benchmark v2
 Primary local evidence:
 
 - [Package 8 checkpoint](docs/evidence/PACKAGE8_CHECKPOINT.md)
-- [Package 8 implementation reviews](docs/evidence/PACKAGE8_REVIEWS.md), distinct from unstarted `E-018` Review 1
+- [Package 8 implementation reviews](docs/evidence/PACKAGE8_REVIEWS.md), distinct from completed local `E-018` Review 1
 - [Execution state](docs/evidence/EXECUTION_STATE.md) and [evidence registry](docs/delivery/EVIDENCE_REGISTRY.md)
 - [Provenance ledger](docs/evidence/PROVENANCE_LEDGER.md), [third-party notices](THIRD_PARTY_NOTICES.md), and deterministic dependency/license inventory
 - Machine-readable local gate, source manifest, clean-D1 result, and security scan summaries under `.artifacts/`

@@ -42,12 +42,12 @@
 
 **Goal**: Verification truth, complete chronological history, every recovery state, undo/reset, and responsive keyboard behavior are explicit and observable.
 
-**Independent Test**: DOM state-contract tests and built Playwright full-flow journeys at desktop, 320 px, 375 px, and 200% zoom.
+**Independent Test**: DOM state-contract tests and built Playwright full-flow journeys at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation; true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 
 - [x] T016 [US3] Render all six verification checks, raw-sequence references, revision/projection provenance, and exact proof exclusions in `app/focus-contract-studio.tsx`
 - [x] T017 [US3] Expand the safe chronological timeline detail and preserve deliberate undo/reset confirmation/recovery in `app/focus-contract-studio.tsx`
 - [x] T018 [US3] Render every named public state through the one-next-action contract with restrained live announcements in `app/focus-contract-studio.tsx`
-- [x] T019 [US3] Add full built-browser journeys for semantic heading/source order, computed contrast, 44px targets, native-dialog/inertness, keyboard/focus visibility, restrained live regions, reduced motion, axe, viewport/zoom overflow, no-WebMCP, copy, timeline, undo/reset, and deterministic screenshot hashing in `tests/package6-browser/premium-surface.spec.ts` and `playwright.config.ts`
+- [x] T019 [US3] Add full built-browser journeys for semantic heading/source order, computed contrast, 44px targets, native-dialog/inertness, keyboard/focus visibility, restrained live regions, reduced motion, axe, viewport/responsive-emulation overflow, no-WebMCP, copy, timeline, undo/reset, and deterministic screenshot hashing in `tests/package6-browser/premium-surface.spec.ts` and `playwright.config.ts`
 - [x] T020 Run focused node, D1, DOM, and built-browser tests green and record exact red-to-green totals in `docs/evidence/PACKAGE_6_RED_TO_GREEN.md`
 
 ## Phase 5: Evidence, Review, and Local Checkpoint

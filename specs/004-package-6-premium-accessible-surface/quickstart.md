@@ -26,7 +26,7 @@ Retain one deterministic red artifact before production implementation and the c
 4. Check the exact acknowledgement, confirm approval, apply, copy the permanent receipt, and start revision-2 rehearsal.
 5. Complete the six-row verification, inspect projection provenance and proof exclusions, then inspect chronological history.
 6. Confirm undo and reset deliberately.
-7. Repeat with keyboard only, WebMCP unavailable, native modal/inertness assertions, axe, no page overflow, and enabled-control visibility at desktop, 320 px, 375 px, and true 200% zoom.
+7. Repeat with keyboard only, WebMCP unavailable, native modal/inertness assertions, axe, no page overflow, and enabled-control visibility at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation; true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 
 ## Complete local gate
 

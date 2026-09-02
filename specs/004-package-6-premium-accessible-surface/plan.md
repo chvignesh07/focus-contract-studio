@@ -18,7 +18,7 @@ Keep Package 5's complete state machine and two WebMCP tools intact. Add one pro
 
 **Testing**: Node test runner, Vitest, Cloudflare workers pool, Testing Library/jsdom, Playwright 1.62.1, axe-core
 
-**Target Platform**: Same-origin browser UI backed by a local Cloudflare Worker; desktop, 320 px, 375 px, and 200% page zoom
+**Target Platform**: Same-origin browser UI backed by a local Cloudflare Worker; desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation; true browser UI 200% zoom remains founder-manual `NOT_RUN`
 
 **Project Type**: Full-stack web application
 
@@ -97,7 +97,7 @@ docs/evidence/
 1. Write pure state/stage/DTO tests and route/DOM contract tests; retain the failing output.
 2. Implement the smallest domain policy, allowlisted route, safe DTO mapping, acknowledgement/cancellation, receipt continuation, and real-state markup.
 3. Redesign the existing stylesheet with tokens and responsive rules; do not introduce a component framework.
-4. Add built-browser journeys for four profiles, native dialog/inertness, axe, visible focus/actions, no horizontal overflow, full no-WebMCP flow, screenshots, and receipt/timeline behavior.
+4. Add built-browser journeys for four profiles, including 640 CSS px at DPR 2 responsive emulation, plus native dialog/inertness, axe, visible focus/actions, no horizontal overflow, full no-WebMCP flow, screenshots, and receipt/timeline behavior. The true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 5. Bind design resolution, cold answers, reviewers, source manifest, and local-gate evidence; converge exactly once.
 
 ## Complexity Tracking

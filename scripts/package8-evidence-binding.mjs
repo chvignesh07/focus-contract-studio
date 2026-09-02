@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,9 @@ import {
   GITLEAKS_VERSION,
   buildCurrentTreeIdentity,
   buildTrackedGitleaksEvidence,
+  runLiveGitleaks,
   validateBuildInputs,
+  validateGitleaksRuntime,
 } from './package8-release-checks.mjs';
 import {
   buildPackage8SourceManifest,
@@ -70,6 +72,15 @@ export function validateAdversarialReview1(text) {
     'Final recheck reviewer count: `3`',
     'Same reviewer identities: `PASS`',
     'Finding dispositions: `7/7 REMEDIATED`',
+    '## Package 9 pre-freeze addendum',
+    'FCS-P9-PF-001: REMEDIATED',
+    'FCS-P9-PF-002: REMEDIATED',
+    'FCS-P9-PF-003: REMEDIATED',
+    'FCS-P9-PF-004: REMEDIATED',
+    'FCS-P9-PF-005: REMEDIATED',
+    'Package 9 addendum finding dispositions: `5/5 REMEDIATED`',
+    'CSS zoom 2×',
+    'Actual browser UI 200% zoom remains `NOT_RUN`',
     '[RED]',
     '[GREEN]',
     'Unresolved critical: `0`',
@@ -138,14 +149,14 @@ export function validatePackage8LocalGate(artifact, source) {
   requireCondition(
     JSON.stringify(artifact.tests) === JSON.stringify({
       inherited_package7: 482,
-      package8_node: 14,
-      package8_d1: 14,
+      package8_node: 16,
+      package8_d1: 17,
       deterministic_seed: 7,
       memory_counterfactual: 5,
       package8_browser: 4,
-      passed: 526,
+      passed: 531,
       failed: 0,
-      total: 526,
+      total: 531,
     }),
     'local gate totals drift',
   );
@@ -235,9 +246,10 @@ export function validateLiveGitleaksReceipt(repositoryRoot, receipt) {
   );
   const status = gitOutput(repositoryRoot, ['status', '--porcelain=v1', '--untracked-files=all']);
   requireCondition(
-    receipt.head_commit === gitOutput(repositoryRoot, ['rev-parse', 'HEAD']) &&
+    status.length === 0 &&
+      receipt.worktree_clean === true &&
+      receipt.head_commit === gitOutput(repositoryRoot, ['rev-parse', 'HEAD']) &&
       receipt.head_tree === gitOutput(repositoryRoot, ['rev-parse', 'HEAD^{tree}']) &&
-      receipt.worktree_clean === (status.length === 0) &&
       receipt.worktree_status_sha256 === sha256(status),
     'live Gitleaks commit or worktree binding drift',
   );
@@ -292,6 +304,22 @@ export function validateLiveGitleaksReceipt(repositoryRoot, receipt) {
   return receipt;
 }
 
+export function ensureLiveGitleaksReceipt(repositoryRoot) {
+  const receiptPath = path.join(
+    repositoryRoot,
+    '.artifacts/runtime/package8-gitleaks-live.json',
+  );
+  if (!existsSync(receiptPath)) {
+    return validateLiveGitleaksReceipt(repositoryRoot, runLiveGitleaks(repositoryRoot));
+  }
+  const receipt = parseStrictJson(
+    readEvidence(repositoryRoot, '.artifacts/runtime/package8-gitleaks-live.json'),
+    '.artifacts/runtime/package8-gitleaks-live.json',
+  );
+  validateGitleaksRuntime(repositoryRoot, receipt);
+  return validateLiveGitleaksReceipt(repositoryRoot, receipt);
+}
+
 function validateStatusArtifacts(repositoryRoot) {
   const clean = parseStrictJson(
     readEvidence(repositoryRoot, '.artifacts/test/package8-clean-d1.json'),
@@ -318,13 +346,7 @@ function validateStatusArtifacts(repositoryRoot) {
       memory.without_eligible_D001 === 'REJECTED_NO_MUTATION',
     'memory counterfactual artifact drift',
   );
-  const liveGitleaks = validateLiveGitleaksReceipt(
-    repositoryRoot,
-    parseStrictJson(
-      readEvidence(repositoryRoot, '.artifacts/runtime/package8-gitleaks-live.json'),
-      '.artifacts/runtime/package8-gitleaks-live.json',
-    ),
-  );
+  const liveGitleaks = ensureLiveGitleaksReceipt(repositoryRoot);
   const security = parseStrictJson(
     readEvidence(repositoryRoot, '.artifacts/security/release-security.json'),
     '.artifacts/security/release-security.json',

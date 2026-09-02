@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import {
   chmodSync,
+  existsSync,
   mkdtempSync,
   readFileSync,
   rmSync,
+  statSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -33,6 +35,34 @@ const buildInputsSource = readFileSync(
   path.join(repositoryRoot, 'release/BUILD_INPUTS.json'),
   'utf8',
 );
+
+function createGitleaksTestRepository() {
+  const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'fcs-package8-gitleaks-repository-'));
+  execFileSync('git', ['init', '--quiet'], { cwd: temporaryRoot });
+  for (const relativePath of ['.gitignore', '.gitleaks.toml', '.gitleaksignore.package8']) {
+    writeFileSync(
+      path.join(temporaryRoot, relativePath),
+      readFileSync(path.join(repositoryRoot, relativePath)),
+    );
+  }
+  writeFileSync(path.join(temporaryRoot, 'source.txt'), 'public synthetic data\n');
+  execFileSync('git', ['add', '.'], { cwd: temporaryRoot });
+  execFileSync(
+    'git',
+    [
+      '-c',
+      'user.name=Package 8 Test',
+      '-c',
+      'user.email=package8-test@example.invalid',
+      'commit',
+      '--quiet',
+      '-m',
+      'test fixture',
+    ],
+    { cwd: temporaryRoot },
+  );
+  return temporaryRoot;
+}
 
 test('build inputs use strict duplicate-aware JSON and exact pre-live identities', () => {
   const valid = validateBuildInputs(repositoryRoot, buildInputsSource);
@@ -254,5 +284,66 @@ test('live Gitleaks rejects a stale executable version before scanning', () => {
   } finally {
     process.env.PATH = originalPath;
     rmSync(fakePath, { recursive: true, force: true });
+  }
+});
+
+test('standalone evidence acquisition scans a missing receipt once and validates runtime before reuse', async () => {
+  const evidenceBinding = await import('../../scripts/package8-evidence-binding.mjs');
+  const ensureLiveGitleaksReceipt = Reflect.get(
+    evidenceBinding,
+    'ensureLiveGitleaksReceipt',
+  ) as (root: string) => Record<string, unknown>;
+  assert.equal(typeof ensureLiveGitleaksReceipt, 'function');
+
+  const temporaryRoot = createGitleaksTestRepository();
+  const receiptPath = path.join(
+    temporaryRoot,
+    '.artifacts/runtime/package8-gitleaks-live.json',
+  );
+  const emptyPath = mkdtempSync(path.join(tmpdir(), 'fcs-package8-no-gitleaks-'));
+  const fakePath = mkdtempSync(path.join(tmpdir(), 'fcs-package8-wrong-gitleaks-'));
+  const fakeExecutable = path.join(fakePath, 'gitleaks');
+  const originalPath = process.env.PATH;
+  try {
+    const first = ensureLiveGitleaksReceipt(temporaryRoot);
+    assert.equal(first.status, 'PASS');
+    assert.equal(existsSync(receiptPath), true);
+    const firstMtime = statSync(receiptPath, { bigint: true }).mtimeNs;
+    chmodSync(receiptPath, 0o444);
+    const second = ensureLiveGitleaksReceipt(temporaryRoot);
+    assert.deepEqual(second, first);
+    assert.equal(statSync(receiptPath, { bigint: true }).mtimeNs, firstMtime);
+
+    process.env.PATH = emptyPath;
+    assert.throws(
+      () => ensureLiveGitleaksReceipt(temporaryRoot),
+      /Gitleaks executable is unavailable/u,
+    );
+    writeFileSync(fakeExecutable, '#!/bin/sh\nprintf "8.30.0\\n"\n');
+    chmodSync(fakeExecutable, 0o755);
+    process.env.PATH = fakePath;
+    assert.throws(
+      () => ensureLiveGitleaksReceipt(temporaryRoot),
+      /Gitleaks version mismatch; required 8\.30\.1/u,
+    );
+  } finally {
+    process.env.PATH = originalPath;
+    if (existsSync(receiptPath)) chmodSync(receiptPath, 0o644);
+    rmSync(temporaryRoot, { recursive: true, force: true });
+    rmSync(emptyPath, { recursive: true, force: true });
+    rmSync(fakePath, { recursive: true, force: true });
+  }
+});
+
+test('live Gitleaks refuses to attest a dirty tracked tree', () => {
+  const temporaryRoot = createGitleaksTestRepository();
+  try {
+    writeFileSync(path.join(temporaryRoot, 'source.txt'), 'dirty tracked content\n');
+    assert.throws(
+      () => runLiveGitleaks(temporaryRoot),
+      /clean worktree/u,
+    );
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true });
   }
 });

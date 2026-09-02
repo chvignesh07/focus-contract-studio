@@ -80,6 +80,65 @@ beforeEach(async () => {
   await env.DB.prepare('DELETE FROM rate_limit_windows').run();
 });
 
+function barrieredAdmission(base: (workspaceId: string) => Promise<void>) {
+  let arrivals = 0;
+  let release!: () => void;
+  const bothArrived = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return async (workspaceId: string) => {
+    await base(workspaceId);
+    arrivals += 1;
+    if (arrivals === 2) release();
+    await bothArrived;
+  };
+}
+
+async function variantSelectionGraph(workspaceId: string) {
+  return env.DB.prepare(
+    `SELECT
+       (SELECT state.view_revision
+          FROM workspace_view_state state
+         WHERE state.workspace_id = ?) AS view_revision,
+       (SELECT variant.slug
+          FROM workspace_view_state state
+          JOIN component_variants variant
+            ON variant.workspace_id = state.workspace_id
+           AND variant.id = state.active_variant_id
+         WHERE state.workspace_id = ?) AS active_variant,
+       (SELECT COUNT(*) FROM variant_selection_commits
+         WHERE workspace_id = ?) AS commits,
+       (SELECT COUNT(*) FROM audit_events
+         WHERE workspace_id = ? AND action = 'variant.selected'
+           AND result = 'success') AS audits,
+       (SELECT request_count FROM rate_limit_windows
+         WHERE workspace_id = ? AND operation = 'variant') AS admission_count,
+       (SELECT COUNT(*) FROM idempotency_records
+         WHERE workspace_id = ? AND operation = 'variant') AS idempotency_records,
+       (SELECT COUNT(*)
+          FROM variant_selection_commits selection
+          JOIN audit_events audit
+            ON audit.workspace_id = selection.workspace_id
+           AND audit.action = 'variant.selected'
+           AND audit.result = 'success'
+           AND audit.target_id = selection.id
+           AND audit.correlation_id = selection.id
+          JOIN workspace_view_state state
+            ON state.workspace_id = selection.workspace_id
+           AND state.active_variant_id = selection.variant_id
+           AND state.view_revision = selection.to_view_revision
+         WHERE selection.workspace_id = ?) AS complete_graphs`,
+  ).bind(
+    workspaceId,
+    workspaceId,
+    workspaceId,
+    workspaceId,
+    workspaceId,
+    workspaceId,
+    workspaceId,
+  ).first();
+}
+
 test('variant selection replays before admission and saturates without another write', async () => {
   const session = await bootstrapWorkspace({
     db: env.DB,
@@ -192,6 +251,153 @@ test('downstream variant failure rolls back view state, commit, audit, and admis
     commits: 0,
     audits: 0,
     admission_rows: 0,
+  });
+});
+
+test('simultaneous identical active-variant requests converge on one durable replay receipt', async () => {
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: package5Now,
+    tokenBytes: new Uint8Array(32).fill(237),
+    ...package5Secrets,
+  });
+  const now = package5Now + 1;
+  const input = {
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    slug: 'delete-account-danger-emphasis',
+    expectedViewRevision: 1,
+    idempotencyKey: '80000000-0000-4000-8000-000000000301',
+    now,
+  };
+  const admitOperation = barrieredAdmission(workspaceAdmission({
+    db: env.DB,
+    operation: 'variant',
+    now,
+    secret: rateSecret,
+  }));
+
+  const results = await Promise.all([
+    setActiveVariantBySlug({ ...input, admitOperation }),
+    setActiveVariantBySlug({ ...input, admitOperation }),
+  ]);
+  expect(results).toEqual([
+    { variant: 'delete-account-danger-emphasis', viewRevision: 2 },
+    { variant: 'delete-account-danger-emphasis', viewRevision: 2 },
+  ]);
+  await expect(setActiveVariantBySlug({
+    ...input,
+    admitOperation: async () => {
+      throw new Error('committed replay must not re-enter admission');
+    },
+  })).resolves.toEqual(results[0]);
+  expect(await variantSelectionGraph(session.workspace.id)).toEqual({
+    view_revision: 2,
+    active_variant: 'delete-account-danger-emphasis',
+    commits: 1,
+    audits: 1,
+    admission_count: 1,
+    idempotency_records: 0,
+    complete_graphs: 1,
+  });
+});
+
+test('simultaneous conflicting payload reuse fails closed around one active-variant graph', async () => {
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: package5Now,
+    tokenBytes: new Uint8Array(32).fill(238),
+    ...package5Secrets,
+  });
+  const now = package5Now + 1;
+  const key = '80000000-0000-4000-8000-000000000302';
+  const admitOperation = barrieredAdmission(workspaceAdmission({
+    db: env.DB,
+    operation: 'variant',
+    now,
+    secret: rateSecret,
+  }));
+  const request = (slug: 'delete-account-standard' | 'delete-account-danger-emphasis') =>
+    setActiveVariantBySlug({
+      db: env.DB,
+      workspaceId: session.workspace.id,
+      slug,
+      expectedViewRevision: 1,
+      idempotencyKey: key,
+      now,
+      admitOperation,
+    });
+
+  const results = await Promise.allSettled([
+    request('delete-account-standard'),
+    request('delete-account-danger-emphasis'),
+  ]);
+  const fulfilled = results.filter(
+    (result): result is PromiseFulfilledResult<{ variant: string; viewRevision: number }> =>
+      result.status === 'fulfilled',
+  );
+  const rejected = results.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
+  );
+  expect(fulfilled).toHaveLength(1);
+  expect(rejected).toHaveLength(1);
+  expect(rejected[0]!.reason).toMatchObject({ code: 'IDEMPOTENCY_CONFLICT', status: 409 });
+  expect(await variantSelectionGraph(session.workspace.id)).toEqual({
+    view_revision: 2,
+    active_variant: fulfilled[0]!.value.variant,
+    commits: 1,
+    audits: 1,
+    admission_count: 1,
+    idempotency_records: 0,
+    complete_graphs: 1,
+  });
+});
+
+test('simultaneous different active-variant keys against one view revision yield one stale loser', async () => {
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: package5Now,
+    tokenBytes: new Uint8Array(32).fill(239),
+    ...package5Secrets,
+  });
+  const now = package5Now + 1;
+  const admitOperation = barrieredAdmission(workspaceAdmission({
+    db: env.DB,
+    operation: 'variant',
+    now,
+    secret: rateSecret,
+  }));
+  const request = (idempotencyKey: string) => setActiveVariantBySlug({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    slug: 'delete-account-danger-emphasis',
+    expectedViewRevision: 1,
+    idempotencyKey,
+    now,
+    admitOperation,
+  });
+
+  const results = await Promise.allSettled([
+    request('80000000-0000-4000-8000-000000000303'),
+    request('80000000-0000-4000-8000-000000000304'),
+  ]);
+  expect(results.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
+  const rejected = results.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
+  );
+  expect(rejected).toHaveLength(1);
+  expect(rejected[0]!.reason).toMatchObject({ code: 'VIEW_STATE_STALE', status: 409 });
+  expect(await variantSelectionGraph(session.workspace.id)).toEqual({
+    view_revision: 2,
+    active_variant: 'delete-account-danger-emphasis',
+    commits: 1,
+    audits: 1,
+    admission_count: 1,
+    idempotency_records: 0,
+    complete_graphs: 1,
   });
 });
 

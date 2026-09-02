@@ -55,7 +55,7 @@ As a reviewer, I can distinguish what verification proves, inspect every raw-seq
 
 **Why this priority**: Trust depends on truthful proof boundaries and durable recovery, not a success-looking screen.
 
-**Independent Test**: Complete revision-2 rehearsal and verify pass/fail paths, inspect the chronological timeline, undo, reset, and exercise every public state panel at desktop, 320 px, 375 px, and true 200% zoom.
+**Independent Test**: Complete revision-2 rehearsal and verify pass/fail paths, inspect the chronological timeline, undo, reset, and exercise every public state panel at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation. The true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 
 **Acceptance Scenarios**:
 
@@ -72,7 +72,7 @@ As a reviewer, I can distinguish what verification proves, inspect every raw-seq
 - A proposal changes after acknowledgement, review, confirmation, reload, or variant switch.
 - An apply response is lost before or after commit and the same idempotency key is retried.
 - Verification fails, passes without projection, passes with projection, or refers to a stale rendered revision.
-- Content grows at 320 px, 375 px, or 200% zoom without horizontal page overflow, hidden actions, or obscured focus.
+- Content grows at 320 px, 375 px, or under 640 CSS px at DPR 2 responsive emulation without horizontal page overflow, hidden actions, or obscured focus; true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 
 ## Requirements
 
@@ -100,7 +100,7 @@ As a reviewer, I can distinguish what verification proves, inspect every raw-seq
 - **FR-020**: The visual system MUST use a warm neutral canvas, near-black type, indigo interaction, semantic amber/green/red, design tokens, an 8 px spacing rhythm, restrained radii/shadows, tabular numerals, and monospace only for identifiers/digests.
 - **FR-021**: The surface MUST NOT use decorative purple/violet gradients, glassmorphism, meaningless blobs, ornamental motion, marketing detours, or an undifferentiated dashboard card stack.
 - **FR-022**: Native named/described modal dialogs and inert background behavior MUST remain intact; all controls MUST have persistent labels, visible focus, keyboard operation, non-color state, and at least 44×44 px targets.
-- **FR-023**: Desktop, 320 px, 375 px, and true 200% zoom MUST avoid page-level/two-dimensional horizontal scrolling and keep every enabled focused action visible and unobscured.
+- **FR-023**: Desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation MUST avoid page-level/two-dimensional horizontal scrolling and keep every enabled focused action visible and unobscured; true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 - **FR-024**: Reduced motion MUST be honored and live announcements MUST be restrained to material state changes.
 - **FR-025**: Package 5 domain behavior, schema, two-tool contract, frozen proof, and external boundaries MUST remain unchanged; no dependency, migration, or component framework may be added.
 
@@ -118,7 +118,7 @@ As a reviewer, I can distinguish what verification proves, inspect every raw-seq
 
 - **SC-001**: One fresh read-only evaluator answers all five controlling questions correctly from only the final page/screenshot in 15 seconds or less.
 - **SC-002**: Package 6 tests prove variant CAS/security/cancellation, six-stage derivation, DTO privacy, exact acknowledgement, all state panels, receipts, timeline, undo/reset, and unsupported-WebMCP behavior.
-- **SC-003**: Built Playwright completes the full keyboard workflow at desktop, 320 px, 375 px, and true 200% zoom with zero critical/serious axe findings and no page-level horizontal overflow or obscured enabled controls.
+- **SC-003**: Built Playwright completes the full keyboard workflow at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation with zero critical/serious axe findings and no page-level horizontal overflow or obscured enabled controls; true browser UI 200% zoom remains founder-manual `NOT_RUN`.
 - **SC-004**: Every relevant state has exactly one next action and truthfully reports revision change, public code, and correlation ID.
 - **SC-005**: `verify:package6` passes locally and from one clean disposable `--no-local --single-branch` clone of the exact checkpoint commit while exact Package 5 frozen verification remains green.
 - **SC-006**: Source/evidence binding and tamper tests pass; hosted, real-client, founder-manual, deployed-cold-evaluator, Package 7, push, merge, deploy, hosted D1, publication, and account changes remain `NOT_RUN` or not performed.

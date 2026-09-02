@@ -181,7 +181,7 @@ Build:
 
 Tests and evidence:
 
-- Testing Library state/interaction tests; Playwright keyboard journeys at desktop, 320 px, and 375 px; 200% zoom/reflow; explicit dialog-semantics and blocked-background pointer/keyboard assertions; focused-element bounds/occlusion assertions in all four viewport/zoom conditions; reduced motion; axe; visual inspection of every state; and copy/source-order audit.
+- Testing Library state/interaction tests; Playwright keyboard journeys at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation; explicit dialog-semantics and blocked-background pointer/keyboard assertions; focused-element bounds/occlusion assertions in all four automated responsive profiles; reduced motion; axe; visual inspection of every state; and copy/source-order audit. Actual browser UI 200% zoom remains a founder-manual release requirement, `NOT_RUN` until completed against the exact deployed version.
 - On the exact deployed version, founder manual evidence separately dispositions dialog semantics/background inertness and every focused actionable control remaining inside the visible, unobscured viewport in all four conditions.
 
 Exit gate: the complete human workflow works without WebMCP, no high-impact automated accessibility issue remains, and a cold evaluator answers all five `UX_SPEC` questions within 15 seconds, including that verification compares a new raw rehearsal with the named implemented revision rather than proving approval or general conformance.

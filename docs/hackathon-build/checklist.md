@@ -52,7 +52,7 @@
   Spec ref: `docs/product/UX_SPEC.md` and `prd.md > Epics and user stories`
   What to build: Wire persistent state into the complete read, rehearse, propose, revise, approve/reject/revoke, apply, verify, history, reload, stale failure, reset, and undo experience. Implement all loading, empty, success, error, conflict, and rate-limit states.
   Acceptance: Entire journey works by keyboard at 320 px and 375 px and at 200% zoom, uses non-color status labels and live announcements, preserves entered values on validation, and exposes no machine-only action. The open dialog exposes its name, description, and modal semantics; background controls reject pointer activation and keyboard focus until close; every focused actionable control remains inside the visible, unobscured viewport at desktop, 320 px, 375 px, and 200% zoom.
-  Verify: Testing Library behavior tests, Playwright full journey with dialog/background and focused-element bounds/occlusion assertions in all four viewport/zoom conditions, axe checks, reduced-motion/reflow checks, and an exact-release manual keyboard review of the same behaviors.
+  Verify: Testing Library behavior tests, Playwright full journey with dialog/background and focused-element bounds/occlusion assertions at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation, axe checks, and reduced-motion/reflow checks, plus an exact-release manual keyboard review of the same behaviors. Actual browser UI 200% zoom remains a founder-manual release requirement, `NOT_RUN` until completed against the exact deployed version.
 
 - [ ] **8. Register and prove the four WebMCP tools**
   Spec ref: `docs/contracts/WEBMCP_TOOL_CONTRACT.md`

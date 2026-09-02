@@ -62,6 +62,15 @@ test('Review 1 disposition and draft-submission claims fail closed', () => {
     `Initial reviewers: ${reviewers}`,
     `Final recheck reviewers: ${reviewers}`,
     'Finding dispositions: `7/7 REMEDIATED`',
+    '## Package 9 pre-freeze addendum',
+    'FCS-P9-PF-001: REMEDIATED',
+    'FCS-P9-PF-002: REMEDIATED',
+    'FCS-P9-PF-003: REMEDIATED',
+    'FCS-P9-PF-004: REMEDIATED',
+    'FCS-P9-PF-005: REMEDIATED',
+    'Package 9 addendum finding dispositions: `5/5 REMEDIATED`',
+    'CSS zoom 2×',
+    'Actual browser UI 200% zoom remains `NOT_RUN`',
     ...Array.from({ length: 7 }, (_, index) =>
       `FCS-R1-00${index + 1}: REMEDIATED`,
     ),
@@ -194,4 +203,119 @@ test('Package 8 gate, two-review boundary, and evidence are source-bound without
     }),
     /commit or worktree binding drift/u,
   );
+});
+
+test('pre-freeze claim and active-variant contracts match the behavior actually exercised', () => {
+  const browserTest = readFileSync(
+    path.join(repositoryRoot, 'tests/package5-browser/review-apply-undo.spec.ts'),
+    'utf8',
+  );
+  assert.match(browserTest, /document\.documentElement\.style\.zoom = String\(value\)/u);
+  assert.match(browserTest, /name: 'CSS zoom 2x'/u);
+  assert.doesNotMatch(browserTest, /name: '200% browser zoom'/u);
+
+  for (const relativePath of [
+    'docs/evidence/PACKAGE5_VERIFICATION.md',
+    'docs/evidence/PACKAGE5_EXECUTION.md',
+    'docs/evidence/PACKAGE5_ADVERSARIAL_REVIEW.md',
+  ]) {
+    const evidence = readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
+    assert.match(evidence, /CSS zoom 2×/u, relativePath);
+    assert.doesNotMatch(evidence, /true 200% page zoom/u, relativePath);
+  }
+
+  const execution = JSON.parse(readFileSync(
+    path.join(repositoryRoot, 'docs/evidence/EXECUTION_STATE.json'),
+    'utf8',
+  ));
+  assert.equal(
+    execution.packages.package8.browser_ui_200_percent_zoom_status,
+    'NOT_RUN',
+  );
+  const review = readFileSync(
+    path.join(repositoryRoot, 'docs/evidence/ADVERSARIAL_REVIEW_1.md'),
+    'utf8',
+  );
+  assert.match(review, /Package 9 pre-freeze addendum/u);
+  assert.match(review, /CSS zoom 2×/u);
+  assert.match(review, /Actual browser UI 200% zoom remains `NOT_RUN`/u);
+
+  const activeVariantContract = readFileSync(
+    path.join(
+      repositoryRoot,
+      'specs/004-package-6-premium-accessible-surface/contracts/active-variant-api.md',
+    ),
+    'utf8',
+  );
+  assert.match(activeVariantContract, /"idempotencyKey": "[0-9a-f-]+"/u);
+  assert.match(activeVariantContract, /IDEMPOTENCY_CONFLICT/u);
+});
+
+test('Package 6 automation documentation distinguishes DPR emulation from manual browser zoom', () => {
+  const browserTest = readFileSync(
+    path.join(repositoryRoot, 'tests/package6-browser/premium-surface.spec.ts'),
+    'utf8',
+  );
+  assert.match(browserTest, /name: '640 CSS px at DPR 2'/u);
+  assert.match(browserTest, /Emulation\.setDeviceMetricsOverride/u);
+  assert.match(browserTest, /deviceScaleFactor: profile\.zoom/u);
+  assert.doesNotMatch(browserTest, /200% (?:browser |page )?zoom/iu);
+
+  for (const relativePath of [
+    'specs/004-package-6-premium-accessible-surface/spec.md',
+    'specs/004-package-6-premium-accessible-surface/plan.md',
+    'specs/004-package-6-premium-accessible-surface/quickstart.md',
+    'specs/004-package-6-premium-accessible-surface/tasks.md',
+  ]) {
+    const document = readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
+    assert.match(document, /640 CSS px at DPR 2 responsive emulation/u, relativePath);
+    assert.match(
+      document,
+      /true browser UI 200% zoom remains founder-manual `NOT_RUN`/u,
+      relativePath,
+    );
+    assert.doesNotMatch(
+      document.replaceAll(
+        'true browser UI 200% zoom remains founder-manual `NOT_RUN`',
+        '',
+      ),
+      /200% (?:browser |page )?zoom/iu,
+      relativePath,
+    );
+  }
+});
+
+test('current release-control automation claims distinguish DPR emulation from deployed browser zoom', () => {
+  const automatedClaims: Array<[relativePath: string, claimPattern: RegExp]> = [
+    ['docs/quality/TEST_STRATEGY.md', /^\| Browser \| Playwright\/axe \|.*$/mu],
+    ['docs/quality/TRACEABILITY_MATRIX.md', /^\| Accessibility \| Accessibility \|.*$/mu],
+    [
+      'docs/delivery/CODEX_IMPLEMENTATION_PLAN.md',
+      /^- Testing Library state\/interaction tests; Playwright.*$/mu,
+    ],
+    [
+      'docs/quality/ACCESSIBILITY_AND_VERIFICATION.md',
+      /## Automated accessibility gates[\s\S]*?(?=\n## Founder-operated manual session)/u,
+    ],
+    [
+      'docs/hackathon-build/checklist.md',
+      /^  Verify: Testing Library behavior tests, Playwright.*$/mu,
+    ],
+  ];
+  const automatedProfile = '640 CSS px at DPR 2 responsive emulation';
+  const manualBoundary =
+    'Actual browser UI 200% zoom remains a founder-manual release requirement, `NOT_RUN` until completed against the exact deployed version.';
+
+  for (const [relativePath, claimPattern] of automatedClaims) {
+    const document = readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
+    const claim = document.match(claimPattern)?.[0];
+    assert.ok(claim, `missing automated-proof claim: ${relativePath}`);
+    assert.ok(claim.includes(automatedProfile), relativePath);
+    assert.ok(claim.includes(manualBoundary), relativePath);
+    assert.doesNotMatch(
+      claim.replaceAll(manualBoundary, ''),
+      /(?:200%[^.\n|]*zoom|zoom[^.\n|]*200%)/iu,
+      relativePath,
+    );
+  }
 });

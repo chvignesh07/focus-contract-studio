@@ -201,3 +201,196 @@ the unauthorized hosted Cloudflare/client-isolation probe.
 Review 1 is a local release-candidate disposition only. It does not authorize or
 claim Package 9, deployment, account access, hosted mutation, push, merge,
 publication, or submission.
+
+## Package 9 pre-freeze addendum
+
+This addendum records five gaps found after Review 1 and before the local Package 9
+freeze. It does not reopen or renumber the original `7/7 REMEDIATED` Review 1
+finding register, expand Review 1 beyond `LOCAL PASS`, or authorize an external
+action.
+
+### FCS-P9-PF-001: REMEDIATED — standalone evidence binding depended on an ignored receipt
+
+- Severity: `P1 / high`
+- Reproduction: a credential-disabled `git clone --no-local --single-branch` of the
+  starting Review 1 commit had no ignored runtime receipt, so the documented
+  `npm run verify:package8:evidence-binding` command failed with `ENOENT` before it
+  could establish live Gitleaks evidence. A pre-existing receipt also did not prove
+  that the current Gitleaks executable was still available at exact version `8.30.1`.
+- Root cause: receipt acquisition lived only in the wider release-check path, while
+  the standalone evidence binder assumed that path had already run. Clean-worktree
+  state was recorded and compared instead of being required.
+- Permanent fix: the shared evidence helper now performs one live scan only when the
+  receipt is absent. When a receipt exists it validates the current executable,
+  exact version and executable digest before strictly validating the receipt; it
+  never refreshes invalid, stale, malformed, wrong-scope, or finding-bearing evidence.
+  Live scans require the exact clean HEAD/tree before and after execution.
+- [RED] The fresh-clone reproduction failed on the missing receipt, and focused tests
+  initially failed `0/2` because receipt acquisition was absent and dirty tracked
+  content was accepted.
+- [GREEN] Focused Node regressions pass `2/2`: an absent receipt is acquired once and
+  then reused without a second scan; unavailable/wrong-version runtime and dirty
+  tracked content fail closed. Exact-commit standalone and canonical clone proof is
+  terminal Package 9 evidence.
+
+### FCS-P9-PF-002: REMEDIATED — Package 5 CSS zoom was labeled as browser UI zoom
+
+- Severity: `P2 / correctness-material medium`
+- Reproduction: `tests/package5-browser/review-apply-undo.spec.ts` assigns
+  `document.documentElement.style.zoom = String(value)`, but its profile and three
+  Package 5 evidence documents described the result as 200% browser zoom.
+- Root cause: CSS layout zoom and browser-chrome page zoom were treated as equivalent
+  evidence even though the automation only exercised page CSS.
+- Permanent fix: the current test profile and Package 5 evidence now say
+  `CSS zoom 2×`; later DPR-2 responsive evidence remains separately labeled. No
+  historical commit or frozen result was rewritten.
+- [RED] The claim regression found the old profile name and unsupported evidence
+  wording while execution truth already retained browser UI zoom as `NOT_RUN`.
+- [GREEN] The claim regression binds the CSS assignment, corrected profile/evidence,
+  and execution-state boundary. Actual browser UI 200% zoom remains `NOT_RUN`.
+
+### FCS-P9-PF-003: REMEDIATED — active-variant concurrency lacked direct D1 proof
+
+- Severity: `P2 / correctness-material medium`
+- Reproduction: active-variant selection had sequential idempotency and admission
+  coverage but no barriered simultaneous requests against real local D1. The API
+  contract also omitted the already-required UUID idempotency key and conflict result.
+- Root cause: the Package 8 regression matrix did not directly exercise the race
+  recovery and losing-CAS branches of this mutation family.
+- Permanent fix: three barriered real-D1 tests now cover identical same-key replay,
+  conflicting same-key reuse, and different keys racing one expected revision. The
+  active-variant contract now documents the required key and fail-closed conflict.
+  Production code required no change because its existing recovery-first immutable
+  commit, CAS update, audit, and trigger-coupled admission transaction is sound.
+- [RED] A deliberate mutation that disabled raced replay recovery made the identical
+  request test fail with `PACKAGE9_MUTATION_CHECK_RACED_REPLAY`; the mutation was
+  immediately removed.
+- [GREEN] The unmodified implementation passes `3/3`: identical requests converge on
+  one state mutation, admission unit, commit/audit graph, and deterministic replay;
+  conflicting payload reuse returns `IDEMPOTENCY_CONFLICT`; different keys produce
+  one winner and one `VIEW_STATE_STALE` loser with no partial durable state.
+
+### FCS-P9-PF-004: REMEDIATED — Package 6 automation docs overstated DPR emulation as browser zoom
+
+- Severity: `P2 / correctness-material medium`
+- Reproduction: the live Package 6 browser test used CDP device-metrics override for
+  a 640-CSS-pixel viewport at DPR 2, but the active Package 6 specification, plan,
+  quickstart, and tasks still described that automated profile as true browser/page
+  200% zoom.
+- Root cause: FCS-R1-007 corrected the executable test and Package 6 evidence, but the
+  four active Spec Kit automation contracts were omitted from that repair and from
+  the current Package 8 source inventory.
+- Permanent fix: the four active documents now name `640 CSS px at DPR 2 responsive
+  emulation`, retain true browser UI 200% zoom as founder-manual `NOT_RUN`, and are
+  bound into the current source manifest. A focused claim regression ties those
+  statements to the actual CDP profile and rejects unqualified automated zoom claims.
+- [RED] The new focused regression failed `0/1` on
+  `specs/004-package-6-premium-accessible-surface/spec.md` because the required DPR
+  emulation label and manual boundary were absent.
+- [GREEN] The same focused regression passes `1/1` after the four-document repair;
+  Playwright remains accurately scoped to responsive emulation and actual browser UI
+  200% zoom remains founder-manual `NOT_RUN`.
+
+### FCS-P9-PF-005: REMEDIATED — controlling release docs overstated responsive emulation as browser zoom
+
+- Severity: `P2 / correctness-material medium`
+- Reproduction: the controlling test strategy, traceability matrix, implementation
+  plan, and accessibility contract still placed 200% zoom inside Playwright or
+  automated proof. The current build checklist repeated the same attribution in its
+  verification line, although the executable profile is 640 CSS px at DPR 2.
+- Root cause: the PF-004 repair closed the active Package 6 specifications but did
+  not include the imported controlling release-proof documents in the current
+  source inventory or claim-truth regression.
+- Permanent fix: the five current automated-proof statements now name `640 CSS px at
+  DPR 2 responsive emulation` and explicitly preserve actual browser UI 200% zoom as
+  a founder-manual release requirement that is `NOT_RUN` until completed against the
+  exact deployed version. Manual requirements and frozen historical descriptions
+  remain unchanged.
+- [RED] The focused release-control regression failed `0/1` on
+  `docs/quality/TEST_STRATEGY.md` because its automated browser row lacked the DPR
+  description and deployed-version manual boundary.
+- [GREEN] The same regression passes `1/1` across the four named controlling
+  documents plus the one additional current checklist verification statement, and
+  rejects any remaining unqualified 200%-zoom claim inside those automated-proof
+  surfaces.
+
+Package 9 addendum finding dispositions: `5/5 REMEDIATED`.
+
+### Package 9 addendum independent review
+
+- Release/evidence/security reviewer `/root/release_evidence_security`: `PASS`
+- Concurrency/UX/claim-truth reviewer `/root/concurrency_ux_claim`: `PASS`
+- Unresolved critical: `0`
+- Unresolved high: `0`
+- Unresolved correctness-material medium: `0`
+
+Both reviewers were read-only; root remained the sole writer. The reviewers
+independently inspected the exact 18-path PF-001-through-PF-003 precommit overlay;
+root separately verified that earlier overlay in a clean disposable no-local clone.
+That record predates PF-004. The two reviewers found no unresolved material issue and
+preserved the external/manual `NOT_RUN` boundaries for their reviewed scope.
+
+### Package 9 PF-004 reseal independent review
+
+- Zoom/claim-truth reviewer `/root/p9_zoom_claim_review`: `PASS`
+- Release/evidence-binding reviewer `/root/p9_release_binding_review`: `PASS`
+- Reviewed repair overlay: exactly `12` paths against starting candidate
+  `eb2966036982dc5c1a4900748157800c33ac4bf7`
+- Bound source identity: `87` files,
+  `6a73fcad8a4d2327b1cdb707cfc269da985d076238fd5a41a38cc168b560a484`
+- Unresolved critical: `0`
+- Unresolved high: `0`
+- Unresolved correctness-material medium: `0`
+
+Both PF-004 reviewers were read-only; root remained the sole writer. The claim lane
+traced the CDP device-metrics implementation against all four corrected active docs
+and the focused regression. The release lane checked the exact source inventory,
+generated artifacts, source markers, original Review 1 `7/7`, then-current Package 9
+`4/4`, and
+the prior-versus-current review provenance boundary. Root independently ran the
+focused RED/GREEN proof, typecheck, lint, source binding, and Review 1 disposition
+checks. No reviewer authorized or claimed an external or founder-manual action.
+
+### Package 9 PF-005 reseal independent review
+
+- Release-control claim-truth reviewer `/root/p9_pf005_claim_review`: `PASS`
+- Release/evidence-binding reviewer `/root/p9_pf005_binding_review`: `PASS`
+- Reviewed repair overlay: exactly `13` paths against starting candidate
+  `399eab07ba9967cb449ac4911bb27ef830e6cd6a`
+- Bound source identity: `92` files,
+  `1008a681da01e4dc14953577b69e5da85ee1e1f56536683c8f2c842c3261b644`
+- Prior ignored runtime receipt: bound to earlier unpublished candidate
+  `eb2966036982dc5c1a4900748157800c33ac4bf7`; exact post-amend reacquisition
+  required
+- Unresolved critical: `0`
+- Unresolved high: `0`
+- Unresolved correctness-material medium: `0`
+
+Both PF-005 reviewers were read-only; root remained the sole writer. The claim lane
+checked the executable CDP profile, the four required controlling documents, the one
+additional current checklist verification statement, the focused regression, and
+the manual/historical preservation boundary. The release lane checked the exact
+source inventory and artifacts, source markers, PF-005 RED/GREEN proof, original
+Review 1 `7/7`, Package 9 `5/5`, canonical `531/531`, and the ignored-receipt refresh
+design. No reviewer authorized or claimed browser-UI zoom, deployment, or another
+external/manual action.
+
+### Package 9 addendum root-observed retest matrix
+
+- Standalone evidence acquisition regressions: `2/2 PASS`
+- Zoom/contract claim regression: `1/1 PASS`
+- Package 6 DPR/documentation claim regression: `1/1 PASS`
+- Release-control DPR/documentation claim regression: `1/1 PASS`
+- Simultaneous active-variant D1 regressions: `3/3 PASS`
+- Typecheck and lint: `PASS`
+- Package 8 Node core: `16/16 PASS`
+- Package 8 atomic D1: `17/17 PASS`
+- Deterministic seed/reset: `7/7 PASS`
+- Memory counterfactual: `5/5 PASS`
+- Built Chromium CSP/WebMCP/focus/responsive/Axe journeys: `4/4 PASS`
+- Live release checks, including Gitleaks tree/history/planted-negative: `16 PASS`
+- Source manifest: `92/92` files bound
+- Exact local canonical total: `531/531 PASS`
+- Explicit production build after the canonical gate: `PASS`
+- Clean precommit no-local snapshot and non-ignored residue check: `PASS`
+- Exact final commit clean clone: `TERMINAL_POST_COMMIT`

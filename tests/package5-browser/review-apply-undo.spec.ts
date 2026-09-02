@@ -201,7 +201,7 @@ for (const profile of [
   { name: 'desktop', width: 1280, height: 900, zoom: 1 },
   { name: '320px', width: 320, height: 900, zoom: 1 },
   { name: '375px', width: 375, height: 900, zoom: 1 },
-  { name: '200% browser zoom', width: 1280, height: 900, zoom: 2 },
+  { name: 'CSS zoom 2x', width: 1280, height: 900, zoom: 2 },
 ]) {
   test(`${profile.name} completes review → apply recovery → verify → undo → reset`, async ({ page }) => {
     await configureProfile(page, profile);

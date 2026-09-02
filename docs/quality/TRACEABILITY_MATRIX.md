@@ -17,7 +17,7 @@ Status: **CONTROLLING RELEASE MAP v2**
 | Undo/history | Domain + UX | new-revision/idempotency/lineage tests | deployed undo/reload | optional video/history screenshot |
 | WebMCP leverage | Tool Contract | schema/lifecycle/parity/output tests | real ChatGPT all four calls | tool table and video |
 | Chrome compatibility truth | Technology + Security | API shim only | origin/policy/version real probe | PASS/FAIL/INCONCLUSIVE matrix |
-| Accessibility | Accessibility | dialog name/description/modal/inert assertions; axe/keyboard; focused-control bounds/occlusion at desktop, 320 px, 375 px, and 200% zoom | founder dialog/background/focus-visibility checklist + VoiceOver + five-question cold evaluator | manual evidence summary |
+| Accessibility | Accessibility | dialog name/description/modal/inert assertions; axe/keyboard; focused-control bounds/occlusion at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation. Actual browser UI 200% zoom remains a founder-manual release requirement, `NOT_RUN` until completed against the exact deployed version. | founder dialog/background/focus-visibility checklist + VoiceOver + five-question cold evaluator | manual evidence summary |
 | RRF bounded value | Benchmark v2 | reference/dev parity/dependency/determinism | one-time deployed holdout/latency | report/accurate claim |
 | Privacy/retention | Security | data scan/lifecycle/limit tests | public disclosure/Sites probes | privacy/readme |
 | One release identity | Evidence Registry + Deployment | clean SHA/build/hash/link checks | Sites version built from `C` | release attestation asset |

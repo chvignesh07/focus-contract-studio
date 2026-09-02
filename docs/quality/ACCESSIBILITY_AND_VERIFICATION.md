@@ -74,9 +74,9 @@ Static dependency test forbids verifier imports from retrieval, benchmark expect
 - real-browser assertions that the open dialog exposes its accessible name, description, and modal semantics and that background controls reject pointer activation and keyboard focus until close;
 - keyboard-only E2E for complete anonymous hero, review, apply, verify, history, undo;
 - axe scan with zero critical/serious violations on key states;
-- 320px width and 200% zoom without lost controls/two-dimensional scrolling;
+- 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation without lost controls/two-dimensional scrolling;
 - visible focus and measured color contrast;
-- focused-element bounds and occlusion assertions for every actionable control at desktop, 320 px, 375 px, and 200% zoom;
+- focused-element bounds and occlusion assertions for every actionable control at desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation. Actual browser UI 200% zoom remains a founder-manual release requirement, `NOT_RUN` until completed against the exact deployed version.
 - reduced-motion behavior;
 - live-region restraint and error association.
 

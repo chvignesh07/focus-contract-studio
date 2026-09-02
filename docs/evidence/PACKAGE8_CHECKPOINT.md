@@ -1,6 +1,6 @@
 # Package 8 Checkpoint
 
-<!-- package8-source-binding file_count=78 sha256=f72a696c800affbbbd98e052b0586634419b985cd42cca2f338ce070f730d3ee -->
+<!-- package8-source-binding file_count=92 sha256=1008a681da01e4dc14953577b69e5da85ee1e1f56536683c8f2c842c3261b644 -->
 
 Status: **LOCAL INTEGRITY PASS; PACKAGE 8 BLOCKED**
 
@@ -12,13 +12,13 @@ The four proven integrity defects are repaired locally without changing the huma
 
 - Frozen Package 7 exact commit/tree: `PASS`
 - Typecheck and lint: `PASS`
-- Package 8 Node: `14/14`
-- Package 8 D1 admission/state: `14/14`
+- Package 8 Node: `16/16`
+- Package 8 D1 admission/state: `17/17`
 - Deterministic seed: `7/7`
 - Memory counterfactual: `5/5`
 - Built-Worker Package 8 browser: `4/4`
 - Frozen inherited Package 7: `482/482`
-- Exact local total: `526/526`
+- Exact local total: `531/531`
 - CSP: unnonced same-origin injected script blocked; nonce-rooted built scripts/dynamic chunks, same-origin stylesheet, responsive states, keyboard focus, Axe, and all four WebMCP tools remain operational: `PASS`
 - Atomic admission: identical concurrent replay spends one unit and creates one mutation; conflicting payload fails closed; active-variant selection, initial focus, proposal, review, apply, rehearsal/finalization, verification, undo, and reset share transaction-coupled admission; downstream failure rolls back the entire graph/idempotency/audit/admission unit: `PASS`
 - Local bootstrap isolation: saturation is per rotating client digest, spoofed forwarding headers cannot select a bucket, missing trusted metadata fails closed, and rejection writes no workspace/product state: `PASS`
@@ -39,4 +39,7 @@ The four proven integrity defects are repaired locally without changing the huma
 - External exit evidence: `NOT_RUN`
 - Exact final commit clean clone: `TERMINAL_POST_COMMIT`
 
-The clone marker is deliberately terminal: a commit cannot contain evidence about a clone of itself. The exact commit/tree, clean status, explicit browser installation, canonical verification, and clone removal are reported as terminal session evidence after the single Package 8 checkpoint commit.
+The clone marker is deliberately terminal: a commit cannot contain evidence about a
+clone of itself. The exact Package 9 source-candidate commit/tree, clean status,
+explicit browser installation, canonical verification, and clone removal are
+reported as terminal session evidence after the single local freeze commit.

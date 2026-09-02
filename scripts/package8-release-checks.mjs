@@ -103,6 +103,23 @@ function resolveExecutable(name) {
   throw new Error('Gitleaks executable is unavailable');
 }
 
+export function validateGitleaksRuntime(repositoryRoot, receipt = null) {
+  const executable = resolveExecutable('gitleaks');
+  const version = gitleaksResult(executable, ['version'], repositoryRoot);
+  requireCondition(
+    version.status === 0 && version.stdout.trim() === GITLEAKS_VERSION,
+    `Gitleaks version mismatch; required ${GITLEAKS_VERSION}`,
+  );
+  const executableSha256 = sha256(readFileSync(executable));
+  if (receipt) {
+    requireCondition(
+      receipt.executable_sha256 === executableSha256,
+      'Gitleaks executable identity drift',
+    );
+  }
+  return { executable, executable_sha256: executableSha256 };
+}
+
 export function gitleaksEnvironment(environment = process.env) {
   const sanitized = { ...environment };
   delete sanitized.GITLEAKS_CONFIG;
@@ -161,11 +178,15 @@ export const GITLEAKS_COMMAND_IDENTITIES = Object.freeze({
 export function runLiveGitleaks(repositoryRoot) {
   const configBytes = readRegular(repositoryRoot, GITLEAKS_CONFIG_PATH);
   const ignoreBytes = readRegular(repositoryRoot, GITLEAKS_IGNORE_PATH);
-  const executable = resolveExecutable('gitleaks');
-  const version = gitleaksResult(executable, ['version'], repositoryRoot);
+  const runtime = validateGitleaksRuntime(repositoryRoot);
+  const headCommit = run('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot });
+  const headTree = run('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repositoryRoot });
+  const initialStatus = run('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: repositoryRoot,
+  });
   requireCondition(
-    version.status === 0 && version.stdout.trim() === GITLEAKS_VERSION,
-    `Gitleaks version mismatch; required ${GITLEAKS_VERSION}`,
+    initialStatus.length === 0,
+    'live Gitleaks requires a clean worktree',
   );
 
   const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'fcs-package8-gitleaks-'));
@@ -237,7 +258,7 @@ export function runLiveGitleaks(repositoryRoot) {
       `--report-path=${negativeReportPath}`,
       negativeRoot,
     ];
-    const tree = gitleaksResult(executable, treeArgs, currentTreeRoot);
+    const tree = gitleaksResult(runtime.executable, treeArgs, currentTreeRoot);
     const treeFindings = existsSync(treeReportPath)
       ? readGitleaksReport(treeReportPath, 'Gitleaks current-tree')
       : [];
@@ -255,21 +276,25 @@ export function runLiveGitleaks(repositoryRoot) {
     );
     requireCondition(treeFindings.length === 0, 'Gitleaks current-tree report contains findings');
 
-    const history = gitleaksResult(executable, historyArgs, repositoryRoot);
+    const history = gitleaksResult(runtime.executable, historyArgs, repositoryRoot);
     requireCondition(history.status === 0, 'Gitleaks reachable-history scan failed or found a leak');
     const historyFindings = readGitleaksReport(historyReportPath, 'Gitleaks reachable-history');
     requireCondition(historyFindings.length === 0, 'Gitleaks reachable-history report contains findings');
 
-    const negative = gitleaksResult(executable, negativeArgs, repositoryRoot);
+    const negative = gitleaksResult(runtime.executable, negativeArgs, repositoryRoot);
     requireCondition(negative.status === 1, 'Gitleaks planted-negative scan did not reject');
     const negativeFindings = readGitleaksReport(negativeReportPath, 'Gitleaks planted-negative');
     requireCondition(negativeFindings.length > 0, 'Gitleaks planted-negative report is empty');
 
-    const headCommit = run('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot });
-    const headTree = run('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repositoryRoot });
     const status = run('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
       cwd: repositoryRoot,
     });
+    requireCondition(
+      status.length === 0 &&
+        headCommit === run('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot }) &&
+        headTree === run('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repositoryRoot }),
+      'live Gitleaks repository identity changed during scanning',
+    );
     const treeCommand = GITLEAKS_COMMAND_IDENTITIES.current_tree;
     const historyCommand = GITLEAKS_COMMAND_IDENTITIES.reachable_history;
     const negativeCommand = GITLEAKS_COMMAND_IDENTITIES.planted_negative;
@@ -278,10 +303,10 @@ export function runLiveGitleaks(repositoryRoot) {
       package: 8,
       status: 'PASS',
       version: GITLEAKS_VERSION,
-      executable_sha256: sha256(readFileSync(executable)),
+      executable_sha256: runtime.executable_sha256,
       head_commit: headCommit,
       head_tree: headTree,
-      worktree_clean: status.length === 0,
+      worktree_clean: true,
       worktree_status_sha256: sha256(status),
       policy: {
         config_path: GITLEAKS_CONFIG_PATH,
