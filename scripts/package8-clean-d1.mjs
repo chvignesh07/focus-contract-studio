@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -20,6 +20,12 @@ function run(command, args, options = {}) {
 export function verifyCleanD1(repositoryRoot) {
   const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'fcs-package8-clean-d1-'));
   try {
+    const migrationFiles = readdirSync(path.join(repositoryRoot, 'drizzle'))
+      .filter((name) => /^\d{4}_.+\.sql$/u.test(name))
+      .sort();
+    if (migrationFiles.length !== 6) {
+      throw new Error(`Package 8 migration count invalid: ${migrationFiles.length}`);
+    }
     const common = [
       'wrangler',
       'd1',
@@ -67,7 +73,7 @@ export function verifyCleanD1(repositoryRoot) {
       status: 'PASS',
       remote_bindings: false,
       migration_directory: 'drizzle',
-      migration_files: 5,
+      migration_files: migrationFiles.length,
       repeated_apply: 'PASS',
       minimum_schema_objects: 40,
     };
@@ -88,7 +94,9 @@ function main() {
         `${JSON.stringify(result, null, 2)}\n`,
       );
     }
-    process.stdout.write('PACKAGE8_CLEAN_D1_PASS migrations=5 repeated=PASS\n');
+    process.stdout.write(
+      `PACKAGE8_CLEAN_D1_PASS migrations=${result.migration_files} repeated=PASS\n`,
+    );
   } catch (error) {
     process.stderr.write(`PACKAGE8_CLEAN_D1_FAIL ${error instanceof Error ? error.message : 'unknown error'}\n`);
     process.exitCode = 1;

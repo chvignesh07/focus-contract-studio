@@ -2,7 +2,7 @@
 
 Focus Contract Studio turns an accessibility focus review into a governed, reversible change. Retrieval may support a proposal; it can never approve or authorize one. The user reviews the exact diff in the visible page, applies it through guarded D1 state transitions, rehearses the result in the browser, verifies six focus behaviors, and can undo it.
 
-Package 8 is complete only as a **local pre-live candidate**. Package 0 remains **INCONCLUSIVE** overall because its mandatory hosted supported-ChatGPT observation is still `NOT_RUN`. This repository does not claim a deployed Site, public URL, supported-client compatibility, Chrome trace, holdout result, founder-manual accessibility result, publication, or Devpost submission.
+The repaired Package 8 local integrity gate passes, but Package 8 is **BLOCKED** as a public-release checkpoint: current Sites documentation does not prove that the deployed request boundary supplies a trustworthy, unspoofable per-client isolation signal. That hosted edge check is `NOT_RUN`. Package 0 remains **INCONCLUSIVE** overall because its mandatory hosted supported-ChatGPT observation is also `NOT_RUN`. This repository does not claim a deployed Site, public URL, supported-client compatibility, Chrome trace, holdout result, founder-manual accessibility result, publication, or Devpost submission.
 
 ## 60-second judge path
 
@@ -17,7 +17,7 @@ The human workflow remains complete when WebMCP is unavailable.
 
 ## Supported local setup
 
-Requirements: exact Node.js `22.22.3`, npm `10.9.8`, Git, and the platform prerequisites installed by Playwright.
+Requirements: exact Node.js `22.22.3`, npm `10.9.8`, Git, Gitleaks `8.30.1`, and the platform prerequisites installed by Playwright.
 
 ```sh
 npm ci
@@ -25,7 +25,7 @@ npm run setup:browsers
 npm run verify
 ```
 
-`setup:browsers` installs the pinned Chromium build into the ignored project-local `.playwright-browsers/` directory. The canonical `verify` command checks the frozen Package 7 commit, typecheck, lint, Package 8 Node/D1/seed tests, a clean numbered-migration database, the deterministic development benchmark, production build, the real built-Worker browser journey, accessibility automation, offline dependency audit, dependency/license inventory, secret and reachable-history scans, bundle scan, local links, pinned CI, release inputs, source binding, and evidence binding.
+`setup:browsers` installs the pinned Chromium build into the ignored project-local `.playwright-browsers/` directory. The canonical `verify` command checks the frozen Package 7 commit, typecheck, lint, Package 8 Node/D1/seed tests, a clean numbered-migration database, the deterministic development benchmark, production build, the real built-Worker browser journey, accessibility automation, offline dependency audit, dependency/license inventory, live pinned-version Gitleaks scans of an exact tracked-plus-nonignored current-tree snapshot and reachable history with a planted-negative control, bundle scan, local links, pinned CI, release inputs, source binding, and evidence binding. It fails closed if Gitleaks is missing or not exactly `8.30.1`, if config/ignore policy can be overridden, or if the scan receipt is stale for current file content.
 
 Useful narrow commands:
 
@@ -50,7 +50,7 @@ For local interactive development, provide `FCS_PUBLIC_ORIGIN` plus distinct pro
 | D1 | Isolation, guarded atomic batches, constraints/triggers, receipts, append-only evidence | Retrieval relevance by itself |
 | Retrieval/verifier | Deterministic RRF evidence and independent focus-event checks | Approval or mutation permission |
 
-The anonymous bearer stays in a secure host-only cookie; D1 stores only its one-way digest. The workspace ID is server-resolved. Idempotency recovery occurs before admission, so a lost-response replay remains recoverable without permitting a new mutation. Over-limit attempts leave product state unchanged.
+The anonymous bearer stays in a secure host-only cookie; D1 stores only its one-way digest. The workspace ID is server-resolved. Idempotency recovery occurs before a read-only admission preflight; the operation quota is consumed by the durable success marker inside the same D1 batch as the product mutation. A lost-response replay consumes no additional unit, a conflicting payload fails closed, and a failed batch rolls back product state, idempotency, audit, and admission together.
 
 ## Exact WebMCP surface
 
@@ -65,9 +65,9 @@ Create never applies, apply never approves, retrieval never authorizes, and all 
 
 ## Security and privacy
 
-Every dynamic response receives a per-request nonce CSP with no wildcard, `unsafe-inline`, or `unsafe-eval`; `X-Content-Type-Options: nosniff`; `Referrer-Policy: no-referrer`; `Origin-Agent-Cluster: ?1`; and a same-origin `tools=(self)` Permissions Policy alongside disabled camera, geolocation, microphone, and payment features. The built-Worker browser tests check the response headers, every script/style nonce, zero CSP violations, origin isolation, exact four-tool registration, and current-source reflow/focus/Axe behavior at 320px, 375px, and true 200% zoom.
+Every dynamic response receives a per-request nonce CSP with nonce-rooted `script-src 'nonce-…' 'strict-dynamic'`, no script `'self'`, and `style-src 'self' 'nonce-…'` for nonced inline framework styles plus same-origin built stylesheets. The policy contains no wildcard, `unsafe-inline`, or `unsafe-eval`. Responses also set `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Origin-Agent-Cluster: ?1`, and a same-origin `tools=(self)` Permissions Policy while disabling camera, geolocation, microphone, and payment. The built-Worker browser test injects an unnonced same-origin script and proves it is blocked while built scripts, dynamic chunks, styles, the exact four WebMCP tools, responsive states, keyboard focus, and Axe checks continue to work.
 
-Anonymous access expires after eight hours. Reset rotates the session while preserving its anonymous admission lineage. Request-driven cleanup removes at most ten expired workspaces after a 24-hour grace period; no immediate backup deletion is claimed. Per anonymous workspace lineage/hour the locally enforced limits are 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets. Hosted capacity tuning is still unverified.
+Anonymous access expires after eight hours. Reset rotates the session while preserving its anonymous admission lineage. Request-driven cleanup removes at most ten expired workspaces after a 24-hour grace period; no immediate backup deletion is claimed. Per anonymous workspace lineage/hour the locally enforced limits are 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets. A new-workspace bootstrap is locally limited to 32 requests per minute per rotating HMAC client digest derived only when Cloudflare runtime metadata and `CF-Connecting-IP` are both present; caller-controlled forwarding headers are ignored, no raw address is stored, and absence fails closed. Whether Sites preserves that trusted boundary is unverified and release-blocking.
 
 Use synthetic demo data only. Do not enter credentials or sensitive, regulated, customer, employee, or production information. The app stores bounded proposals, reviews, revisions, receipts, audits, and allowlisted focus-event evidence; it does not store raw session tokens, typed values, reasons, email/name identity headers, IP addresses, or user agents. The platform may retain its own logs and analytics under its policies. No data-residency or production-security certification is claimed. See [Security and Privacy](docs/quality/SECURITY_AND_PRIVACY.md).
 
@@ -81,7 +81,7 @@ The 36 precedent records and queries are synthetic. RRF development benchmark v2
 
 ## CI, evidence, and release boundary
 
-[The verify workflow](.github/workflows/verify.yml) uses read-only permissions, exact commit-pinned checkout/setup actions, Ubuntu 24.04, Node `22.22.3`, locked installation, explicit project-local browser setup, and the canonical verification command. Cache reuse is disabled as a correctness dependency.
+[The verify workflow](.github/workflows/verify.yml) uses read-only permissions, exact commit-pinned checkout/setup actions, Ubuntu 24.04, Node `22.22.3`, a checksum-pinned Gitleaks `8.30.1` binary, locked installation, explicit project-local browser setup, and the canonical verification command. Cache reuse is disabled as a correctness dependency.
 
 [Build inputs](release/BUILD_INPUTS.json) contain only authorized pre-deploy inputs: exact toolchain, commands, lockfile hash, authority revision, and fixture-manifest hash. They deliberately contain no source commit, self-hash, Sites identifiers, deployed URL, video, Devpost, or post-deploy fact. Deployment, tag/push, publication, hosted mutation, and submission follow the separately approval-gated [deployment runbook](docs/delivery/DEPLOYMENT_AND_OPERATIONS.md); none occurred in Package 8.
 

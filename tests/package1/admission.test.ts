@@ -6,7 +6,7 @@ import {
   admitGlobalOperation,
 } from '../../lib/server/admission';
 
-const secret = 'package1-test-rate-limit-secret-material-32-bytes-minimum';
+const clientDigest = 'a'.repeat(64);
 
 beforeEach(async () => {
   await env.DB.prepare('DELETE FROM rate_limit_windows').run();
@@ -22,7 +22,7 @@ test('the server-global admission fuse allows exactly the configured bound', asy
         db: env.DB,
         operation: 'workspace_bootstrap',
         now,
-        secret,
+        clientDigest,
       }),
     ).resolves.toBe(index + 1);
   }
@@ -31,7 +31,7 @@ test('the server-global admission fuse allows exactly the configured bound', asy
       db: env.DB,
       operation: 'workspace_bootstrap',
       now,
-      secret,
+      clientDigest,
     }),
   ).rejects.toMatchObject({ code: 'RATE_LIMITED', status: 429 });
   expect(
@@ -54,7 +54,7 @@ test('concurrent admissions cannot exceed the configured bound', async () => {
         db: env.DB,
         operation: 'workspace_bootstrap',
         now,
-        secret,
+        clientDigest,
       }),
     ),
   );
@@ -69,24 +69,24 @@ test('concurrent admissions cannot exceed the configured bound', async () => {
   ).toEqual({ request_count: GLOBAL_OPERATION_LIMITS.workspace_bootstrap });
 });
 
-test('a new fixed window is independently bounded without caller identity input', async () => {
+test('a trusted client receives an independent fixed-window bound', async () => {
   const first = await admitGlobalOperation({
     db: env.DB,
-    operation: 'workspace_reset',
+    operation: 'workspace_bootstrap',
     now: 1_788_100_000,
-    secret,
+    clientDigest,
   });
   const second = await admitGlobalOperation({
     db: env.DB,
-    operation: 'workspace_reset',
+    operation: 'workspace_bootstrap',
     now: 1_788_100_060,
-    secret,
+    clientDigest,
   });
   expect([first, second]).toEqual([1, 1]);
   expect(
     await env.DB.prepare(
       `SELECT COUNT(*) AS count FROM rate_limit_windows
-        WHERE operation = 'workspace_reset'`,
+        WHERE operation = 'workspace_bootstrap'`,
     ).first(),
   ).toEqual({ count: 2 });
 });

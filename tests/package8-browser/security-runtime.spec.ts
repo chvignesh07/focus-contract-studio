@@ -99,6 +99,24 @@ async function expectReflowAndTargets(page: Page) {
 }
 
 test('built page enforces nonce headers without breaking WebMCP, privacy, or accessibility', async ({ page }) => {
+  await page.route('**/', async (route) => {
+    if (route.request().resourceType() !== 'document') {
+      await route.continue();
+      return;
+    }
+    const response = await route.fetch();
+    const body = (await response.text()).replace(
+      '</head>',
+      '<script id="package8-untrusted-injected" src="/package8-untrusted-injected.js"></script></head>',
+    );
+    await route.fulfill({ response, body });
+  });
+  await page.route('**/package8-untrusted-injected.js', async (route) => {
+    await route.fulfill({
+      contentType: 'application/javascript',
+      body: 'window.__package8UntrustedScriptExecuted = true;',
+    });
+  });
   await page.addInitScript(() => {
     const state = { tools: [] as string[], violations: [] as string[] };
     Object.defineProperty(window, '__package8Security', { value: state });
@@ -132,6 +150,9 @@ test('built page enforces nonce headers without breaking WebMCP, privacy, or acc
   const csp = headers['content-security-policy'] ?? '';
   const nonce = /nonce-([^' ;]+)/u.exec(csp)?.[1];
   expect(nonce).toBeTruthy();
+  expect(csp).toContain(`script-src 'nonce-${nonce}' 'strict-dynamic'`);
+  expect(csp).toContain(`style-src 'self' 'nonce-${nonce}'`);
+  expect(csp).not.toMatch(/script-src[^;]*'self'/u);
   expect(csp).not.toMatch(/\*|'unsafe-inline'|'unsafe-eval'|https?:/u);
 
   await expect(page.getByRole('heading', { name: 'Govern one real focus decision' })).toBeVisible();
@@ -145,8 +166,12 @@ test('built page enforces nonce headers without breaking WebMCP, privacy, or acc
       tools: state.tools,
       violations: state.violations,
       missingNonce: [...document.querySelectorAll('script, style')]
-        .filter((element) => (element as HTMLScriptElement | HTMLStyleElement).nonce !== expectedNonce)
+        .filter((element) => element.id !== 'package8-untrusted-injected')
+        .filter((element) => (
+          element as HTMLScriptElement | HTMLStyleElement
+        ).nonce !== expectedNonce)
         .length,
+      stylesheetLinks: document.querySelectorAll('link[rel="stylesheet"]').length,
     };
   }, nonce);
   expect(runtime.originAgentCluster).toBe(true);
@@ -157,7 +182,17 @@ test('built page enforces nonce headers without breaking WebMCP, privacy, or acc
     'verify_focus_contract',
   ]);
   expect(runtime.missingNonce).toBe(0);
-  expect(runtime.violations).toEqual([]);
+  expect(runtime.stylesheetLinks).toBeGreaterThan(0);
+  expect(runtime.violations.filter(
+    (entry) => !entry.includes('package8-untrusted-injected.js'),
+  )).toEqual([]);
+  expect(runtime.violations.some(
+    (entry) => entry.startsWith('script-src-elem:') &&
+      entry.includes('package8-untrusted-injected.js'),
+  )).toBe(true);
+  expect(await page.evaluate(() => (
+    window as unknown as Window & { __package8UntrustedScriptExecuted?: boolean }
+  ).__package8UntrustedScriptExecuted ?? false)).toBe(false);
 
   await expectNoSeriousAxeViolations(page);
 });

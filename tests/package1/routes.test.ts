@@ -27,15 +27,18 @@ function jsonRequest(
   body: unknown,
   headers: Record<string, string> = {},
 ): Request {
-  return new Request(`${origin}${path}`, {
+  const request = new Request(`${origin}${path}`, {
     method: 'POST',
     headers: {
       origin,
       'content-type': 'application/json',
+      'cf-connecting-ip': '203.0.113.10',
       ...headers,
     },
     body: JSON.stringify(body),
   });
+  Object.defineProperty(request, 'cf', { value: { colo: 'TEST' } });
+  return request;
 }
 
 test('session bootstrap is POST-only, no-store, host-only, and identity-blind', async () => {
@@ -230,6 +233,11 @@ test('global bootstrap admission rejects new graphs with zero workspace writes b
   expect(first.status).toBe(201);
   const cookie = first.headers.get('set-cookie')!.split(';', 1)[0]!;
   const now = Math.floor(Date.now() / 1000);
+  const client = await env.DB.prepare(
+    `SELECT key_digest FROM rate_limit_windows
+      WHERE workspace_id IS NULL AND operation = 'workspace_bootstrap'`,
+  ).first<{ key_digest: string }>();
+  expect(client).not.toBeNull();
   for (
     let index = 1;
     index < GLOBAL_OPERATION_LIMITS.workspace_bootstrap;
@@ -239,7 +247,7 @@ test('global bootstrap admission rejects new graphs with zero workspace writes b
       db: env.DB,
       operation: 'workspace_bootstrap',
       now,
-      secret: env.FCS_RATE_LIMIT_HMAC_SECRET!,
+      clientDigest: client!.key_digest,
     });
   }
 
@@ -260,44 +268,4 @@ test('global bootstrap admission rejects new graphs with zero workspace writes b
   expect(
     await env.DB.prepare('SELECT COUNT(*) AS count FROM workspaces').first(),
   ).toEqual({ count: 1 });
-});
-
-test('global reset admission rejects a new successor with zero product mutation', async () => {
-  const first = await bootstrapPost(jsonRequest('/api/session/bootstrap', {}));
-  const cookie = first.headers.get('set-cookie')!;
-  const initial = await first.json<{ data: { csrfToken: string } }>();
-  const now = Math.floor(Date.now() / 1000);
-  for (let index = 0; index < GLOBAL_OPERATION_LIMITS.workspace_reset; index += 1) {
-    await admitGlobalOperation({
-      db: env.DB,
-      operation: 'workspace_reset',
-      now,
-      secret: env.FCS_RATE_LIMIT_HMAC_SECRET!,
-    });
-  }
-  const rejected = await resetPost(
-    jsonRequest(
-      '/api/session/reset',
-      { idempotencyKey: '00000000-0000-4000-8000-000000000907' },
-      {
-        cookie: cookie.split(';', 1)[0]!,
-        'x-fcs-csrf': initial.data.csrfToken,
-      },
-    ),
-  );
-  expect(rejected.status).toBe(429);
-  expect(await rejected.json()).toMatchObject({
-    ok: false,
-    error: { code: 'RATE_LIMITED', retryable: true },
-  });
-  expect(
-    await env.DB.prepare(
-      `SELECT generation, purged_at FROM workspaces ORDER BY generation`,
-    ).all(),
-  ).toMatchObject({ results: [{ generation: 1, purged_at: null }] });
-  expect(
-    await env.DB.prepare(
-      `SELECT COUNT(*) AS count FROM idempotency_records WHERE operation = 'reset'`,
-    ).first(),
-  ).toEqual({ count: 0 });
 });

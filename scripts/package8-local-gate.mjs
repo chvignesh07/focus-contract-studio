@@ -10,6 +10,7 @@ export function buildPackage8LocalGate(repositoryRoot) {
   return {
     schema_version: 'fcs-package8-local-gate-v1',
     package: 8,
+    scope: 'local_integrity',
     status: 'PASS',
     command: 'npm run verify:package8:core',
     source: {
@@ -31,6 +32,7 @@ export function buildPackage8LocalGate(repositoryRoot) {
       dependency_audit_offline: 'PASS',
       dependency_license_inventory: 'PASS',
       secret_and_history_scans: 'PASS',
+      live_gitleaks_version_scope_and_negative_control: 'PASS',
       bundle_and_local_link_scans: 'PASS',
       ci_build_inputs_lineage: 'PASS',
       source_inventory: 'PASS',
@@ -38,14 +40,14 @@ export function buildPackage8LocalGate(repositoryRoot) {
     },
     tests: {
       inherited_package7: 482,
-      package8_node: 10,
-      package8_d1: 6,
+      package8_node: 13,
+      package8_d1: 12,
       deterministic_seed: 7,
       memory_counterfactual: 5,
       package8_browser: 4,
-      passed: 514,
+      passed: 523,
       failed: 0,
-      total: 514,
+      total: 523,
     },
     findings: {
       unresolved_critical: 0,
@@ -54,6 +56,7 @@ export function buildPackage8LocalGate(repositoryRoot) {
       unresolved_license: 0,
     },
     external: {
+      sites_edge_client_isolation: 'NOT_RUN',
       hosted: 'NOT_RUN',
       supported_client: 'NOT_RUN',
       chrome_trace: 'NOT_RUN',

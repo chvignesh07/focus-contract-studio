@@ -52,10 +52,23 @@ export function unavailableVariant(): FcsError {
 
 export function normalizePublicError(error: unknown): FcsError {
   if (error instanceof FcsError) return error;
+  if (error instanceof Error && error.message.includes('FCS_RATE_LIMITED')) {
+    return new FcsError(
+      'RATE_LIMITED',
+      'This workspace is temporarily at its operation limit. Try again later.',
+      429,
+      true,
+    );
+  }
   return new FcsError(
     'INTERNAL_ERROR',
     'The request could not be completed.',
     500,
     true,
   );
+}
+
+export function rethrowRateLimitError(error: unknown): void {
+  const normalized = normalizePublicError(error);
+  if (normalized.code === 'RATE_LIMITED') throw normalized;
 }

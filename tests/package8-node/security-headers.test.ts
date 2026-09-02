@@ -6,7 +6,7 @@ import {
   SECURITY_HEADER_NAMES,
 } from '../../lib/server/security-headers.ts';
 
-test('security headers use a nonce-only same-origin policy with WebMCP scoped to self', () => {
+test('security headers require a nonce for scripts and inline styles while allowing build CSS', () => {
   const nonce = 'dGVzdC1ub25jZS0xMjM0NTY=';
   const headers = buildSecurityHeaders(nonce);
 
@@ -20,8 +20,12 @@ test('security headers use a nonce-only same-origin policy with WebMCP scoped to
   );
 
   const csp = headers.get('content-security-policy') ?? '';
-  assert.match(csp, /script-src 'self' 'nonce-dGVzdC1ub25jZS0xMjM0NTY='/u);
+  assert.match(
+    csp,
+    /script-src 'nonce-dGVzdC1ub25jZS0xMjM0NTY=' 'strict-dynamic'/u,
+  );
   assert.match(csp, /style-src 'self' 'nonce-dGVzdC1ub25jZS0xMjM0NTY='/u);
+  assert.doesNotMatch(csp, /script-src[^;]*'self'/u);
   assert.match(csp, /frame-ancestors 'none'/u);
   assert.doesNotMatch(csp, /\*|'unsafe-inline'|'unsafe-eval'|https?:/u);
 });

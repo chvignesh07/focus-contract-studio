@@ -1,12 +1,19 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
+  accessSync,
+  constants,
   existsSync,
   lstatSync,
+  mkdirSync,
+  mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -14,6 +21,9 @@ import { fileURLToPath } from 'node:url';
 import { parseStrictJson } from './package3-evidence-binding.mjs';
 
 const PACKAGE7_COMMIT = '0b616fc5f790da11eb44bb03930ee181d976a452';
+export const GITLEAKS_VERSION = '8.30.1';
+export const GITLEAKS_CONFIG_PATH = '.gitleaks.toml';
+export const GITLEAKS_IGNORE_PATH = '.gitleaksignore.package8';
 const BUILD_INPUT_KEYS = Object.freeze([
   'schemaVersion',
   'product',
@@ -76,6 +86,248 @@ function run(command, args, options = {}) {
     throw new Error(`${command} ${args.join(' ')} failed\n${result.stdout ?? ''}${result.stderr ?? ''}`);
   }
   return result.stdout?.trim() ?? '';
+}
+
+function resolveExecutable(name) {
+  for (const directory of (process.env.PATH ?? '').split(path.delimiter)) {
+    if (!directory) continue;
+    const candidate = path.join(directory, name);
+    try {
+      accessSync(candidate, constants.X_OK);
+      const resolved = realpathSync(candidate);
+      if (lstatSync(resolved).isFile()) return resolved;
+    } catch {
+      // Try the next exact PATH entry.
+    }
+  }
+  throw new Error('Gitleaks executable is unavailable');
+}
+
+export function gitleaksEnvironment(environment = process.env) {
+  const sanitized = { ...environment };
+  delete sanitized.GITLEAKS_CONFIG;
+  delete sanitized.GITLEAKS_CONFIG_TOML;
+  return sanitized;
+}
+
+function gitleaksResult(executable, args, cwd) {
+  return spawnSync(executable, args, {
+    cwd,
+    encoding: 'utf8',
+    env: gitleaksEnvironment(),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+}
+
+function readGitleaksReport(reportPath, label) {
+  requireCondition(existsSync(reportPath), `${label} report is missing`);
+  const report = parseStrictJson(readFileSync(reportPath, 'utf8'), label);
+  requireCondition(Array.isArray(report), `${label} report is invalid`);
+  return report;
+}
+
+function commandIdentity(mode, scope, policyRoot) {
+  return [
+    'gitleaks',
+    mode,
+    '--no-banner',
+    '--log-level=error',
+    '--redact=100',
+    `--config=${policyRoot}/${GITLEAKS_CONFIG_PATH}`,
+    `--gitleaks-ignore-path=${policyRoot}/${GITLEAKS_IGNORE_PATH}`,
+    '--ignore-gitleaks-allow',
+    '--exit-code=1',
+    '--report-format=json',
+    '--report-path=<ephemeral-json>',
+    ...(mode === 'git' ? ['--log-opts=--all'] : []),
+    scope,
+  ];
+}
+
+export const GITLEAKS_COMMAND_IDENTITIES = Object.freeze({
+  current_tree: Object.freeze(commandIdentity(
+    'dir',
+    '<ephemeral-current-tree-snapshot>',
+    '<current-tree>',
+  )),
+  reachable_history: Object.freeze(commandIdentity('git', '.', '<repository-root>')),
+  planted_negative: Object.freeze(commandIdentity(
+    'dir',
+    '<ephemeral-planted-negative>',
+    '<repository-root>',
+  )),
+});
+
+export function runLiveGitleaks(repositoryRoot) {
+  const configBytes = readRegular(repositoryRoot, GITLEAKS_CONFIG_PATH);
+  const ignoreBytes = readRegular(repositoryRoot, GITLEAKS_IGNORE_PATH);
+  const executable = resolveExecutable('gitleaks');
+  const version = gitleaksResult(executable, ['version'], repositoryRoot);
+  requireCondition(
+    version.status === 0 && version.stdout.trim() === GITLEAKS_VERSION,
+    `Gitleaks version mismatch; required ${GITLEAKS_VERSION}`,
+  );
+
+  const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'fcs-package8-gitleaks-'));
+  try {
+    const currentTreeRoot = path.join(temporaryRoot, 'current-tree');
+    const treeReportPath = path.join(temporaryRoot, 'tree.json');
+    const historyReportPath = path.join(temporaryRoot, 'history.json');
+    const negativeRoot = path.join(temporaryRoot, 'negative');
+    const negativeReportPath = path.join(temporaryRoot, 'negative.json');
+    mkdirSync(currentTreeRoot);
+    mkdirSync(negativeRoot);
+    const currentTreeIdentity = materializeCurrentTreeSnapshot(
+      repositoryRoot,
+      currentTreeRoot,
+    );
+    requireCondition(
+      existsSync(path.join(currentTreeRoot, GITLEAKS_CONFIG_PATH)) &&
+        existsSync(path.join(currentTreeRoot, GITLEAKS_IGNORE_PATH)),
+      'current-tree Gitleaks policy snapshot is incomplete',
+    );
+    writeFileSync(
+      path.join(negativeRoot, 'synthetic.txt'),
+      [
+        '-----BEGIN ',
+        'RSA PRIVATE KEY-----\n',
+        'M'.repeat(160),
+        '\n-----END ',
+        'RSA PRIVATE KEY-----\n',
+      ].join(''),
+    );
+
+    const treeArgs = [
+      'dir',
+      '--no-banner',
+      '--log-level=error',
+      '--redact=100',
+      `--config=${path.join(currentTreeRoot, GITLEAKS_CONFIG_PATH)}`,
+      `--gitleaks-ignore-path=${path.join(currentTreeRoot, GITLEAKS_IGNORE_PATH)}`,
+      '--ignore-gitleaks-allow',
+      '--exit-code=1',
+      '--report-format=json',
+      `--report-path=${treeReportPath}`,
+      '.',
+    ];
+    const historyArgs = [
+      'git',
+      '--no-banner',
+      '--log-level=error',
+      '--redact=100',
+      `--config=${path.join(repositoryRoot, GITLEAKS_CONFIG_PATH)}`,
+      `--gitleaks-ignore-path=${path.join(repositoryRoot, GITLEAKS_IGNORE_PATH)}`,
+      '--ignore-gitleaks-allow',
+      '--exit-code=1',
+      '--report-format=json',
+      `--report-path=${historyReportPath}`,
+      '--log-opts=--all',
+      '.',
+    ];
+    const negativeArgs = [
+      'dir',
+      '--no-banner',
+      '--log-level=error',
+      '--redact=100',
+      `--config=${path.join(repositoryRoot, GITLEAKS_CONFIG_PATH)}`,
+      `--gitleaks-ignore-path=${path.join(repositoryRoot, GITLEAKS_IGNORE_PATH)}`,
+      '--ignore-gitleaks-allow',
+      '--exit-code=1',
+      '--report-format=json',
+      `--report-path=${negativeReportPath}`,
+      negativeRoot,
+    ];
+    const tree = gitleaksResult(executable, treeArgs, currentTreeRoot);
+    const treeFindings = existsSync(treeReportPath)
+      ? readGitleaksReport(treeReportPath, 'Gitleaks current-tree')
+      : [];
+    const treeDiagnostic = tree.stderr
+      .replaceAll(repositoryRoot, '<repository-root>')
+      .replaceAll(temporaryRoot, '<ephemeral-root>')
+      .trim()
+      .slice(0, 300);
+    requireCondition(
+      tree.status === 0,
+      `Gitleaks current-tree scan failed or found a leak (exit ${tree.status}; ` +
+        `findings ${treeFindings.length}; rules ${[
+          ...new Set(treeFindings.map((finding) => finding.RuleID).filter(Boolean)),
+        ].join(',') || 'unavailable'}; diagnostic ${treeDiagnostic || 'unavailable'})`,
+    );
+    requireCondition(treeFindings.length === 0, 'Gitleaks current-tree report contains findings');
+
+    const history = gitleaksResult(executable, historyArgs, repositoryRoot);
+    requireCondition(history.status === 0, 'Gitleaks reachable-history scan failed or found a leak');
+    const historyFindings = readGitleaksReport(historyReportPath, 'Gitleaks reachable-history');
+    requireCondition(historyFindings.length === 0, 'Gitleaks reachable-history report contains findings');
+
+    const negative = gitleaksResult(executable, negativeArgs, repositoryRoot);
+    requireCondition(negative.status === 1, 'Gitleaks planted-negative scan did not reject');
+    const negativeFindings = readGitleaksReport(negativeReportPath, 'Gitleaks planted-negative');
+    requireCondition(negativeFindings.length > 0, 'Gitleaks planted-negative report is empty');
+
+    const headCommit = run('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot });
+    const headTree = run('git', ['rev-parse', 'HEAD^{tree}'], { cwd: repositoryRoot });
+    const status = run('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+      cwd: repositoryRoot,
+    });
+    const treeCommand = GITLEAKS_COMMAND_IDENTITIES.current_tree;
+    const historyCommand = GITLEAKS_COMMAND_IDENTITIES.reachable_history;
+    const negativeCommand = GITLEAKS_COMMAND_IDENTITIES.planted_negative;
+    const receipt = {
+      schema_version: 'fcs-package8-gitleaks-live-v1',
+      package: 8,
+      status: 'PASS',
+      version: GITLEAKS_VERSION,
+      executable_sha256: sha256(readFileSync(executable)),
+      head_commit: headCommit,
+      head_tree: headTree,
+      worktree_clean: status.length === 0,
+      worktree_status_sha256: sha256(status),
+      policy: {
+        config_path: GITLEAKS_CONFIG_PATH,
+        config_sha256: sha256(configBytes),
+        ignore_path: GITLEAKS_IGNORE_PATH,
+        ignore_sha256: sha256(ignoreBytes),
+        environment_config_scrubbed: true,
+        inline_allow_comments_ignored: true,
+      },
+      scans: {
+        current_tree: {
+          scope: 'exact tracked and non-ignored untracked current-tree snapshot',
+          command: treeCommand,
+          command_sha256: sha256(JSON.stringify(treeCommand)),
+          content_file_count: currentTreeIdentity.file_count,
+          content_sha256: currentTreeIdentity.aggregate_sha256,
+          exit_status: tree.status,
+          findings: treeFindings.length,
+        },
+        reachable_history: {
+          scope: 'git log -p --all',
+          command: historyCommand,
+          command_sha256: sha256(JSON.stringify(historyCommand)),
+          exit_status: history.status,
+          findings: historyFindings.length,
+        },
+        planted_negative: {
+          scope: 'ephemeral synthetic fixture',
+          command: negativeCommand,
+          command_sha256: sha256(JSON.stringify(negativeCommand)),
+          exit_status: negative.status,
+          findings: negativeFindings.length,
+          rejected: true,
+        },
+      },
+    };
+    const receiptDirectory = path.join(repositoryRoot, '.artifacts/runtime');
+    mkdirSync(receiptDirectory, { recursive: true });
+    writeFileSync(
+      path.join(receiptDirectory, 'package8-gitleaks-live.json'),
+      `${JSON.stringify(receipt, null, 2)}\n`,
+    );
+    return receipt;
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true });
+  }
 }
 
 function exactKeys(label, value, expected) {
@@ -233,10 +485,50 @@ export function buildThirdPartyNotices(inventory) {
 }
 
 function trackedPaths(repositoryRoot) {
-  return run('git', ['ls-files', '-z'], { cwd: repositoryRoot })
+  return run('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
+    cwd: repositoryRoot,
+  })
     .split('\0')
     .filter(Boolean)
+    .filter((relativePath) => existsSync(path.join(repositoryRoot, relativePath)))
     .sort();
+}
+
+function currentTreeEntries(repositoryRoot) {
+  return trackedPaths(repositoryRoot).map((relativePath) => {
+    assertSafeRelativePath(relativePath, 'current-tree path');
+    const absolutePath = path.join(repositoryRoot, relativePath);
+    const stat = lstatSync(absolutePath);
+    requireCondition(
+      stat.isFile() && !stat.isSymbolicLink(),
+      `current-tree path is not a regular file: ${relativePath}`,
+    );
+    const bytes = readFileSync(absolutePath);
+    return { path: relativePath, bytes, sha256: sha256(bytes) };
+  });
+}
+
+function currentTreeIdentity(entries) {
+  return {
+    file_count: entries.length,
+    aggregate_sha256: sha256(
+      entries.map((entry) => `${entry.sha256}  ${entry.bytes.length}  ${entry.path}\n`).join(''),
+    ),
+  };
+}
+
+export function buildCurrentTreeIdentity(repositoryRoot) {
+  return currentTreeIdentity(currentTreeEntries(repositoryRoot));
+}
+
+function materializeCurrentTreeSnapshot(repositoryRoot, snapshotRoot) {
+  const entries = currentTreeEntries(repositoryRoot);
+  for (const entry of entries) {
+    const destination = path.join(snapshotRoot, entry.path);
+    mkdirSync(path.dirname(destination), { recursive: true });
+    writeFileSync(destination, entry.bytes);
+  }
+  return currentTreeIdentity(entries);
 }
 
 export function scanBytes(relativePath, bytes) {
@@ -345,6 +637,14 @@ export function checkLocalMarkdownLinks(repositoryRoot) {
 }
 
 export function validateCiWorkflow(source) {
+  requireCondition(
+    source.includes('GITLEAKS_VERSION: "8.30.1"'),
+    'Gitleaks version is not pinned in CI',
+  );
+  requireCondition(
+    source.includes('GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"'),
+    'Gitleaks archive checksum is not pinned in CI',
+  );
   for (const required of [
     'runs-on: ubuntu-24.04',
     `uses: ${CI_CHECKOUT}`,
@@ -353,6 +653,8 @@ export function validateCiWorkflow(source) {
     "node-version: '22.22.3'",
     'package-manager-cache: false',
     'run: npm ci',
+    'https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz',
+    'sha256sum --check --strict',
     'run: npm run setup:browsers',
     'run: npm run verify',
   ]) requireCondition(source.includes(required), `CI workflow missing: ${required}`);
@@ -368,23 +670,14 @@ export function validateReleaseLineage(repositoryRoot) {
   return { base_commit: PACKAGE7_COMMIT, status: 'PASS' };
 }
 
-function buildReleaseSecurity(repositoryRoot) {
+function buildReleaseSecurity(repositoryRoot, gitleaks) {
   const worktreeFindings = scanTrackedSource(repositoryRoot);
   const historyFindings = scanReachableHistory(repositoryRoot);
   const bundleFindings = scanProductionBundle(repositoryRoot);
   const brokenLinks = checkLocalMarkdownLinks(repositoryRoot);
   const lineage = validateReleaseLineage(repositoryRoot);
   const inventory = buildDependencyInventory(repositoryRoot);
-  const gitleaksWorktree = parseStrictJson(
-    readRegular(repositoryRoot, '.artifacts/security/gitleaks-worktree.json').toString('utf8'),
-    '.artifacts/security/gitleaks-worktree.json',
-  );
-  const gitleaksHistory = parseStrictJson(
-    readRegular(repositoryRoot, '.artifacts/security/gitleaks-history.json').toString('utf8'),
-    '.artifacts/security/gitleaks-history.json',
-  );
-  requireCondition(Array.isArray(gitleaksWorktree) && gitleaksWorktree.length === 0, 'gitleaks worktree finding');
-  requireCondition(Array.isArray(gitleaksHistory) && gitleaksHistory.length === 0, 'gitleaks history finding');
+  requireCondition(gitleaks.status === 'PASS', 'live Gitleaks receipt failed');
   requireCondition(inventory.status === 'PASS', 'dependency or license finding');
   requireCondition(worktreeFindings.length === 0, `tracked source finding: ${JSON.stringify(worktreeFindings[0])}`);
   requireCondition(historyFindings.length === 0, `reachable history finding: ${JSON.stringify(historyFindings[0])}`);
@@ -393,13 +686,17 @@ function buildReleaseSecurity(repositoryRoot) {
   return {
     schema_version: 'fcs-package8-release-security-v1',
     package: 8,
-    status: 'PASS',
+    status: 'BLOCKED',
+    local_integrity_status: 'PASS',
+    blocker: 'Trusted client isolation at the actual ChatGPT Sites edge is not yet evidenced.',
     environment: 'local-source-built-worker-no-remote-bindings',
     checks: {
-      strict_nonce_csp_runtime: 'PASS',
+      nonce_rooted_script_csp_runtime: 'PASS',
+      nonced_inline_style_and_same_origin_stylesheet_csp_runtime: 'PASS',
       nosniff_referrer_origin_isolation_runtime: 'PASS',
       webmcp_tools_self_permissions_policy_runtime: 'PASS',
-      shared_workspace_admission_and_replay: 'PASS',
+      atomic_workspace_admission_and_idempotent_replay: 'PASS',
+      direct_edge_bootstrap_isolation_local_runtime: 'PASS',
       session_ttl_rotation_cleanup_and_privacy_disclosure: 'PASS',
       tracked_source_secret_and_machine_path_scan: 'PASS',
       head_reachable_history_scan: 'PASS',
@@ -412,11 +709,34 @@ function buildReleaseSecurity(repositoryRoot) {
       package7_ancestry_and_safe_tracked_paths: lineage.status,
     },
     findings: { critical: 0, high: 0, unresolved_license: 0 },
+    live_gitleaks: {
+      version: gitleaks.version,
+      executable_sha256: gitleaks.executable_sha256,
+      config_path: gitleaks.policy.config_path,
+      config_sha256: gitleaks.policy.config_sha256,
+      ignore_path: gitleaks.policy.ignore_path,
+      ignore_sha256: gitleaks.policy.ignore_sha256,
+      environment_config_scrubbed: gitleaks.policy.environment_config_scrubbed,
+      inline_allow_comments_ignored: gitleaks.policy.inline_allow_comments_ignored,
+      current_tree_scope: gitleaks.scans.current_tree.scope,
+      current_tree_command_sha256: gitleaks.scans.current_tree.command_sha256,
+      reachable_history_scope: gitleaks.scans.reachable_history.scope,
+      reachable_history_command_sha256: gitleaks.scans.reachable_history.command_sha256,
+      planted_negative_command_sha256: gitleaks.scans.planted_negative.command_sha256,
+      current_tree_exit_status: gitleaks.scans.current_tree.exit_status,
+      current_tree_findings: gitleaks.scans.current_tree.findings,
+      reachable_history_exit_status: gitleaks.scans.reachable_history.exit_status,
+      reachable_history_findings: gitleaks.scans.reachable_history.findings,
+      planted_negative_exit_status: gitleaks.scans.planted_negative.exit_status,
+      planted_negative_findings: gitleaks.scans.planted_negative.findings,
+      planted_negative_rejected: gitleaks.scans.planted_negative.rejected,
+    },
     dependency_inventory_sha256: sha256(
       readRegular(repositoryRoot, '.artifacts/security/package8-dependency-license.json'),
     ),
     third_party_notices_sha256: sha256(readRegular(repositoryRoot, 'THIRD_PARTY_NOTICES.md')),
     external: {
+      sites_edge_client_isolation: 'NOT_RUN',
       hosted_headers: 'NOT_RUN',
       supported_client: 'NOT_RUN',
       chrome_trace: 'NOT_RUN',
@@ -431,6 +751,7 @@ function verifyGenerated(repositoryRoot, relativePath, expected) {
 }
 
 export function runPackage8ReleaseChecks(repositoryRoot, { write = false } = {}) {
+  const gitleaks = runLiveGitleaks(repositoryRoot);
   validateBuildInputs(
     repositoryRoot,
     readRegular(repositoryRoot, 'release/BUILD_INPUTS.json').toString('utf8'),
@@ -448,12 +769,13 @@ export function runPackage8ReleaseChecks(repositoryRoot, { write = false } = {})
     verifyGenerated(repositoryRoot, inventoryPath, inventoryText);
     verifyGenerated(repositoryRoot, 'THIRD_PARTY_NOTICES.md', notices);
   }
-  const security = buildReleaseSecurity(repositoryRoot);
+  const security = buildReleaseSecurity(repositoryRoot, gitleaks);
   const securityText = `${JSON.stringify(security, null, 2)}\n`;
   const securityPath = '.artifacts/security/release-security.json';
   if (write) writeFileSync(path.join(repositoryRoot, securityPath), securityText);
   else verifyGenerated(repositoryRoot, securityPath, securityText);
-  return { inventory, security };
+  const finalGitleaks = write ? runLiveGitleaks(repositoryRoot) : gitleaks;
+  return { inventory, security, gitleaks: finalGitleaks };
 }
 
 function main() {

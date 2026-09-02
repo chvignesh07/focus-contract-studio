@@ -14,7 +14,7 @@ import {
   randomTokenBytes,
   sha256Hex,
 } from './crypto';
-import { FcsError } from './errors';
+import { FcsError, rethrowRateLimitError } from './errors';
 
 type ActiveRow = {
   variant_id: string;
@@ -142,7 +142,7 @@ export async function startFocusRehearsal(input: {
       active.implemented_revision,
     )
     .run();
-  if (!result.success || result.meta.changes !== 1) {
+  if (!result.success || result.meta.changes !== 2) {
     throw rehearsalError(
       'REHEARSAL_START_FAILED',
       'The rehearsal could not be started.',
@@ -215,10 +215,17 @@ function isReplay(
   );
 }
 
-function assertBatch(results: D1Result[], count: number): void {
+function assertBatch(
+  results: D1Result[],
+  count: number,
+  admissionIndex: number,
+): void {
   if (
     results.length !== count ||
-    results.some((result) => !result.success || result.meta.changes !== 1)
+    results.some(
+      (result, index) =>
+        !result.success || result.meta.changes !== (index === admissionIndex ? 2 : 1),
+    )
   ) {
     throw new Error('The rehearsal batch returned unexpected row counts.');
   }
@@ -380,8 +387,13 @@ export async function finalizeFocusRehearsal(input: {
       .bind(input.workspaceId, row.id),
   ];
   try {
-    assertBatch(await input.db.batch(statements), sequencedEvents.length + 4);
+    assertBatch(
+      await input.db.batch(statements),
+      sequencedEvents.length + 4,
+      sequencedEvents.length + 2,
+    );
   } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await loadSession(
       input.db,
       input.workspaceId,

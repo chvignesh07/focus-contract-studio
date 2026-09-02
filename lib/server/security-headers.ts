@@ -23,7 +23,7 @@ export function buildSecurityHeaders(nonce: string): Headers {
       "img-src 'self' data:",
       "font-src 'self'",
       `style-src 'self' 'nonce-${nonce}'`,
-      `script-src 'self' 'nonce-${nonce}'`,
+      `script-src 'nonce-${nonce}' 'strict-dynamic'`,
     ].join('; '),
   );
   headers.set('origin-agent-cluster', '?1');

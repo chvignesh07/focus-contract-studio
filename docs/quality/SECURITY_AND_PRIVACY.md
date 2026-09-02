@@ -21,8 +21,8 @@ Preserve workspace isolation, exact review/apply integrity, bounded untrusted ev
 | Auth-header spoof/identity merge | Optional feature only after Sites-hosted overwrite/strip probe; exact validated email bytes HMACed, no lowercase/normalization; raw identity transient. | Signed-out forged-header and repeated sign-in probes. |
 | Tool overexposure | Top-level same-origin tools, no `exposedTo`, narrow strict schemas, ≤1.5K result target, exact four-tool inventory. | Real client/Chrome/DevTools audit. |
 | Raw-content capture | Observer accepts only stable IDs/enums; no input values/text/clipboard; bounded events/time. | Sensitive-marker E2E and D1/log scan. |
-| Abuse/storage exhaustion | Body/event/result limits, locally enforced per-lineage operation limits that survive reset, eight-hour access expiry, 24-hour cleanup grace, request-driven purge capped at 10 rows. | Atomic concurrency/over-limit/replay tests locally; deployed load tuning remains unconfirmed. |
-| Secret/license/supply chain | No model key; generated lockfile; exact direct pins; secret/reachable-history/dependency/license/bundle scans; notices and provenance ledger. | Package 8 local gate and terminal exact-commit clean clone; hosted release remains separate. |
+| Abuse/storage exhaustion | Body/event/result limits; atomically consumed per-lineage operation limits that survive reset; bootstrap isolation by a minute-rotating HMAC of direct-edge client metadata; eight-hour access expiry; 24-hour cleanup grace; request-driven purge capped at 10 rows. | Concurrent replay/rollback/saturation tests pass locally. Actual Sites edge client isolation and deployed tuning remain `NOT_RUN` and release-blocking. |
+| Secret/license/supply chain | No model key; generated lockfile; exact direct pins; live pinned-version Gitleaks exact-current-tree/reachable-history scans with a planted-negative control; source-bound config and empty ignore policy; dependency/license/bundle scans; notices and provenance ledger. | Package 8 local gate and terminal exact-commit clean clone; hosted release remains separate. |
 
 ## Session and workspace design
 
@@ -63,17 +63,18 @@ Implement the exact guard/finalizer design in `docs/architecture/ARCHITECTURE.md
 - every expected affected-row count is asserted;
 - zero-row authorization/CAS is a stable failure and no product mutation;
 - failure-attempt audit is separate, best-effort, and never a success-like receipt.
+- operation admission is consumed by the durable success marker inside that same batch; replay inserts no marker, and any failed batch rolls back the counter, idempotency row, audit, and product graph together.
 
 ## Browser and WebMCP headers
 
 Package 8 applies these source-controlled headers through the supported Vinext/Next request proxy:
 
-- a fresh per-request nonce CSP with `default-src 'self'`, `base-uri 'none'`, `object-src 'none'`, `frame-ancestors 'none'`, same-origin form/connect/font, data-only image addition, and nonce-only script/style execution;
+- a fresh per-request nonce CSP with `default-src 'self'`, `base-uri 'none'`, `object-src 'none'`, `frame-ancestors 'none'`, same-origin form/connect/font, data-only image addition, nonce-rooted scripts (`script-src 'nonce-…' 'strict-dynamic'` with no script `'self'`), and nonced inline styles plus same-origin generated stylesheets (`style-src 'self' 'nonce-…'`);
 - `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`;
 - `Origin-Agent-Cluster: ?1`;
 - `Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), tools=(self)`.
 
-The local built-Worker browser tests observe a distinct valid nonce, nonce propagation to every script/style element, zero CSP violations, `window.originAgentCluster === true`, the exact four tools, and no serious/critical axe finding. They also exercise the current Package 8 source at 320px, 375px, and true 200% zoom for reflow, 44px targets, keyboard focus visibility, native-dialog initial/return focus, and Axe. This is local source/runtime evidence only. Sites header preservation, supported-ChatGPT behavior, and the conditional real Chrome WebMCP trace remain `NOT_RUN`; no deployment compatibility claim is made.
+The local built-Worker browser tests observe a distinct valid nonce, nonce propagation to framework script and inline-style elements, the expected violation for an injected unnonced same-origin script, no unexpected CSP violation, working built stylesheets/dynamic chunks, `window.originAgentCluster === true`, the exact four tools, and no serious/critical Axe finding. They also exercise the current Package 8 source at 320px, 375px, and true 200% zoom for reflow, 44px targets, keyboard focus visibility, native-dialog initial/return focus, and Axe. This is local source/runtime evidence only. Sites header preservation, actual edge client isolation, supported-ChatGPT behavior, and the conditional real Chrome WebMCP trace remain `NOT_RUN`; the missing edge proof blocks Package 8 from a public-release-safe claim.
 
 ## Data inventory and retention
 
@@ -82,6 +83,7 @@ The local built-Worker browser tests observe a distinct valid nonce, nonce propa
 | Anonymous token | Browser only | Rotated/expired; only digest in D1. |
 | Raw email/full name | No | Request lifetime only when optional sign-in passes. |
 | Subject/session digest | Yes | Workspace retention; never reversible without secret. |
+| Bootstrap client digest | Yes, short-lived | Minute-window HMAC of direct-edge client address; no raw address; expires after two minutes and is removed by bounded request-driven cleanup. |
 | Implemented revisions/proposals/reviews/receipts/audit | Yes | Immutable while retained workspace exists. |
 | Rationale/summary | Yes, bounded | Synthetic/demo or reviewer-entered; disclosed as untrusted. |
 | Raw observation IDs/events/manifests | Yes, bounded | No text/value; retained with workspace. |
@@ -100,13 +102,14 @@ Package 8 enforces:
 - proposal summary 280, rationale 320 stored/120 tool excerpt;
 - 64 observation events/30 seconds/session;
 - 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets per anonymous workspace lineage/hour; reset preserves that lineage;
+- 32 new-workspace bootstraps/minute per rotating client digest only when both non-HTTP Cloudflare request metadata and `CF-Connecting-IP` are present; `X-Forwarded-For`, `X-Real-IP`, and other caller-controlled headers cannot select or change the bucket; absence or malformed metadata returns `503` before any workspace/product write;
 - 36 eligible rows, top-12/ranker, top-3 UI/top-2 tool.
 
-These values are confirmed by local atomic D1 tests, including concurrent saturation, zero unauthorized product change, and same-key replay after a full window. Record deployed p95/error/load evidence before presenting the thresholds as production-tuned capacity. Limit failure must preserve active revision and idempotency recovery.
+Workspace values are confirmed by local atomic D1 tests across initial focus, proposal, review, apply, rehearsal/finalization, verification, undo, and reset, including concurrent identical replay, conflicting-payload rejection, downstream rollback, saturation, zero unauthorized product change, and no stale in-progress record. Local direct-edge bootstrap tests prove that one client cannot exhaust another client, spoofed forwarding metadata cannot select a fresh bucket, and rejection writes nothing. Current public Sites documentation does not establish that the deployed boundary supplies the same trustworthy signal. Package 8 is therefore **BLOCKED** until a deployed probe proves that fact or an independently enforced edge control is adopted and evidenced. Record deployed p95/error/load evidence before presenting any threshold as production-tuned capacity.
 
 ## Logging and redaction
 
-Application code does not persist raw session/CSRF/evidence tokens, identity headers, reasons, typed values, email/name, IP addresses, or user agents. Errors expose bounded public codes and correlation IDs rather than raw inputs. Package 8 scans tracked source, every HEAD-reachable commit, evidence, and the production bundle for credential-shaped material and machine-local paths; independent local Gitleaks directory/history runs are retained as empty finding arrays. Platform logs may still exist under Sites policies, so the page discloses that boundary and makes no platform-retention promise.
+Application code does not persist raw session/CSRF/evidence tokens, identity headers, reasons, typed values, email/name, IP addresses, or user agents. Errors expose bounded public codes and correlation IDs rather than raw inputs. Package 8 requires Gitleaks `8.30.1` to scan a byte-bound snapshot of every tracked and non-ignored untracked current-tree file plus reachable `--all` history, and rejects a planted secret-shaped fixture. The runner forces and hashes the source-bound `.gitleaks.toml` and intentionally empty Package 8 ignore file, strips environment config overrides, and disables inline allow comments. Its ignored runtime receipt binds version, normalized command/scope, policy hashes, commit/tree, worktree status, current-content digest, exit status, and result counts. The separate source, history, evidence, and production-bundle scanners remain defense in depth. No empty committed Gitleaks report is accepted as proof. Platform logs may still exist under Sites policies, so the page discloses that boundary and makes no platform-retention promise.
 
 ## Disclosure
 

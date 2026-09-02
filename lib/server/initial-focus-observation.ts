@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { canonicalFocusConfiguration } from '../domain/focus-configuration';
 import { sha256Hex } from './crypto';
-import { FcsError } from './errors';
+import { FcsError, rethrowRateLimitError } from './errors';
 
 export { INITIAL_FOCUS_MANIFEST } from '../domain/initial-focus-manifest';
 
@@ -93,7 +93,10 @@ function canonicalManifest(manifest: InitialFocusManifest): string {
 function assertBatch(results: D1Result[]): void {
   if (
     results.length !== 6 ||
-    results.some((result) => !result.success || result.meta.changes !== 1)
+    results.some(
+      (result, index) =>
+        !result.success || result.meta.changes !== (index === 0 ? 2 : 1),
+    )
   ) {
     throw new Error('The opening observation batch was incomplete.');
   }
@@ -303,6 +306,7 @@ export async function commitInitialFocusObservation(input: {
     ]);
     assertBatch(results);
   } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await existingObservation(
       input.db,
       input.workspaceId,

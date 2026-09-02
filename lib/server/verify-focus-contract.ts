@@ -27,7 +27,7 @@ import {
   type SequencedObservationEvent,
 } from '../domain/focus-rehearsal';
 import { constantTimeEqual, hexToBytes, sha256Hex } from './crypto';
-import { FcsError } from './errors';
+import { FcsError, rethrowRateLimitError } from './errors';
 
 type EvidenceRow = {
   session_id: string;
@@ -788,13 +788,18 @@ export async function verifyFocusContract(input: {
   ];
   try {
     const results = await input.db.batch(statements);
+    const auditIndex = 2 + output.checks.length;
     if (
       results.length !== statements.length ||
-      results.some((entry) => !entry.success || entry.meta.changes !== 1)
+      results.some(
+        (entry, index) =>
+          !entry.success || entry.meta.changes !== (index === auditIndex ? 2 : 1),
+      )
     ) {
       throw new Error('The verification batch returned unexpected row counts.');
     }
-  } catch {
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await loadReplay({
       db: input.db,
       verifierInput: value,

@@ -8,7 +8,6 @@ const WORKSPACE_RETENTION_SECONDS = 2 * WORKSPACE_WINDOW_SECONDS;
 
 export const GLOBAL_OPERATION_LIMITS = {
   workspace_bootstrap: 32,
-  workspace_reset: 32,
 } as const;
 
 export type GlobalOperation = keyof typeof GLOBAL_OPERATION_LIMITS;
@@ -45,15 +44,20 @@ export async function admitGlobalOperation(input: {
   db: D1Database;
   operation: GlobalOperation;
   now: number;
-  secret: string;
+  clientDigest: string;
 }): Promise<number> {
+  if (!/^[0-9a-f]{64}$/u.test(input.clientDigest)) {
+    throw new FcsError(
+      'BOOTSTRAP_EDGE_UNAVAILABLE',
+      'A trusted client boundary is unavailable.',
+      503,
+      true,
+    );
+  }
   const limit = GLOBAL_OPERATION_LIMITS[input.operation];
   const windowStart =
     Math.floor(input.now / GLOBAL_WINDOW_SECONDS) * GLOBAL_WINDOW_SECONDS;
-  const keyDigest = await hmacSha256Hex(
-    input.secret,
-    `fcs-global-admission-v1:${input.operation}`,
-  );
+  const keyDigest = input.clientDigest;
   const id = await deterministicUuid(
     `fcs-global-admission-window-v1:${input.operation}:${windowStart}:${keyDigest}`,
   );
@@ -92,6 +96,37 @@ export async function admitGlobalOperation(input: {
   return admitted.request_count;
 }
 
+export async function trustedBootstrapClientDigest(input: {
+  request: Request;
+  now: number;
+  secret: string;
+}): Promise<string> {
+  const cloudflare = (input.request as Request & { cf?: unknown }).cf;
+  const address = input.request.headers.get('cf-connecting-ip');
+  if (
+    cloudflare === null ||
+    typeof cloudflare !== 'object' ||
+    address === null ||
+    address !== address.trim() ||
+    address.length < 2 ||
+    address.length > 64 ||
+    !/^[0-9a-f:.]+$/iu.test(address)
+  ) {
+    throw new FcsError(
+      'BOOTSTRAP_EDGE_UNAVAILABLE',
+      'A trusted client boundary is unavailable.',
+      503,
+      true,
+    );
+  }
+  const windowStart =
+    Math.floor(input.now / GLOBAL_WINDOW_SECONDS) * GLOBAL_WINDOW_SECONDS;
+  return hmacSha256Hex(
+    input.secret,
+    `fcs-bootstrap-client-v1:${windowStart}:${address.toLowerCase()}`,
+  );
+}
+
 export async function admitWorkspaceOperation(input: {
   db: D1Database;
   workspaceId: string;
@@ -114,10 +149,10 @@ export async function admitWorkspaceOperation(input: {
   }
   const windowStart =
     Math.floor(input.now / WORKSPACE_WINDOW_SECONDS) * WORKSPACE_WINDOW_SECONDS;
-  const keyDigest = await hmacSha256Hex(
-    input.secret,
-    `fcs-workspace-admission-v2:${subject.admission_subject_key}:${input.operation}`,
-  );
+  if (input.secret.length < 32) {
+    throw new Error('The admission secret is unavailable.');
+  }
+  const keyDigest = subject.admission_subject_key;
   const id = await deterministicUuid(
     `fcs-workspace-admission-window-v1:${input.workspaceId}:${input.operation}:${windowStart}:${keyDigest}`,
   );
@@ -156,6 +191,44 @@ export async function admitWorkspaceOperation(input: {
   return admitted.request_count;
 }
 
+async function assertWorkspaceOperationAvailable(input: {
+  db: D1Database;
+  workspaceId: string;
+  operation: WorkspaceOperation;
+  now: number;
+}): Promise<void> {
+  const windowStart =
+    Math.floor(input.now / WORKSPACE_WINDOW_SECONDS) * WORKSPACE_WINDOW_SECONDS;
+  const row = await input.db
+    .prepare(
+      `SELECT window.request_count
+         FROM workspaces workspace
+         LEFT JOIN rate_limit_windows window
+           ON window.workspace_id IS NOT NULL
+          AND window.key_digest = COALESCE(
+            workspace.admission_subject_key,
+            workspace.subject_key
+          )
+          AND window.operation = ?
+          AND window.window_start = ?
+        WHERE workspace.id = ? AND workspace.purged_at IS NULL
+          AND workspace.access_expires_at >= ?`,
+    )
+    .bind(input.operation, windowStart, input.workspaceId, input.now)
+    .first<{ request_count: number | null }>();
+  if (!row) {
+    throw new FcsError('SESSION_EXPIRED', 'The session has expired.', 401);
+  }
+  if ((row.request_count ?? 0) >= WORKSPACE_OPERATION_LIMITS[input.operation]) {
+    throw new FcsError(
+      'RATE_LIMITED',
+      'This workspace is temporarily at its operation limit. Try again later.',
+      429,
+      true,
+    );
+  }
+}
+
 export function workspaceAdmission(input: {
   db: D1Database;
   operation: WorkspaceOperation;
@@ -163,6 +236,9 @@ export function workspaceAdmission(input: {
   secret: string;
 }): (workspaceId: string) => Promise<void> {
   return async (workspaceId) => {
-    await admitWorkspaceOperation({ ...input, workspaceId });
+    if (input.secret.length < 32) {
+      throw new Error('The admission secret is unavailable.');
+    }
+    await assertWorkspaceOperationAvailable({ ...input, workspaceId });
   };
 }

@@ -1,7 +1,7 @@
 # Provenance Ledger
 
 Evidence ID: `E-017`  
-Package 8 local pre-live status: **PASS** — source, dependency/license, notices, security-scan, and AI-use provenance are recorded. Final source commit `C` and its clean-clone proof are terminal session evidence and are not self-recorded; deployed/version identities, media, and submission provenance remain `NOT_RUN`.
+Package 8 local integrity status: **PASS**; overall disposition: **BLOCKED** — source, dependency/license, notices, live security-scan, and AI-use provenance are recorded, while actual Sites edge client isolation remains `NOT_RUN`. Final source commit `C` and its clean-clone proof are terminal session evidence and are not self-recorded; deployed/version identities, media, and submission provenance remain `NOT_RUN`.
 
 | Item | Exact source / version | License or terms | Treatment | Repository evidence |
 |---|---|---|---|---|
@@ -13,7 +13,7 @@ Package 8 local pre-live status: **PASS** — source, dependency/license, notice
 | Local Cloudflare test toolchain | Exact stable family in lockfile; patched `undici@7.29.0` override | Each dependency retains its own license | Local-only, `remoteBindings:false`; compatibility proven by D1 test; no alpha Miniflare adopted | `package.json`, `package-lock.json`, `wrangler.package0.jsonc` |
 | CI actions | `actions/checkout` commit `3d3c42e5aac5ba805825da76410c181273ba90b1`; `actions/setup-node` commit `820762786026740c76f36085b0efc47a31fe5020` | Respective upstream repositories and licenses | Immutable commit references; read-only token permissions; package-manager cache disabled | `.github/workflows/verify.yml` |
 | Browser test binary | Chromium revision selected by exact `@playwright/test@1.62.1`; installed by Playwright into project-local ignored cache | Chromium and bundled component terms | Test-only; not copied into source or production bundle | `package-lock.json`, `npm run setup:browsers` |
-| Package 8 security/evidence automation | Original nonce-header proxy, shared D1 admission, validators, scan orchestration, and evidence binding | Apache-2.0 | Uses Vinext/Next/D1/Node/Git/npm capabilities; no new runtime or scanner library added | `proxy.ts`, `lib/server/admission.ts`, `scripts/package8-*.mjs`, `.artifacts/security/release-security.json` |
+| Package 8 security/evidence automation | Original nonce-header proxy, native D1 trigger-coupled admission, direct-edge bootstrap digest, validators, live Gitleaks orchestration, and evidence binding; Gitleaks `8.30.1` official binary | Apache-2.0 project code; Gitleaks MIT | Uses Vinext/Next/D1/Node/Git/npm capabilities; no new runtime or scanner library added; CI verifies the official archive SHA-256 before executing it | `proxy.ts`, `lib/server/admission.ts`, `drizzle/0006_package8_atomic_admission.sql`, `.github/workflows/verify.yml`, `scripts/package8-*.mjs`, `.artifacts/security/release-security.json` |
 | Geist fonts | Next.js `next/font` generated scaffold path | Upstream font/package terms | Retained from generated scaffold; no external font fetch added | `app/layout.tsx` |
 | Favicon | Generator-provided SVG | Generator/upstream terms | Retained unchanged from scaffold | `public/favicon.svg`, first scaffold commit |
 | External documentation | OpenAI Sites/Site tools, WebMCP draft, Cloudflare Workers/D1, Chrome WebMCP | Respective site terms | Facts paraphrased and linked; no documentation copied into product code | `docs/evidence/BOOTSTRAP_PROBES.md` |

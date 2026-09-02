@@ -1,24 +1,25 @@
 # Package 8 Implementation Reviews
 
-<!-- package8-source-binding file_count=53 sha256=eb15681ad3dd47427bd3a267d31eb5c24796ffc9d70e4dcd56d3ae5cd9ef3ecc -->
+<!-- package8-source-binding file_count=62 sha256=64f641af6f5642dd5b1a46ce4500870b46b16901e6349d300c6db936c101a0a8 -->
 
-Exactly two bounded, independent, read-only implementation reviews examined the Package 8 working tree. The root agent reproduced every material finding, implemented the root-cause repairs, reran focused proof, and returned each repair to the same reviewer for closure. A separate pre-review launch that declined before running commands or producing findings is excluded from the reviewer count.
+Exactly two bounded, independent, read-only implementation reviews examined the repaired Package 8 working tree. Each material finding was fixed by the root writer, covered by a focused regression, and returned to the same reviewer for closure.
 
 ## Review dispositions
 
 Security/admission/state review — disposition: PASS
 
-- Initial-focus exact replay now resolves before rehearsal admission; regression proof saturates the window and recovers the committed result.
-- Reset successors retain one immutable admission lineage; five resets are admitted, the sixth is rejected, and one lineage/counter remains.
-- Reset performs local-lineage admission before global admission; local rejection spends no global reset capacity.
-- Migration 0005, query inventory, seed/reset behavior, atomic partial-index conflict target, token rotation, expiry, and bounded cleanup were reviewed.
+- CSP review confirmed nonce-rooted `script-src` with `strict-dynamic`, no script `'self'`, framework-compatible same-origin built CSS, and a built-browser negative proving an unnonced same-origin script is blocked while chunks, styles, accessibility, and all four WebMCP tools work.
+- Admission review traced every mutation caller and migration `0006`: initial focus, proposal, review, apply, rehearsal start/finalization, verification, undo, and reset consume quota at their durable D1 commit marker. Concurrent identical replay spends one unit, conflicting payload fails closed, and downstream failure rolls graph/idempotency/audit/admission back together.
+- Initial finding: bootstrap cleanup ran before trusted-edge rejection and could delete expired graphs. A first ordering fix then over-required edge metadata for valid reloads. Final repair keeps trust/admission only in the new-session callback and runs bounded cleanup best-effort only after a usable new session exists.
+- Closure proof: an untrusted new bootstrap returns `503` with unchanged workspace, variant, audit, admission counts and retained expired graph; a valid cookie reload without edge metadata returns `200` with unchanged counts.
 
 CI/evidence/privacy/accessibility/claim review — disposition: PASS
 
-- The source-manifest parser is duplicate-aware and every enumerated path passes the shared decoded safe-relative-path guard.
-- The current built Package 8 surface passed 320px, 375px, and true-200%-zoom reflow, 44px targets, keyboard focus-visible, native-dialog initial/return focus, and serious/critical Axe checks.
-- The browser bootstrap applies migration 0005. The local gate records and enforces the exact 514-test breakdown and no longer claims evidence binding before the binder runs.
-- CI pins immutable actions, uses read-only permissions, installs project-local Chromium explicitly, and runs the canonical verifier from a clean install.
+- Initial finding: inherited Gitleaks config/ignore mechanisms could weaken policy. The repair forces source-bound `.gitleaks.toml`, a reviewed empty Package 8 ignore file, ignores inline allow comments, scrubs config environment overrides, and binds both policy hashes/flags.
+- Initial finding: porcelain status alone could accept a stale scan after another edit to an already-dirty file. The repair scans an exact snapshot of tracked and non-ignored untracked regular files and binds its file count/content digest; the regression proves unchanged dirty status with changed content is rejected.
+- Fresh Gitleaks `8.30.1` proof passed: exact current-tree snapshot zero findings, reachable `--all` history zero findings, and planted-negative rejected. Negative evidence tests reject wrong policy, scope, content digest, commit, version, and executable availability.
+- CI retains read-only permissions and immutable action pins, checksum-installs Gitleaks `8.30.1`, installs project-local Chromium, and runs the canonical verifier. Package 8 remains overall `BLOCKED`, Package 0 remains `INCONCLUSIVE`, and external rows remain `NOT_RUN`.
+- The browser bootstrap applies migrations `0005` and `0006`. The local gate records and enforces the exact `523`-test breakdown.
 
 unresolved critical/high/material: 0
 

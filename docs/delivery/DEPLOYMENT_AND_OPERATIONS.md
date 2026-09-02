@@ -16,6 +16,10 @@ Therefore:
 - all contest migrations are additive and backward-compatible across any still-running saved version;
 - no release claim says “preview database” unless a current hosted probe proves a distinct binding, which is not assumed here.
 
+### Bootstrap edge prerequisite
+
+The local built Worker accepts a new-workspace bootstrap only when the request carries non-HTTP Cloudflare runtime metadata and a valid direct-edge `CF-Connecting-IP`; it derives a minute-rotating HMAC bucket and never stores the raw address. Caller-controlled forwarding headers are ignored, and missing metadata fails with `503` before a workspace write. Current public Sites documentation does not guarantee that this signal reaches the app with a non-spoofable trust boundary. Package 8 is therefore **BLOCKED** until an owner-only deployed probe proves isolation for two independent clients and spoof resistance, or a separately approved edge control provides equivalent evidence. This probe remains `NOT_RUN`; do not weaken the fail-closed behavior to deploy.
+
 ## Environment model
 
 | Environment | Purpose | Authority and data |
@@ -44,6 +48,8 @@ Secrets are configured through the official Sites mechanism and never committed:
 - any generated Sites secret explicitly required by the starter.
 
 Local development uses separately generated ignored values. The server fails closed with a non-secret correlation ID when required configuration is absent. Logs, tool results, receipts, screenshots, CI artifacts, and error pages never reveal secret values.
+
+Canonical local verification also requires Gitleaks `8.30.1`. CI downloads the official Linux archive at that exact version, verifies its pinned SHA-256 before installation, then runs `npm run verify`. The verifier forces source-bound config and an intentionally empty ignore file, strips config environment overrides, rejects inline allow comments, scans a content-bound exact current-tree snapshot plus reachable `--all` history, and rejects a planted synthetic secret-shaped fixture; a missing, stale, wrong-policy, wrong-scope, finding-bearing, or unsuccessful scan fails the gate.
 
 ## Migration discipline
 

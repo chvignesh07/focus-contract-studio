@@ -6,7 +6,11 @@ import {
   sha256Bytes,
   sha256Hex,
 } from './crypto';
-import { FcsError, unavailableVariant } from './errors';
+import {
+  FcsError,
+  rethrowRateLimitError,
+  unavailableVariant,
+} from './errors';
 import {
   anonymousSubjectKey,
   csrfDigestForSession,
@@ -246,6 +250,7 @@ async function createSeededWorkspace(options: {
   now: number;
   prefixStatements?: D1PreparedStatement[];
   suffixStatements?: D1PreparedStatement[];
+  admittedSuffixIndex?: number;
   guard?: SeedGuard;
 }): Promise<void> {
   const {
@@ -258,8 +263,10 @@ async function createSeededWorkspace(options: {
     now,
     prefixStatements = [],
     suffixStatements = [],
+    admittedSuffixIndex,
     guard,
   } = options;
+  const seed = await seedStatements(db, workspaceId, now, guard);
   const results = await db.batch([
     ...prefixStatements,
     seedInsert(
@@ -282,7 +289,7 @@ async function createSeededWorkspace(options: {
       ],
       guard,
     ),
-    ...(await seedStatements(db, workspaceId, now, guard)),
+    ...seed,
     ...suffixStatements,
   ]);
   if (guard && results.every((result) => result.success && result.meta.changes === 0)) {
@@ -293,7 +300,12 @@ async function createSeededWorkspace(options: {
     );
   }
   for (const [index, result] of results.entries()) {
-    assertResultChanges(result, 1, `seed statement ${index + 1}`);
+    const suffixIndex = index - prefixStatements.length - seed.length - 1;
+    assertResultChanges(
+      result,
+      suffixIndex === admittedSuffixIndex ? 2 : 1,
+      `seed statement ${index + 1}`,
+    );
   }
 }
 
@@ -719,27 +731,41 @@ export async function resetWorkspace(input: {
       suffixStatements: [
       input.db
         .prepare(
-          `INSERT INTO audit_events (
-             id, workspace_id, actor_kind, action, target_kind, target_id,
-             result, correlation_id, safe_detail_json, occurred_at
-           ) VALUES (?, ?, 'reviewer', 'workspace.reset', 'workspace', ?,
-                     'success', ?, ?, ?)`,
-        )
-        .bind(
-          crypto.randomUUID(), nextWorkspaceId, nextWorkspaceId, crypto.randomUUID(),
-          JSON.stringify({ generation: prior.generation + 1 }), input.now,
-        ),
-      input.db
-        .prepare(
           `UPDATE idempotency_records
               SET state = 'committed', result_kind = 'workspace', result_id = ?
             WHERE id = ? AND workspace_id = ? AND state = 'started'`,
         )
         .bind(nextWorkspaceId, idempotencyId, prior.id),
+      input.db
+        .prepare(
+          `INSERT INTO audit_events (
+             id, workspace_id, actor_kind, action, target_kind, target_id,
+             result, correlation_id, safe_detail_json, occurred_at
+           )
+           SELECT ?, successor.id, 'reviewer', 'workspace.reset', 'workspace',
+                  successor.id, 'success', ?, ?, ?
+             FROM workspaces successor
+             JOIN idempotency_records reset
+               ON reset.workspace_id = ? AND reset.id = ?
+              AND reset.operation = 'reset' AND reset.state = 'committed'
+              AND reset.result_id = successor.id
+            WHERE successor.id = ?`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          crypto.randomUUID(),
+          JSON.stringify({ generation: prior.generation + 1 }),
+          input.now,
+          prior.id,
+          idempotencyId,
+          nextWorkspaceId,
+        )
       ],
+      admittedSuffixIndex: 1,
       guard: { idempotencyId, priorWorkspaceId: prior.id },
     });
   } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await input.db
       .prepare(workspaceQueryInventory.getResetIdempotency.sql)
       .bind(prior.id, input.idempotencyKey)

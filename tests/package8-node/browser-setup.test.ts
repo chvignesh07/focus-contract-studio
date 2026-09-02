@@ -27,6 +27,6 @@ test('one supported setup command installs the declared project-local Chromium',
   }
   assert.match(
     playwrightConfig,
-    /packageNumber === '8'[\s\S]*drizzle\/0005_package8_admission_lineage\.sql/u,
+    /packageNumber === '8'[\s\S]*drizzle\/0005_package8_admission_lineage\.sql[\s\S]*drizzle\/0006_package8_atomic_admission\.sql/u,
   );
 });

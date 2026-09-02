@@ -19,7 +19,7 @@ import {
   parseEvidenceTokenIssuedAt,
   verifyEvidenceToken,
 } from './evidence-token';
-import { FcsError } from './errors';
+import { FcsError, rethrowRateLimitError } from './errors';
 import { resolveWorkspaceEvidenceSession } from './workspaces';
 
 type IdempotencyRow = {
@@ -549,23 +549,29 @@ export async function createProposal(input: {
         `INSERT INTO audit_events (
            id, workspace_id, actor_kind, action, target_kind, target_id,
            result, correlation_id, safe_detail_json, occurred_at
-         ) VALUES (?, ?, 'agent', 'proposal.created', 'proposal', ?,
-                   'success', ?, '{"status":"proposed","applied":false}', ?)`,
+         )
+         SELECT ?, i.workspace_id, 'agent', 'proposal.created', 'proposal', ?,
+                'success', ?, '{"status":"proposed","applied":false}', ?
+           FROM idempotency_records i
+          WHERE i.id = ? AND i.workspace_id = ?
+            AND i.operation = 'create_proposal' AND i.state = 'committed'`,
       )
       .bind(
         auditId,
-        snapshot.workspaceId,
         proposalId,
         correlationId,
         input.now,
+        idempotencyId,
+        snapshot.workspaceId,
       ),
   );
-  expectedChanges.push(1, 1);
+  expectedChanges.push(1, 2);
 
   try {
     const results = await input.db.batch(statements);
     assertBatch(results, expectedChanges);
-  } catch {
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await recoverExisting(
       input.db,
       snapshot.workspaceId,

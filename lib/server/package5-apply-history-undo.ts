@@ -6,7 +6,7 @@ import {
   undoRequestSchema,
 } from '../domain/package5.ts';
 import { sha256Hex } from './crypto.ts';
-import { FcsError } from './errors.ts';
+import { FcsError, rethrowRateLimitError } from './errors.ts';
 import {
   applicationCandidateError,
   auditHistoryKind,
@@ -339,10 +339,11 @@ export async function applyProposal(input: {
   try {
     assertExactBatch(
       await input.db.batch(statements),
-      [1, 1, 1, 1, 1, 1, siblings?.count ?? 0, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, siblings?.count ?? 0, 1, 2, 1],
       'application',
     );
-  } catch {
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await recoverApplication({
       db: input.db,
       workspaceId: session.workspace.id,
@@ -716,8 +717,9 @@ export async function undoRevision(input: {
   ];
   try {
     assertExactBatch(await input.db.batch(statements),
-      [1, 1, 1, open?.count ?? 0, 1, 1, 1], 'undo');
-  } catch {
+      [1, 1, 1, open?.count ?? 0, 1, 2, 1], 'undo');
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await recoverUndo({
       db: input.db, workspaceId: session.workspace.id,
       key: request.idempotencyKey, requestHash,

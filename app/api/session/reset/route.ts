@@ -6,8 +6,7 @@ import { errorResponse, jsonNoStore, methodNotAllowed } from '../../../../lib/se
 import { readStrictJsonMutation } from '../../../../lib/server/request-security';
 import { runtimeSecurityConfig } from '../../../../lib/server/runtime-config';
 import {
-  admitGlobalOperation,
-  admitWorkspaceOperation,
+  workspaceAdmission,
 } from '../../../../lib/server/admission';
 import {
   cleanupExpiredWorkspaces,
@@ -55,21 +54,12 @@ export async function POST(request: Request): Promise<Response> {
       now,
       sessionSecret: configuration.sessionSecret,
       csrfSecret: configuration.csrfSecret,
-      admitReset: async (workspaceId) => {
-        await admitWorkspaceOperation({
-          db: env.DB,
-          workspaceId,
-          operation: 'reset',
-          now,
-          secret: configuration.rateLimitSecret,
-        });
-        await admitGlobalOperation({
-          db: env.DB,
-          operation: 'workspace_reset',
-          now,
-          secret: configuration.rateLimitSecret,
-        });
-      },
+      admitReset: workspaceAdmission({
+        db: env.DB,
+        operation: 'reset',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
     });
     return jsonNoStore(
       {

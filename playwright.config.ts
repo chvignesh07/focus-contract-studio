@@ -37,6 +37,7 @@ function d1ServerCommand(): string {
   }
   if (packageNumber === '8') {
     migrations.push('drizzle/0005_package8_admission_lineage.sql');
+    migrations.push('drizzle/0006_package8_atomic_admission.sql');
   }
   for (const migration of migrations) {
     const result = spawnSync(

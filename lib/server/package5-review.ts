@@ -14,7 +14,7 @@ import {
 import { canonicalFocusConfiguration } from '../domain/focus-configuration.ts';
 import { assertExactBatch } from '../domain/package5.ts';
 import { sha256Hex } from './crypto.ts';
-import { FcsError } from './errors.ts';
+import { FcsError, rethrowRateLimitError } from './errors.ts';
 import { resolveActiveReviewSnapshot } from './active-focus-review.ts';
 import { resolveWorkspaceEvidenceSession } from './workspaces.ts';
 
@@ -248,7 +248,7 @@ async function editProposal(input: {
        ) VALUES (?, ?, ?, ?, NULL, 'edit', ?)`,
     ).bind(commitId, input.workspaceId, childId, idempotencyId, input.now),
   ];
-  const expected = [1, 1, 1, 1, 1, 1];
+  const expected = [1, 1, 1, 1, 2, 1];
   assertExactBatch(await input.db.batch(statements), expected, 'review edit');
   const child = await proposal(input.db, input.workspaceId, childId);
   if (!child) throw new Error('Committed child proposal is unavailable.');
@@ -413,8 +413,9 @@ export async function createReviewerProposal(input: {
     ).bind(auditId, proposalId, correlationId, input.now, idempotencyId, snapshot.workspaceId),
   ];
   try {
-    assertExactBatch(await input.db.batch(statements), [1, 1, 1, 1, 1], 'reviewer proposal');
-  } catch {
+    assertExactBatch(await input.db.batch(statements), [1, 1, 1, 1, 2], 'reviewer proposal');
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await input.db.prepare(
       `SELECT result_id FROM idempotency_records
         WHERE workspace_id = ? AND operation = 'create_proposal'
@@ -493,6 +494,7 @@ export async function reviewProposal(input: {
         now: input.now,
       });
     } catch (error) {
+      rethrowRateLimitError(error);
       if (error instanceof FcsError) throw error;
       const raced = await recover(
         input.db, session.workspace.id, input.proposalId, request, requestHash,
@@ -606,8 +608,9 @@ export async function reviewProposal(input: {
       decisionId, request.action, input.now),
   ];
   try {
-    assertExactBatch(await input.db.batch(statements), [1, 1, 1, 1, 1, 1], 'review');
-  } catch {
+    assertExactBatch(await input.db.batch(statements), [1, 1, 1, 1, 2, 1], 'review');
+  } catch (error) {
+    rethrowRateLimitError(error);
     const raced = await recover(
       input.db, session.workspace.id, input.proposalId, request, requestHash,
     );

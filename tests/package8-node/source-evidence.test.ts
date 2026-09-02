@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
   validatePackage8Checkpoint,
+  validateLiveGitleaksReceipt,
   validatePackage8LocalGate,
   validatePackage8Reviews,
   verifyPackage8EvidenceBinding,
@@ -70,13 +72,14 @@ test('Package 8 gate, two-review boundary, and evidence are source-bound without
   const gate = buildPackage8LocalGate(repositoryRoot);
   validatePackage8LocalGate(gate, source);
   const marker = `<!-- package8-source-binding file_count=${source.file_count} sha256=${source.aggregate_sha256} -->`;
-  validatePackage8Checkpoint(`${marker}\nStatus: **LOCAL PACKAGE 8 PASS; EXTERNAL NOT RUN**\n` +
+  validatePackage8Checkpoint(`${marker}\nStatus: **LOCAL INTEGRITY PASS; PACKAGE 8 BLOCKED**\n` +
     'Canonical command: `npm run verify`\nExactly four WebMCP tools: `PASS`\n' +
     'Security/admission/state review — disposition: PASS\n' +
     'CI/evidence/privacy/accessibility/claim review — disposition: PASS\n' +
     'unresolved critical/high/material/license: 0\n' +
     'Exact final commit clean clone: `TERMINAL_POST_COMMIT`\n' +
     'Adversarial review 1 (`E-018`): `NOT_RUN`\nPackage 0 overall result: `INCONCLUSIVE`\n' +
+    'Actual Sites edge client isolation: `NOT_RUN` — release blocker\n' +
     'External exit evidence: `NOT_RUN`\n', source);
   validatePackage8Reviews(`${marker}\n` +
     'Security/admission/state review — disposition: PASS\n' +
@@ -84,4 +87,42 @@ test('Package 8 gate, two-review boundary, and evidence are source-bound without
     'unresolved critical/high/material: 0\nThis is not adversarial Review 1 (`E-018`)\n', source);
   const result = verifyPackage8EvidenceBinding(repositoryRoot);
   assert.equal(result.source.aggregate_sha256, source.aggregate_sha256);
+  const liveReceipt = JSON.parse(readFileSync(
+    path.join(repositoryRoot, '.artifacts/runtime/package8-gitleaks-live.json'),
+    'utf8',
+  ));
+  assert.throws(
+    () => validateLiveGitleaksReceipt(repositoryRoot, {
+      ...liveReceipt,
+      scans: {
+        ...liveReceipt.scans,
+        reachable_history: { ...liveReceipt.scans.reachable_history, scope: 'HEAD only' },
+      },
+    }),
+    /reachable_history scope or result drift/u,
+  );
+  assert.throws(
+    () => validateLiveGitleaksReceipt(repositoryRoot, {
+      ...liveReceipt,
+      scans: {
+        ...liveReceipt.scans,
+        current_tree: { ...liveReceipt.scans.current_tree, content_sha256: '0'.repeat(64) },
+      },
+    }),
+    /current-tree content binding drift/u,
+  );
+  assert.throws(
+    () => validateLiveGitleaksReceipt(repositoryRoot, {
+      ...liveReceipt,
+      policy: { ...liveReceipt.policy, environment_config_scrubbed: false },
+    }),
+    /policy binding drift/u,
+  );
+  assert.throws(
+    () => validateLiveGitleaksReceipt(repositoryRoot, {
+      ...liveReceipt,
+      head_commit: '0'.repeat(40),
+    }),
+    /commit or worktree binding drift/u,
+  );
 });

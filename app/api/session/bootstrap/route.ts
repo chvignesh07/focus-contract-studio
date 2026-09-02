@@ -10,7 +10,10 @@ import {
   getActiveSeedState,
 } from '../../../../lib/server/workspaces';
 import { FcsError } from '../../../../lib/server/errors';
-import { admitGlobalOperation } from '../../../../lib/server/admission';
+import {
+  admitGlobalOperation,
+  trustedBootstrapClientDigest,
+} from '../../../../lib/server/admission';
 
 const inputSchema = z.object({}).strict();
 
@@ -30,7 +33,6 @@ export async function POST(request: Request): Promise<Response> {
       throw new FcsError('INVALID_REQUEST', 'The request is invalid.', 400);
     }
     const now = Math.floor(Date.now() / 1000);
-    await cleanupExpiredWorkspaces(env.DB, now);
     const session = await bootstrapWorkspace({
       db: env.DB,
       cookieHeader: request.headers.get('cookie'),
@@ -38,15 +40,27 @@ export async function POST(request: Request): Promise<Response> {
       sessionSecret: configuration.sessionSecret,
       csrfSecret: configuration.csrfSecret,
       admitCreate: async () => {
+        const clientDigest = await trustedBootstrapClientDigest({
+          request,
+          now,
+          secret: configuration.rateLimitSecret,
+        });
         await admitGlobalOperation({
           db: env.DB,
           operation: 'workspace_bootstrap',
           now,
-          secret: configuration.rateLimitSecret,
+          clientDigest,
         });
       },
     });
     const activeVariant = await getActiveSeedState(env.DB, session.workspace.id);
+    if (session.created) {
+      try {
+        await cleanupExpiredWorkspaces(env.DB, now);
+      } catch {
+        // Maintenance must not turn an already-created usable session into a failed response.
+      }
+    }
     return jsonNoStore(
       {
         ok: true,

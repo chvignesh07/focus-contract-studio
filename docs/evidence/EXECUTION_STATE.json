@@ -66,8 +66,10 @@
     },
     "package8": {
       "authorization": "AUTHORIZED",
-      "overall_result": "PASS",
+      "overall_result": "BLOCKED",
       "local_result": "PASS",
+      "blocker": "Trusted client isolation at the actual ChatGPT Sites edge is not yet evidenced.",
+      "sites_edge_client_isolation": "NOT_RUN",
       "hosted_status": "NOT_RUN",
       "supported_client_status": "NOT_RUN",
       "chrome_trace_status": "NOT_RUN",
