@@ -22,6 +22,27 @@
       "when": 1788200000000,
       "tag": "0003_package3_raw_observer_verifier",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788231347000,
+      "tag": "0004_package5_review_apply_undo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788302545000,
+      "tag": "0005_package8_admission_lineage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788308752000,
+      "tag": "0006_package8_atomic_admission",
+      "breakpoints": true
     }
   ]
 }

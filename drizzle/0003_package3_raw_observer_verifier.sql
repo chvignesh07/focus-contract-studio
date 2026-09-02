@@ -2,7 +2,9 @@
 -- The Package 1/2 migrations remain byte-for-byte unchanged.
 
 DROP INDEX idx_initial_focus_one_report_per_revision;
+--> statement-breakpoint
 DROP TRIGGER trg_initial_focus_commit_complete;
+--> statement-breakpoint
 
 -- Keep Package 1/2 rows while allowing Package 3 to record bounded observed
 -- focus escapes and alternate return targets as truthful verifier evidence.
@@ -30,6 +32,7 @@ CREATE TABLE observation_events_package3 (
     (event_type = 'focus_return' AND key_name IS NULL AND shift_key IS NULL AND close_reason IS NULL)
   )
 ) STRICT;
+--> statement-breakpoint
 
 INSERT INTO observation_events_package3 (
   id, workspace_id, session_id, sequence, event_type, target_id, key_name,
@@ -38,21 +41,27 @@ INSERT INTO observation_events_package3 (
 SELECT id, workspace_id, session_id, sequence, event_type, target_id, key_name,
        shift_key, close_reason, client_offset_ms, created_at
   FROM observation_events;
+--> statement-breakpoint
 
 DROP TABLE observation_events;
+--> statement-breakpoint
 ALTER TABLE observation_events_package3 RENAME TO observation_events;
+--> statement-breakpoint
 
 CREATE INDEX idx_observation_events_session_sequence
   ON observation_events(workspace_id, session_id, sequence);
+--> statement-breakpoint
 
 CREATE TRIGGER trg_observation_events_immutable_update
 BEFORE UPDATE ON observation_events
 BEGIN SELECT RAISE(ABORT, 'OBSERVATION_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_observation_events_immutable_delete
 BEFORE DELETE ON observation_events
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'OBSERVATION_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 -- Preserve the Package 2 opening-report finalizer after rebuilding its event
 -- table with the broader Package 3 observation vocabulary.
@@ -86,10 +95,12 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 -- Permit only a semantic no-op assertion after a complete Package 3 marker.
 -- Every real state transition and immutable-payload rule remains unchanged.
 DROP TRIGGER trg_observation_sessions_transition;
+--> statement-breakpoint
 CREATE TRIGGER trg_observation_sessions_transition
 BEFORE UPDATE ON observation_sessions
 BEGIN
@@ -122,6 +133,7 @@ BEGIN
     NEW.finalized_at IS NOT NULL OR NEW.event_digest IS NOT NULL OR NEW.manifest_digest IS NOT NULL
   ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_initial_focus_one_report_per_revision
 BEFORE INSERT ON initial_focus_observation_commits
@@ -140,6 +152,7 @@ BEGIN
        AND prior.implemented_revision = candidate.implemented_revision
   ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_EXISTS') END;
 END;
+--> statement-breakpoint
 
 -- Preserve the established lookup/index contract without reintroducing the
 -- cross-purpose uniqueness rule. The trigger above owns Package 2 uniqueness;
@@ -147,6 +160,7 @@ END;
 CREATE UNIQUE INDEX idx_initial_focus_one_report_per_revision
   ON observation_sessions(workspace_id, variant_id, implemented_revision, id)
   WHERE state IN ('finalized', 'verified_pass', 'verified_fail');
+--> statement-breakpoint
 
 CREATE TABLE focus_rehearsal_commits (
   session_id TEXT PRIMARY KEY NOT NULL CHECK (length(session_id) BETWEEN 32 AND 64),
@@ -163,6 +177,7 @@ CREATE TABLE focus_rehearsal_commits (
     REFERENCES implemented_focus_revisions(workspace_id, variant_id, revision) ON DELETE CASCADE,
   UNIQUE (workspace_id, session_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_focus_rehearsal_commit_complete
 BEFORE INSERT ON focus_rehearsal_commits
@@ -261,15 +276,18 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'FOCUS_REHEARSAL_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_focus_rehearsal_commits_immutable_update
 BEFORE UPDATE ON focus_rehearsal_commits
 BEGIN SELECT RAISE(ABORT, 'FOCUS_REHEARSAL_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_focus_rehearsal_commits_immutable_delete
 BEFORE DELETE ON focus_rehearsal_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'FOCUS_REHEARSAL_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE verification_guards (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -293,24 +311,29 @@ CREATE TABLE verification_guards (
   UNIQUE (workspace_id, observation_session_id, verifier_version),
   UNIQUE (observation_session_id, verifier_version)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_guards_immutable_update
 BEFORE UPDATE ON verification_guards
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_GUARD_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_guards_immutable_delete
 BEFORE DELETE ON verification_guards
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_GUARD_IMMUTABLE'); END;
+--> statement-breakpoint
 
 ALTER TABLE verification_receipts
   ADD COLUMN environment TEXT NOT NULL DEFAULT 'browser'
   CHECK (environment IN ('browser', 'playwright'));
+--> statement-breakpoint
 
 ALTER TABLE verification_receipts
   ADD COLUMN verifier_output_hash TEXT NOT NULL
   DEFAULT '0000000000000000000000000000000000000000000000000000000000000000'
   CHECK (length(verifier_output_hash) = 64);
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_receipt_complete
 BEFORE INSERT ON verification_receipts
@@ -332,6 +355,7 @@ BEGIN
        AND g.created_at = NEW.created_at
   ) THEN RAISE(ABORT, 'VERIFICATION_RECEIPT_UNGUARDED') END;
 END;
+--> statement-breakpoint
 
 -- Package 1 reserved this table with kebab-case behavior values. Package 3
 -- preserves those rows and admits canonical public names for its own receipts.
@@ -352,6 +376,7 @@ CREATE TABLE verification_checks_package3 (
     REFERENCES verification_receipts(workspace_id, id) ON DELETE CASCADE,
   UNIQUE (workspace_id, verification_receipt_id, behavior)
 ) STRICT;
+--> statement-breakpoint
 
 INSERT INTO verification_checks_package3 (
   id, workspace_id, verification_receipt_id, behavior, result,
@@ -363,13 +388,17 @@ SELECT c.id, c.workspace_id, c.verification_receipt_id,
 FROM verification_checks c
 JOIN verification_receipts r
   ON r.workspace_id = c.workspace_id AND r.id = c.verification_receipt_id;
+--> statement-breakpoint
 
 DROP TABLE verification_checks;
+--> statement-breakpoint
 ALTER TABLE verification_checks_package3 RENAME TO verification_checks;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_checks_immutable_update
 BEFORE UPDATE ON verification_checks
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_CHECKS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_checks_package3_behavior
 BEFORE INSERT ON verification_checks
@@ -382,11 +411,13 @@ WHEN EXISTS (
   'initialFocus', 'focusOrder', 'trapTab', 'trapShiftTab', 'escapeAction', 'returnFocus'
 )
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_CHECK_BEHAVIOR_INVALID'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_checks_immutable_delete
 BEFORE DELETE ON verification_checks
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_CHECKS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE verification_commits (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -405,6 +436,7 @@ CREATE TABLE verification_commits (
   UNIQUE (workspace_id, receipt_id),
   UNIQUE (workspace_id, audit_event_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_commit_complete
 BEFORE INSERT ON verification_commits
@@ -491,10 +523,12 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'VERIFICATION_COMMIT_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_commits_immutable_update
 BEFORE UPDATE ON verification_commits
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_COMMIT_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_commits_immutable_delete
 BEFORE DELETE ON verification_commits

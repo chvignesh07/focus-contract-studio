@@ -16,15 +16,18 @@ CREATE TABLE variant_selection_commits (
   UNIQUE (workspace_id, idempotency_key),
   UNIQUE (workspace_id, from_view_revision)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_variant_selection_commits_immutable_update
 BEFORE UPDATE ON variant_selection_commits
 BEGIN SELECT RAISE(ABORT, 'VARIANT_SELECTION_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_variant_selection_commits_immutable_delete
 BEFORE DELETE ON variant_selection_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'VARIANT_SELECTION_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_variant_selection_success_audit_finalizer
 BEFORE INSERT ON audit_events
@@ -44,6 +47,7 @@ BEGIN
        AND NEW.correlation_id = selection.id
   ) THEN RAISE(ABORT, 'VARIANT_SELECTION_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_package8_admit_audit_mutation
 BEFORE INSERT ON audit_events

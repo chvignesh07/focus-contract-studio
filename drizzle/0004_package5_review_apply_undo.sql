@@ -3,12 +3,15 @@
 
 CREATE UNIQUE INDEX idx_review_decisions_workspace_id
   ON review_decisions(workspace_id, id);
+--> statement-breakpoint
 CREATE UNIQUE INDEX idx_implemented_focus_revisions_workspace_id
   ON implemented_focus_revisions(workspace_id, id);
+--> statement-breakpoint
 
 -- Reviewer-authored novel proposals deliberately carry no supporting precedent.
 -- They remain bound to a finalized page session and explicit UI responsibility.
 DROP TRIGGER trg_proposal_success_audit_finalizer;
+--> statement-breakpoint
 CREATE TRIGGER trg_proposal_success_audit_finalizer
 BEFORE INSERT ON audit_events
 FOR EACH ROW
@@ -53,10 +56,12 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 -- Package 5 strengthens the inherited apply finalizer so stale same-base
 -- sibling projection is part of the atomic success relation.
 DROP TRIGGER trg_application_commit_complete;
+--> statement-breakpoint
 CREATE TRIGGER trg_application_commit_complete
 BEFORE INSERT ON application_commits
 FOR EACH ROW
@@ -111,6 +116,7 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'APPLICATION_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TABLE review_commits (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -132,6 +138,7 @@ CREATE TABLE review_commits (
   CHECK ((action = 'edit' AND decision_id IS NULL) OR
          (action <> 'edit' AND decision_id IS NOT NULL))
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_review_commit_complete
 BEFORE INSERT ON review_commits
@@ -232,15 +239,18 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'REVIEW_EDIT_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_review_commits_immutable_update
 BEFORE UPDATE ON review_commits
 BEGIN SELECT RAISE(ABORT, 'REVIEW_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_review_commits_immutable_delete
 BEFORE DELETE ON review_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'REVIEW_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE undo_commits (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -262,6 +272,7 @@ CREATE TABLE undo_commits (
   UNIQUE (workspace_id, idempotency_id),
   UNIQUE (workspace_id, variant_id, from_revision)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_undo_commit_complete
 BEFORE INSERT ON undo_commits
@@ -311,15 +322,18 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'UNDO_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_undo_commits_immutable_update
 BEFORE UPDATE ON undo_commits
 BEGIN SELECT RAISE(ABORT, 'UNDO_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_undo_commits_immutable_delete
 BEFORE DELETE ON undo_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'UNDO_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE runtime_precedent_provenance (
   record_id TEXT PRIMARY KEY NOT NULL CHECK (length(record_id) BETWEEN 1 AND 64),
@@ -348,15 +362,18 @@ CREATE TABLE runtime_precedent_provenance (
   UNIQUE (workspace_id, record_id),
   UNIQUE (workspace_id, verification_receipt_id, changed_field)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_runtime_precedent_provenance_immutable_update
 BEFORE UPDATE ON runtime_precedent_provenance
 BEGIN SELECT RAISE(ABORT, 'RUNTIME_PRECEDENT_PROVENANCE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_runtime_precedent_provenance_immutable_delete
 BEFORE DELETE ON runtime_precedent_provenance
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'RUNTIME_PRECEDENT_PROVENANCE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE precedent_projection_commits (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -371,6 +388,7 @@ CREATE TABLE precedent_projection_commits (
   UNIQUE (workspace_id, id),
   UNIQUE (workspace_id, verification_receipt_id, record_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_projection_commit_complete
 BEFORE INSERT ON precedent_projection_commits
@@ -454,10 +472,12 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'PRECEDENT_PROJECTION_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_projection_commits_immutable_update
 BEFORE UPDATE ON precedent_projection_commits
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_PROJECTION_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_projection_commits_immutable_delete
 BEFORE DELETE ON precedent_projection_commits

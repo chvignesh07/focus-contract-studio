@@ -40,6 +40,7 @@ SELECT
     AS configuration_json,
   configuration_hash
 FROM configurations;
+--> statement-breakpoint
 
 CREATE TABLE workspaces (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -54,14 +55,18 @@ CREATE TABLE workspaces (
   purged_at INTEGER CHECK (purged_at IS NULL OR purged_at >= created_at),
   UNIQUE (id, generation)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE UNIQUE INDEX idx_workspaces_subject_current
   ON workspaces(subject_kind, subject_key)
   WHERE purged_at IS NULL;
+--> statement-breakpoint
 CREATE INDEX idx_workspaces_subject_history
   ON workspaces(subject_kind, subject_key, purged_at);
+--> statement-breakpoint
 CREATE INDEX idx_workspaces_cleanup
   ON workspaces(subject_kind, grace_expires_at, id);
+--> statement-breakpoint
 
 CREATE TABLE component_variants (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -79,9 +84,11 @@ CREATE TABLE component_variants (
   UNIQUE (workspace_id, id),
   CHECK (slug = lower(slug))
 ) STRICT;
+--> statement-breakpoint
 
 CREATE UNIQUE INDEX idx_component_variants_workspace_slug
   ON component_variants(workspace_id, slug);
+--> statement-breakpoint
 
 CREATE TABLE workspace_view_state (
   workspace_id TEXT PRIMARY KEY NOT NULL,
@@ -92,6 +99,7 @@ CREATE TABLE workspace_view_state (
   FOREIGN KEY (workspace_id, active_variant_id)
     REFERENCES component_variants(workspace_id, id) ON DELETE CASCADE
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE implemented_focus_revisions (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -116,9 +124,11 @@ CREATE TABLE implemented_focus_revisions (
   UNIQUE (workspace_id, id),
   CHECK ((revision = 1 AND parent_revision IS NULL) OR (revision > 1 AND parent_revision = revision - 1))
 ) STRICT;
+--> statement-breakpoint
 
 CREATE UNIQUE INDEX idx_focus_revisions_workspace_variant_revision
   ON implemented_focus_revisions(workspace_id, variant_id, revision);
+--> statement-breakpoint
 
 CREATE TRIGGER trg_focus_revision_configuration_insert
 BEFORE INSERT ON implemented_focus_revisions
@@ -130,6 +140,7 @@ BEGIN
        AND c.configuration_hash = NEW.configuration_hash
   ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_variant_active_revision_update
 BEFORE UPDATE OF active_implemented_revision ON component_variants
@@ -144,6 +155,7 @@ BEGIN
   SELECT CASE WHEN NEW.active_implemented_revision <> OLD.active_implemented_revision + 1
     THEN RAISE(ABORT, 'ACTIVE_REVISION_NOT_NEXT') END;
 END;
+--> statement-breakpoint
 
 CREATE TABLE observation_sessions (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -162,9 +174,11 @@ CREATE TABLE observation_sessions (
     REFERENCES implemented_focus_revisions(workspace_id, variant_id, revision) ON DELETE CASCADE,
   UNIQUE (workspace_id, id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_observation_sessions_latest
   ON observation_sessions(workspace_id, variant_id, state, created_at DESC);
+--> statement-breakpoint
 
 CREATE TABLE rendered_manifests (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -185,6 +199,7 @@ CREATE TABLE rendered_manifests (
   UNIQUE (workspace_id, session_id),
   UNIQUE (session_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE observation_events (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -210,9 +225,11 @@ CREATE TABLE observation_events (
     (event_type = 'focus_return' AND target_id = 'delete-trigger' AND key_name IS NULL AND shift_key IS NULL AND close_reason IS NULL)
   )
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_observation_events_session_sequence
   ON observation_events(workspace_id, session_id, sequence);
+--> statement-breakpoint
 
 CREATE TABLE precedent_records (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 1 AND 64),
@@ -236,17 +253,21 @@ CREATE TABLE precedent_records (
   UNIQUE (workspace_id, id),
   UNIQUE (workspace_id, record_key)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_precedent_eligibility
   ON precedent_records(workspace_id, dataset_version, status, valid_from, behavior, valid_until, id);
+--> statement-breakpoint
 CREATE INDEX idx_precedent_exact_outcome
   ON precedent_records(workspace_id, behavior, normalized_outcome_key, status);
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_records_immutable_update
 BEFORE UPDATE ON precedent_records
 BEGIN
   SELECT RAISE(ABORT, 'PRECEDENT_IMMUTABLE');
 END;
+--> statement-breakpoint
 
 CREATE TABLE precedent_subject_edges (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -260,9 +281,11 @@ CREATE TABLE precedent_subject_edges (
     REFERENCES precedent_records(workspace_id, id) ON DELETE CASCADE,
   UNIQUE (workspace_id, record_id, target_kind, target_key, edge_type)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_precedent_edges_subject
   ON precedent_subject_edges(workspace_id, target_kind, target_key, record_id);
+--> statement-breakpoint
 
 CREATE TABLE precedent_lineage (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -278,11 +301,14 @@ CREATE TABLE precedent_lineage (
   UNIQUE (workspace_id, from_record_id, to_record_id, relationship),
   CHECK (from_record_id <> to_record_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_precedent_lineage_from
   ON precedent_lineage(workspace_id, from_record_id);
+--> statement-breakpoint
 CREATE INDEX idx_precedent_lineage_to
   ON precedent_lineage(workspace_id, to_record_id);
+--> statement-breakpoint
 
 CREATE TABLE retrieval_queries (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -309,9 +335,11 @@ CREATE TABLE retrieval_queries (
   UNIQUE (workspace_id, proposal_id),
   UNIQUE (workspace_id, context_digest, result_digest, proposal_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_retrieval_queries_workspace_proposal
   ON retrieval_queries(workspace_id, proposal_id);
+--> statement-breakpoint
 
 CREATE TABLE retrieval_results (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -337,9 +365,11 @@ CREATE TABLE retrieval_results (
   UNIQUE (workspace_id, query_id, record_id),
   UNIQUE (workspace_id, query_id, result_order)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_retrieval_results_query_order
   ON retrieval_results(workspace_id, query_id, result_order);
+--> statement-breakpoint
 
 CREATE TABLE proposals (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -367,9 +397,11 @@ CREATE TABLE proposals (
   UNIQUE (workspace_id, proposal_hash),
   CHECK (parent_proposal_id IS NULL OR parent_proposal_id <> id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_proposals_workspace_variant_status
   ON proposals(workspace_id, variant_id, status, base_implemented_revision);
+--> statement-breakpoint
 
 CREATE TRIGGER trg_proposal_configuration_insert
 BEFORE INSERT ON proposals
@@ -380,6 +412,7 @@ BEGIN
      WHERE c.configuration_json = NEW.configuration_json
   ) THEN RAISE(ABORT, 'FOCUS_CONFIGURATION_INVALID') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_proposal_lineage_insert
 BEFORE INSERT ON proposals
@@ -405,6 +438,7 @@ BEGIN
      WHERE id = NEW.id OR parent_proposal_id = NEW.id
   ) THEN RAISE(ABORT, 'PROPOSAL_LINEAGE_CYCLE') END;
 END;
+--> statement-breakpoint
 
 CREATE TABLE proposal_evidence (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -422,9 +456,11 @@ CREATE TABLE proposal_evidence (
     REFERENCES retrieval_results(workspace_id, query_id, record_id) ON DELETE CASCADE,
   UNIQUE (workspace_id, proposal_id, changed_field, record_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_proposal_evidence_workspace_proposal
   ON proposal_evidence(workspace_id, proposal_id);
+--> statement-breakpoint
 
 CREATE TABLE review_decisions (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -444,9 +480,11 @@ CREATE TABLE review_decisions (
     DEFERRABLE INITIALLY DEFERRED,
   UNIQUE (workspace_id, proposal_id, id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_review_decisions_workspace_proposal_time
   ON review_decisions(workspace_id, proposal_id, created_at DESC);
+--> statement-breakpoint
 
 CREATE TABLE application_guards (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -466,6 +504,7 @@ CREATE TABLE application_guards (
   UNIQUE (workspace_id, proposal_id),
   UNIQUE (workspace_id, variant_id, from_revision)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE application_receipts (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -486,6 +525,7 @@ CREATE TABLE application_receipts (
   UNIQUE (workspace_id, proposal_id),
   UNIQUE (workspace_id, idempotency_key)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE application_commits (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -500,6 +540,7 @@ CREATE TABLE application_commits (
   UNIQUE (workspace_id, guard_id),
   UNIQUE (workspace_id, receipt_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE verification_receipts (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -521,6 +562,7 @@ CREATE TABLE verification_receipts (
   UNIQUE (workspace_id, observation_session_id, verifier_version),
   UNIQUE (observation_session_id, verifier_version)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE verification_checks (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -533,6 +575,7 @@ CREATE TABLE verification_checks (
     REFERENCES verification_receipts(workspace_id, id) ON DELETE CASCADE,
   UNIQUE (workspace_id, verification_receipt_id, behavior)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE TABLE idempotency_records (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -550,14 +593,18 @@ CREATE TABLE idempotency_records (
   CHECK ((state = 'started' AND result_kind IS NULL AND result_id IS NULL) OR
          (state = 'committed' AND result_kind IS NOT NULL AND result_id IS NOT NULL))
 ) STRICT;
+--> statement-breakpoint
 
 CREATE UNIQUE INDEX idx_idempotency_workspace_operation_key
   ON idempotency_records(workspace_id, operation, idempotency_key);
+--> statement-breakpoint
 CREATE UNIQUE INDEX idx_idempotency_one_reset_per_workspace
   ON idempotency_records(workspace_id)
   WHERE operation = 'reset';
+--> statement-breakpoint
 CREATE INDEX idx_idempotency_expiry
   ON idempotency_records(workspace_id, operation, state, expires_at);
+--> statement-breakpoint
 
 CREATE TABLE audit_events (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -573,11 +620,14 @@ CREATE TABLE audit_events (
   FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
   UNIQUE (workspace_id, id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_audit_workspace_target_time
   ON audit_events(workspace_id, target_kind, target_id, occurred_at DESC);
+--> statement-breakpoint
 CREATE INDEX idx_audit_workspace_time
   ON audit_events(workspace_id, occurred_at DESC);
+--> statement-breakpoint
 
 CREATE TABLE rate_limit_windows (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(id) BETWEEN 32 AND 64),
@@ -591,11 +641,14 @@ CREATE TABLE rate_limit_windows (
   FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
   UNIQUE (workspace_id, key_digest, operation, window_start)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_rate_limit_expiry ON rate_limit_windows(expires_at);
+--> statement-breakpoint
 CREATE UNIQUE INDEX idx_rate_limit_global_window
   ON rate_limit_windows(key_digest, operation, window_start)
   WHERE workspace_id IS NULL;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_workspaces_identity_immutable
 BEFORE UPDATE ON workspaces
@@ -606,6 +659,7 @@ WHEN NEW.id IS NOT OLD.id
   OR NEW.generation IS NOT OLD.generation
   OR NEW.created_at IS NOT OLD.created_at
 BEGIN SELECT RAISE(ABORT, 'WORKSPACE_IDENTITY_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_component_variants_identity_immutable
 BEFORE UPDATE ON component_variants
@@ -617,10 +671,12 @@ WHEN NEW.id IS NOT OLD.id
   OR NEW.slug IS NOT OLD.slug
   OR NEW.created_at IS NOT OLD.created_at
 BEGIN SELECT RAISE(ABORT, 'VARIANT_IDENTITY_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_component_variants_immutable_delete
 BEFORE DELETE ON component_variants
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'COMPONENT_VARIANTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_workspace_view_state_transition
 BEFORE UPDATE ON workspace_view_state
@@ -628,10 +684,12 @@ WHEN NEW.workspace_id IS NOT OLD.workspace_id
   OR NEW.view_revision <> OLD.view_revision + 1
   OR NEW.updated_at < OLD.updated_at
 BEGIN SELECT RAISE(ABORT, 'VIEW_REVISION_NOT_NEXT'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_workspace_view_state_immutable_delete
 BEFORE DELETE ON workspace_view_state
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'WORKSPACE_VIEW_STATE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_observation_sessions_transition
 BEFORE UPDATE ON observation_sessions
@@ -661,10 +719,12 @@ BEGIN
     NEW.finalized_at IS NOT NULL OR NEW.event_digest IS NOT NULL OR NEW.manifest_digest IS NOT NULL
   ) THEN RAISE(ABORT, 'OBSERVATION_EXPIRY_INVALID') END;
 END;
+--> statement-breakpoint
 CREATE TRIGGER trg_observation_sessions_immutable_delete
 BEFORE DELETE ON observation_sessions
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'OBSERVATION_SESSIONS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_proposals_transition
 BEFORE UPDATE ON proposals
@@ -689,10 +749,12 @@ BEGIN
     (OLD.status = 'approved' AND NEW.status IN ('revoked', 'applied', 'stale'))
   ) THEN RAISE(ABORT, 'PROPOSAL_TRANSITION_INVALID') END;
 END;
+--> statement-breakpoint
 CREATE TRIGGER trg_proposals_immutable_delete
 BEFORE DELETE ON proposals
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PROPOSALS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_idempotency_records_transition
 BEFORE UPDATE ON idempotency_records
@@ -708,10 +770,12 @@ BEGIN
   SELECT CASE WHEN NOT (OLD.state = 'started' AND NEW.state = 'committed')
     THEN RAISE(ABORT, 'IDEMPOTENCY_TRANSITION_INVALID') END;
 END;
+--> statement-breakpoint
 CREATE TRIGGER trg_idempotency_records_immutable_delete
 BEFORE DELETE ON idempotency_records
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'IDEMPOTENCY_RECORDS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_rate_limit_windows_increment
 BEFORE UPDATE ON rate_limit_windows
@@ -724,131 +788,163 @@ WHEN NEW.id IS NOT OLD.id
   OR NEW.expires_at IS NOT OLD.expires_at
   OR NEW.request_count <> OLD.request_count + 1
 BEGIN SELECT RAISE(ABORT, 'RATE_LIMIT_TRANSITION_INVALID'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_implemented_focus_revisions_immutable_update
 BEFORE UPDATE ON implemented_focus_revisions
 BEGIN SELECT RAISE(ABORT, 'IMPLEMENTED_FOCUS_REVISIONS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_implemented_focus_revisions_immutable_delete
 BEFORE DELETE ON implemented_focus_revisions
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'IMPLEMENTED_FOCUS_REVISIONS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_rendered_manifests_immutable_update
 BEFORE UPDATE ON rendered_manifests
 BEGIN SELECT RAISE(ABORT, 'RENDERED_MANIFESTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_rendered_manifests_immutable_delete
 BEFORE DELETE ON rendered_manifests
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'RENDERED_MANIFESTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_observation_events_immutable_update
 BEFORE UPDATE ON observation_events
 BEGIN SELECT RAISE(ABORT, 'OBSERVATION_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_observation_events_immutable_delete
 BEFORE DELETE ON observation_events
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'OBSERVATION_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_records_immutable_delete
 BEFORE DELETE ON precedent_records
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_RECORDS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_subject_edges_immutable_update
 BEFORE UPDATE ON precedent_subject_edges
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_SUBJECT_EDGES_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_precedent_subject_edges_immutable_delete
 BEFORE DELETE ON precedent_subject_edges
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_SUBJECT_EDGES_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_lineage_immutable_update
 BEFORE UPDATE ON precedent_lineage
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_LINEAGE_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_precedent_lineage_immutable_delete
 BEFORE DELETE ON precedent_lineage
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_LINEAGE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_retrieval_queries_immutable_update
 BEFORE UPDATE ON retrieval_queries
 BEGIN SELECT RAISE(ABORT, 'RETRIEVAL_QUERIES_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_retrieval_queries_immutable_delete
 BEFORE DELETE ON retrieval_queries
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'RETRIEVAL_QUERIES_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_retrieval_results_immutable_update
 BEFORE UPDATE ON retrieval_results
 BEGIN SELECT RAISE(ABORT, 'RETRIEVAL_RESULTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_retrieval_results_immutable_delete
 BEFORE DELETE ON retrieval_results
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'RETRIEVAL_RESULTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_proposal_evidence_immutable_update
 BEFORE UPDATE ON proposal_evidence
 BEGIN SELECT RAISE(ABORT, 'PROPOSAL_EVIDENCE_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_proposal_evidence_immutable_delete
 BEFORE DELETE ON proposal_evidence
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PROPOSAL_EVIDENCE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_review_decisions_immutable_update
 BEFORE UPDATE ON review_decisions
 BEGIN SELECT RAISE(ABORT, 'REVIEW_DECISIONS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_review_decisions_immutable_delete
 BEFORE DELETE ON review_decisions
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'REVIEW_DECISIONS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_application_guards_immutable_update
 BEFORE UPDATE ON application_guards
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_GUARDS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_application_guards_immutable_delete
 BEFORE DELETE ON application_guards
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_GUARDS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_application_receipts_immutable_update
 BEFORE UPDATE ON application_receipts
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_RECEIPTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_application_receipts_immutable_delete
 BEFORE DELETE ON application_receipts
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_RECEIPTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_application_commits_immutable_update
 BEFORE UPDATE ON application_commits
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_application_commits_immutable_delete
 BEFORE DELETE ON application_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'APPLICATION_COMMITS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_receipts_immutable_update
 BEFORE UPDATE ON verification_receipts
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_RECEIPTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_verification_receipts_immutable_delete
 BEFORE DELETE ON verification_receipts
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_RECEIPTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_verification_checks_immutable_update
 BEFORE UPDATE ON verification_checks
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_CHECKS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_verification_checks_immutable_delete
 BEFORE DELETE ON verification_checks
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'VERIFICATION_CHECKS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_audit_events_immutable_update
 BEFORE UPDATE ON audit_events
 BEGIN SELECT RAISE(ABORT, 'AUDIT_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 CREATE TRIGGER trg_audit_events_immutable_delete
 BEFORE DELETE ON audit_events
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'AUDIT_EVENTS_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_reset_commit_complete
 BEFORE UPDATE OF state, result_kind, result_id ON idempotency_records
@@ -900,6 +996,7 @@ BEGIN
               AND e.edge_type = 'applies-to') = 2
   ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_proposal_success_audit_finalizer
 BEFORE INSERT ON audit_events
@@ -929,6 +1026,7 @@ BEGIN
       )
   ) THEN RAISE(ABORT, 'PROPOSAL_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_application_commit_complete
 BEFORE INSERT ON application_commits

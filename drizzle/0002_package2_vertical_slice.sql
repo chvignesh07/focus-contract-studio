@@ -20,21 +20,25 @@ CREATE TABLE precedent_retrieval_profiles (
     REFERENCES precedent_records(workspace_id, id) ON DELETE CASCADE,
   UNIQUE (workspace_id, record_id)
 ) STRICT;
+--> statement-breakpoint
 
 CREATE INDEX idx_precedent_profiles_eligibility
   ON precedent_retrieval_profiles(
     workspace_id, product, component_family, use_case, intent, risk,
     source_status, hostile, record_id
   );
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_profiles_immutable_update
 BEFORE UPDATE ON precedent_retrieval_profiles
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_PROFILE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_precedent_profiles_immutable_delete
 BEFORE DELETE ON precedent_retrieval_profiles
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'PRECEDENT_PROFILE_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TABLE initial_focus_observation_commits (
   session_id TEXT PRIMARY KEY NOT NULL CHECK (length(session_id) BETWEEN 32 AND 64),
@@ -45,6 +49,7 @@ CREATE TABLE initial_focus_observation_commits (
     REFERENCES observation_sessions(workspace_id, id) ON DELETE CASCADE,
   UNIQUE (workspace_id, session_id)
 ) STRICT;
+--> statement-breakpoint
 
 -- A bounded Package 2 opening report is immutable and idempotent per active
 -- implemented revision. Concurrent reporters may both begin as `recording`,
@@ -52,6 +57,7 @@ CREATE TABLE initial_focus_observation_commits (
 CREATE UNIQUE INDEX idx_initial_focus_one_report_per_revision
   ON observation_sessions(workspace_id, variant_id, implemented_revision)
   WHERE state IN ('finalized', 'verified_pass', 'verified_fail');
+--> statement-breakpoint
 
 CREATE TRIGGER trg_initial_focus_commit_complete
 BEFORE INSERT ON initial_focus_observation_commits
@@ -83,15 +89,18 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_initial_focus_commits_immutable_update
 BEFORE UPDATE ON initial_focus_observation_commits
 BEGIN SELECT RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_IMMUTABLE'); END;
+--> statement-breakpoint
 
 CREATE TRIGGER trg_initial_focus_commits_immutable_delete
 BEFORE DELETE ON initial_focus_observation_commits
 WHEN EXISTS (SELECT 1 FROM workspaces WHERE id = OLD.workspace_id)
 BEGIN SELECT RAISE(ABORT, 'INITIAL_FOCUS_OBSERVATION_IMMUTABLE'); END;
+--> statement-breakpoint
 
 -- A semantic duplicate under a fresh idempotency key must not create a second
 -- simultaneously reviewable proposal for the same implemented revision.
@@ -100,11 +109,13 @@ CREATE UNIQUE INDEX idx_proposals_one_open_configuration
     workspace_id, variant_id, base_implemented_revision, configuration_json
   )
   WHERE status IN ('proposed', 'approved');
+--> statement-breakpoint
 
 -- Package 2 intentionally replaces the reset finalizer because the successor
 -- seed graph expands from the Package 1 D001 subset to the sealed 34-record
 -- workspace corpus. The immutable Package 1 migration itself is untouched.
 DROP TRIGGER trg_reset_commit_complete;
+--> statement-breakpoint
 CREATE TRIGGER trg_reset_commit_complete
 BEFORE UPDATE OF state, result_kind, result_id ON idempotency_records
 FOR EACH ROW
@@ -152,11 +163,13 @@ BEGIN
               AND e.edge_type = 'applies-to') = 1
   ) THEN RAISE(ABORT, 'RESET_INCOMPLETE') END;
 END;
+--> statement-breakpoint
 
 -- Package 2 intentionally strengthens the proposal audit finalizer. Keeping
 -- the weaker Package 1 trigger under the same name is not possible, and the
 -- replacement remains fail-closed throughout this single D1 migration.
 DROP TRIGGER trg_proposal_success_audit_finalizer;
+--> statement-breakpoint
 CREATE TRIGGER trg_proposal_success_audit_finalizer
 BEFORE INSERT ON audit_events
 FOR EACH ROW

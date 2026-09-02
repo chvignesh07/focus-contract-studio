@@ -394,3 +394,57 @@ external/manual action.
 - Explicit production build after the canonical gate: `PASS`
 - Clean precommit no-local snapshot and non-ignored residue check: `PASS`
 - Exact final commit clean clone: `TERMINAL_POST_COMMIT`
+
+## Package 9 Sites migration-packaging hotfix addendum
+
+This addendum is limited to the local Sites migration-packaging repair based on
+`825f7ee012d0ab7c59f95ca62581ad5b5e5c28b2`. It preserves the preceding evidence
+byte-for-byte and does not alter Package 8's external or manual truth boundaries.
+
+<!-- package9-migration-source-binding files=12 sha256=228ec8e487debc6b4cdada52ff16c56dcf74b1db8e655ab9c942842ff4f3c49d -->
+
+### Root cause and repair
+
+- The installed Drizzle loader read only the three journaled files and split them
+  only on literal `--> statement-breakpoint` markers. The six SQL files contained
+  `178` top-level SQLite statements but no markers, so each journaled file was
+  emitted as one incomplete multi-statement chunk for the Sites execution shape.
+- The journal now closes exactly over the unchanged migration names 0001 through
+  0006 in monotonic order. Exactly `172` markers separate the `178` parser-confirmed
+  top-level statements; no marker is inside a trigger, `CASE`, comment, or string.
+- Removing only those markers restores the six starting SQL files to their exact
+  SHA-256 identities. No schema statement, migration name/order, runtime route, or
+  dependency changed.
+
+### Root-observed evidence
+
+- Focused RED: `1/4 PASS`, `3/4 FAIL`; the installed loader exposed only three
+  migrations and emitted migration 0001 as one chunk instead of 99 statements.
+  The fresh-D1 test separately failed `0/1` on the same three-versus-six closure.
+- Focused GREEN: `5/5 PASS` across four loader/journal/parser/archive checks and one
+  real local D1 application/rerun check.
+- Clean D1: `6/6 PASS`, repeated application `PASS`.
+- Pre-commit inherited Package 0-through-8 gates, typecheck, lint, offline audits,
+  production build, and built Chromium checks: `PASS`.
+- Archive identity: `PASS`; the seven corrected migration inputs in `drizzle/` and
+  `dist/.openai/drizzle/` have the same aggregate SHA-256
+  `dc3e6e6c8dedcf8b493069b13061e8a190542cf9b823a83d41d2fbe6b5953fbd` over
+  `path`, byte length, and bytes.
+- Final clean-commit canonical: `TERMINAL_POST_COMMIT`.
+
+### Independent review
+
+- Correctness reviewer `/root/migration_correctness_review`: `PASS` after an initial
+  P1 canonical-binding and P2 evidence finding were remediated with this exact
+  Package 9 overlay/source binder and addendum.
+- Security/data-integrity reviewer `/root/migration_security_review`: `PASS` on
+  initial migration review and expanded source/evidence-binding recheck; no material
+  finding.
+- Root remains the only writer. Both reviewers are read-only.
+
+### Truth boundary
+
+- Hosted D1: `NOT_RUN`.
+- Saved Sites version, deployment, supported-client proof, push, tag, merge, GitHub
+  Release, Package 10, publication, and Devpost: `NOT_RUN`.
+- No external action: **YES**.
