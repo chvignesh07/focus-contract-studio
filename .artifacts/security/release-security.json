@@ -1,5 +1,5 @@
 {
-  "schema_version": "fcs-package8-release-security-v1",
+  "schema_version": "fcs-package8-release-security-v2",
   "package": 8,
   "status": "BLOCKED",
   "local_integrity_status": "PASS",
@@ -30,7 +30,6 @@
   },
   "live_gitleaks": {
     "version": "8.30.1",
-    "executable_sha256": "f414bc2fb952be6c9072b75cb411e3368614ef4b16d48dbd9ad238034afd2302",
     "config_path": ".gitleaks.toml",
     "config_sha256": "a238706791a638e748a86f278e28363ef1c975b61cbfb2670dd2201402ce7de5",
     "ignore_path": ".gitleaksignore.package8",

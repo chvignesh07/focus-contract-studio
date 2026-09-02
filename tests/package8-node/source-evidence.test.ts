@@ -6,10 +6,12 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
+  validateAdversarialReview1,
   validatePackage8Checkpoint,
   validateLiveGitleaksReceipt,
   validatePackage8LocalGate,
   validatePackage8Reviews,
+  validateSubmissionState,
   verifyPackage8EvidenceBinding,
 } from '../../scripts/package8-evidence-binding.mjs';
 import { buildPackage8LocalGate } from '../../scripts/package8-local-gate.mjs';
@@ -32,6 +34,7 @@ const evidenceOutputs = new Set([
   '.artifacts/test/package8-clean-d1.json',
   '.artifacts/test/package8-local-gate.json',
   '.artifacts/test/package8-source-manifest.json',
+  'docs/evidence/ADVERSARIAL_REVIEW_1.md',
   'docs/evidence/PACKAGE8_CHECKPOINT.md',
   'docs/evidence/PACKAGE8_REVIEWS.md',
 ]);
@@ -42,6 +45,70 @@ function gitLines(args: string[]): string[] {
     .split('\n')
     .filter(Boolean);
 }
+
+test('Review 1 disposition and draft-submission claims fail closed', () => {
+  const reviewers = [
+    '/root/r1_authority_security',
+    '/root/r1_webmcp_evidence',
+    '/root/r1_ux_accessibility',
+  ].join(', ');
+  const review = [
+    'Evidence ID: `E-018`',
+    'Review scope: **FULL RELEASE CANDIDATE**',
+    'Status: **LOCAL PASS**',
+    'Initial reviewer count: `3`',
+    'Final recheck reviewer count: `3`',
+    'Same reviewer identities: `PASS`',
+    `Initial reviewers: ${reviewers}`,
+    `Final recheck reviewers: ${reviewers}`,
+    'Finding dispositions: `7/7 REMEDIATED`',
+    ...Array.from({ length: 7 }, (_, index) =>
+      `FCS-R1-00${index + 1}: REMEDIATED`,
+    ),
+    '[RED] failing regression proof',
+    '[GREEN] passing regression proof',
+    'Unresolved critical: `0`',
+    'Unresolved high: `0`',
+    'Unresolved correctness-material medium: `0`',
+    'Package 8 overall: **BLOCKED**',
+    'Package 0 overall: **INCONCLUSIVE**',
+    'Actual Sites edge client isolation: `NOT_RUN`',
+    'True browser UI 200% zoom: `NOT_RUN`',
+    'Hosted use, supported-client proof, Chrome trace, deployment, holdout, founder-manual evaluation, push, merge, publication, and Devpost: `NOT_RUN`',
+    'No external action: **YES**',
+    'Exact final commit clean clone: `TERMINAL_POST_COMMIT`',
+  ].join('\n');
+  assert.doesNotThrow(() => validateAdversarialReview1(review));
+  assert.throws(
+    () => validateAdversarialReview1(
+      review.replace('Unresolved high: `0`', 'Unresolved high: `1`'),
+    ),
+    /Review 1 missing: Unresolved high/u,
+  );
+
+  const execution = {
+    packages: {
+      package8: { deploy_status: 'NOT_RUN', review1_status: 'PASS' },
+    },
+  };
+  const submission = {
+    current_stage: 'build-project',
+    submission: { status: 'drafting' },
+    project: {
+      codex_usage: 'Codex is being used for the documented build, tests, security checks, benchmark, and adversarial review. Deployment remains pending explicit authorization and evidence; Review 2 remains pending.',
+    },
+  };
+  assert.doesNotThrow(() => validateSubmissionState(submission, execution));
+  assert.throws(
+    () => validateSubmissionState({
+      ...submission,
+      project: {
+        codex_usage: 'Codex performs deployment and two adversarial review passes.',
+      },
+    }, execution),
+    /submission Codex usage drift/u,
+  );
+});
 
 test('Package 8 source inventory is exact, unique, regular, and covers the full Package 8 diff', () => {
   assert.equal(new Set(PACKAGE8_SOURCE_PATHS).size, PACKAGE8_SOURCE_PATHS.length);
@@ -78,13 +145,15 @@ test('Package 8 gate, two-review boundary, and evidence are source-bound without
     'CI/evidence/privacy/accessibility/claim review — disposition: PASS\n' +
     'unresolved critical/high/material/license: 0\n' +
     'Exact final commit clean clone: `TERMINAL_POST_COMMIT`\n' +
-    'Adversarial review 1 (`E-018`): `NOT_RUN`\nPackage 0 overall result: `INCONCLUSIVE`\n' +
+    'Adversarial review 1 (`E-018`): `PASS`\nPackage 0 overall result: `INCONCLUSIVE`\n' +
+    'Actual browser UI 200% zoom: `NOT_RUN`\n' +
     'Actual Sites edge client isolation: `NOT_RUN` — release blocker\n' +
     'External exit evidence: `NOT_RUN`\n', source);
   validatePackage8Reviews(`${marker}\n` +
     'Security/admission/state review — disposition: PASS\n' +
     'CI/evidence/privacy/accessibility/claim review — disposition: PASS\n' +
-    'unresolved critical/high/material: 0\nThis is not adversarial Review 1 (`E-018`)\n', source);
+    'unresolved critical/high/material: 0\n' +
+    'These pre-Review-1 implementation reviews are distinct from adversarial Review 1 (`E-018`), now `LOCAL PASS`.\n', source);
   const result = verifyPackage8EvidenceBinding(repositoryRoot);
   assert.equal(result.source.aggregate_sha256, source.aggregate_sha256);
   const liveReceipt = JSON.parse(readFileSync(

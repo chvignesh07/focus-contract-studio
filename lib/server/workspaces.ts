@@ -1,3 +1,4 @@
+import { assertExactBatch } from '../domain/package5';
 import {
   constantTimeEqual,
   deterministicUuid,
@@ -514,42 +515,144 @@ export async function getActiveSeedState(
   };
 }
 
-export async function setActiveVariant(
-  db: D1Database,
-  workspaceId: string,
-  variantId: string,
-  expectedViewRevision: number,
-): Promise<{ viewRevision: number }> {
-  await getVariantForWorkspace(db, workspaceId, variantId);
-  const result = await db
-    .prepare(
-      `UPDATE workspace_view_state
-          SET active_variant_id = ?, view_revision = view_revision + 1,
-              updated_at = updated_at + 1
-        WHERE workspace_id = ? AND view_revision = ?`,
-    )
-    .bind(variantId, workspaceId, expectedViewRevision)
-    .run();
-  if (!result.success || result.meta.changes !== 1) {
-    throw new FcsError('VIEW_STATE_STALE', 'The current view changed. Reload and retry.', 409);
+async function recoverVariantSelection(input: {
+  db: D1Database;
+  workspaceId: string;
+  idempotencyKey: string;
+  requestHash: string;
+}): Promise<{ variant: string; viewRevision: number } | null> {
+  const row = await input.db.prepare(
+    `SELECT selection.request_hash, selection.to_view_revision, variant.slug
+       FROM variant_selection_commits selection
+       JOIN component_variants variant
+         ON variant.workspace_id = selection.workspace_id
+        AND variant.id = selection.variant_id
+      WHERE selection.workspace_id = ? AND selection.idempotency_key = ?`,
+  ).bind(input.workspaceId, input.idempotencyKey).first<{
+    request_hash: string;
+    to_view_revision: number;
+    slug: string;
+  }>();
+  if (!row) return null;
+  if (row.request_hash !== input.requestHash) {
+    throw new FcsError('IDEMPOTENCY_CONFLICT', 'The request key was already used.', 409);
   }
-  return { viewRevision: expectedViewRevision + 1 };
+  return { variant: row.slug, viewRevision: row.to_view_revision };
 }
 
-export async function setActiveVariantBySlug(
-  db: D1Database,
-  workspaceId: string,
-  slug: string,
-  expectedViewRevision: number,
-): Promise<{ variant: string; viewRevision: number }> {
-  const variant = await getVariantForWorkspaceBySlug(db, workspaceId, slug);
-  const result = await setActiveVariant(
-    db,
-    workspaceId,
-    variant.id,
-    expectedViewRevision,
+export async function setActiveVariantBySlug(input: {
+  db: D1Database;
+  workspaceId: string;
+  slug: string;
+  expectedViewRevision: number;
+  idempotencyKey: string;
+  now: number;
+  admitOperation?: (workspaceId: string) => Promise<void>;
+}): Promise<{ variant: string; viewRevision: number }> {
+  const variant = await getVariantForWorkspaceBySlug(
+    input.db,
+    input.workspaceId,
+    input.slug,
   );
-  return { variant: variant.slug, viewRevision: result.viewRevision };
+  const requestHash = await sha256Hex(JSON.stringify({
+    operation: 'select_active_variant',
+    variant: input.slug,
+    expectedViewRevision: input.expectedViewRevision,
+    idempotencyKey: input.idempotencyKey,
+  }));
+  const replay = await recoverVariantSelection({ ...input, requestHash });
+  if (replay) return replay;
+  await input.admitOperation?.(input.workspaceId);
+
+  const selectionId = crypto.randomUUID();
+  const auditId = crypto.randomUUID();
+  const nextViewRevision = input.expectedViewRevision + 1;
+  const statements = [
+    input.db.prepare(
+      `INSERT INTO variant_selection_commits (
+         id, workspace_id, variant_id, idempotency_key, request_hash,
+         from_view_revision, to_view_revision, created_at
+       )
+       SELECT ?, state.workspace_id, variant.id, ?, ?, state.view_revision,
+              state.view_revision + 1, ?
+         FROM workspace_view_state state
+         JOIN component_variants variant
+           ON variant.workspace_id = state.workspace_id AND variant.id = ?
+        WHERE state.workspace_id = ? AND state.view_revision = ?
+          AND NOT EXISTS (
+            SELECT 1 FROM variant_selection_commits existing
+             WHERE existing.workspace_id = state.workspace_id
+               AND (existing.idempotency_key = ?
+                 OR existing.from_view_revision = state.view_revision)
+          )`,
+    ).bind(
+      selectionId,
+      input.idempotencyKey,
+      requestHash,
+      input.now,
+      variant.id,
+      input.workspaceId,
+      input.expectedViewRevision,
+      input.idempotencyKey,
+    ),
+    input.db.prepare(
+      `UPDATE workspace_view_state
+          SET active_variant_id = ?, view_revision = view_revision + 1,
+              updated_at = ?
+        WHERE workspace_id = ? AND view_revision = ?
+          AND EXISTS (
+            SELECT 1 FROM variant_selection_commits selection
+             WHERE selection.workspace_id = workspace_view_state.workspace_id
+               AND selection.id = ?
+               AND selection.variant_id = ?
+               AND selection.from_view_revision = workspace_view_state.view_revision
+          )`,
+    ).bind(
+      variant.id,
+      input.now,
+      input.workspaceId,
+      input.expectedViewRevision,
+      selectionId,
+      variant.id,
+    ),
+    input.db.prepare(
+      `INSERT INTO audit_events (
+         id, workspace_id, actor_kind, action, target_kind, target_id,
+         result, correlation_id, safe_detail_json, occurred_at
+       ) VALUES (?, ?, 'browser', 'variant.selected', 'variant-selection', ?,
+                 'success', ?, ?, ?)`,
+    ).bind(
+      auditId,
+      input.workspaceId,
+      selectionId,
+      selectionId,
+      JSON.stringify({
+        fromViewRevision: input.expectedViewRevision,
+        toViewRevision: nextViewRevision,
+      }),
+      input.now,
+    ),
+  ];
+  try {
+    assertExactBatch(await input.db.batch(statements), [1, 1, 2], 'variant selection');
+  } catch (error) {
+    rethrowRateLimitError(error);
+    const raced = await recoverVariantSelection({ ...input, requestHash });
+    if (raced) return raced;
+    const state = await input.db.prepare(
+      `SELECT view_revision FROM workspace_view_state WHERE workspace_id = ?`,
+    ).bind(input.workspaceId).first<{ view_revision: number }>();
+    if (!state || state.view_revision !== input.expectedViewRevision) {
+      throw new FcsError('VIEW_STATE_STALE', 'The current view changed. Reload and retry.', 409);
+    }
+    throw new FcsError(
+      'VARIANT_SELECTION_WRITE_FAILED',
+      'The active variant could not be committed.',
+      503,
+      true,
+    );
+  }
+  return { variant: variant.slug, viewRevision: nextViewRevision };
 }
 
 export async function cleanupExpiredWorkspaces(

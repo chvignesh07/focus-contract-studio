@@ -78,7 +78,7 @@ export function validatePackage6DesignCold(repositoryRoot) {
       visual.screenshots.every((entry) => /^[0-9a-f]{64}$/u.test(entry.sha256) && entry.inspection === 'PASS'),
     'visual screenshot evidence incomplete',
   );
-  for (const profile of ['desktop', '320px', '375px', 'true-200-page-zoom']) {
+  for (const profile of ['desktop', '320px', '375px', '640-css-px-at-dpr-2']) {
     requireCondition(
       visual.screenshots.some(({ name }) => name.startsWith(profile)),
       `visual profile missing: ${profile}`,

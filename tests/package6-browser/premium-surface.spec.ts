@@ -247,7 +247,7 @@ async function completeJourney(page: Page, profile: Profile) {
 
   const receiptDialog = page.getByRole('dialog', { name: 'Application committed' });
   await expect(receiptDialog).toBeVisible();
-  await expect(receiptDialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+  await expect(receiptDialog.getByRole('button', { name: 'Close receipt' })).toBeFocused();
   await expect(receiptDialog).toContainText('advanced revision 1 to 2');
   await expectNativeModalIsolation(page, receiptDialog);
   if (profile.name === 'desktop') await capture(page, profile, 'application-receipt');
@@ -338,7 +338,7 @@ for (const profile of [
   { name: 'desktop', physicalWidth: 1280, physicalHeight: 900, zoom: 1 },
   { name: '320px', physicalWidth: 320, physicalHeight: 900, zoom: 1 },
   { name: '375px', physicalWidth: 375, physicalHeight: 900, zoom: 1 },
-  { name: 'true 200% page zoom', physicalWidth: 1280, physicalHeight: 900, zoom: 2 },
+  { name: '640 CSS px at DPR 2', physicalWidth: 1280, physicalHeight: 900, zoom: 2 },
 ] as const) {
   test(`${profile.name} completes the human workflow with WebMCP unavailable`, async ({ page }) => {
     await configureProfile(page, profile);

@@ -11,20 +11,24 @@ import {
 } from '../../lib/domain/package6.ts';
 
 test('active variant input is the exact two-slug CAS allowlist', () => {
+  const idempotencyKey = '60000000-0000-4000-8000-000000000001';
   for (const variant of PACKAGE6_VARIANTS) {
     assert.deepEqual(activeVariantRequestSchema.parse({
       variant,
       expectedViewRevision: 7,
+      idempotencyKey,
     }), {
       variant,
       expectedViewRevision: 7,
+      idempotencyKey,
     });
   }
   for (const invalid of [
     { variant: 'unknown', expectedViewRevision: 1 },
     { variant: PACKAGE6_VARIANTS[0], expectedViewRevision: 0 },
-    { variant: PACKAGE6_VARIANTS[0], expectedViewRevision: 1, workspaceId: crypto.randomUUID() },
-    { variantId: crypto.randomUUID(), expectedViewRevision: 1 },
+    { variant: PACKAGE6_VARIANTS[0], expectedViewRevision: 1 },
+    { variant: PACKAGE6_VARIANTS[0], expectedViewRevision: 1, idempotencyKey, workspaceId: crypto.randomUUID() },
+    { variantId: crypto.randomUUID(), expectedViewRevision: 1, idempotencyKey },
   ]) {
     assert.equal(activeVariantRequestSchema.safeParse(invalid).success, false);
   }

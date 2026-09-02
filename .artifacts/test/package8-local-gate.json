@@ -5,8 +5,8 @@
   "status": "PASS",
   "command": "npm run verify:package8:core",
   "source": {
-    "file_count": 62,
-    "aggregate_sha256": "64f641af6f5642dd5b1a46ce4500870b46b16901e6349d300c6db936c101a0a8"
+    "file_count": 78,
+    "aggregate_sha256": "f72a696c800affbbbd98e052b0586634419b985cd42cca2f338ce070f730d3ee"
   },
   "checks": {
     "inherited_package7_exact_commit": "PASS",
@@ -27,18 +27,19 @@
     "bundle_and_local_link_scans": "PASS",
     "ci_build_inputs_lineage": "PASS",
     "source_inventory": "PASS",
-    "two_read_only_package8_reviews": "PASS"
+    "two_read_only_package8_reviews": "PASS",
+    "adversarial_review_1_disposition": "PASS"
   },
   "tests": {
     "inherited_package7": 482,
-    "package8_node": 13,
-    "package8_d1": 12,
+    "package8_node": 14,
+    "package8_d1": 14,
     "deterministic_seed": 7,
     "memory_counterfactual": 5,
     "package8_browser": 4,
-    "passed": 523,
+    "passed": 526,
     "failed": 0,
-    "total": 523
+    "total": 526
   },
   "findings": {
     "unresolved_critical": 0,
@@ -58,7 +59,7 @@
     "merge": "NOT_RUN",
     "publication": "NOT_RUN",
     "devpost": "NOT_RUN",
-    "adversarial_review_1": "NOT_RUN"
+    "adversarial_review_1": "PASS"
   },
   "exact_commit_clone": "TERMINAL_POST_COMMIT"
 }

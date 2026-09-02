@@ -22,7 +22,7 @@
     { "name": "desktop-undo-committed", "width": 1280, "height": 900, "sha256": "8c1028f8c2dcb7505cf9ef952b730e33d2482bd9ea3158de24df58af45df31d1", "inspection": "PASS" },
     { "name": "desktop-undo-confirmation", "width": 1280, "height": 900, "sha256": "7733dad25f41c04fb8b4ea8dcaa91db6e6ddc163b53e0f92d0c8c1a15e720cc9", "inspection": "PASS" },
     { "name": "desktop-verified-history", "width": 1280, "height": 900, "sha256": "e56aba5b4fe09803fcdb6dc48fa1e07070c8bfbc57cd4a61f10013ea00fa1da9", "inspection": "PASS" },
-    { "name": "true-200-page-zoom-initial", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" },
-    { "name": "true-200-page-zoom-reset-complete", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" }
+    { "name": "640-css-px-at-dpr-2-initial", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" },
+    { "name": "640-css-px-at-dpr-2-reset-complete", "width": 640, "height": 450, "sha256": "86c29d8da549662cfe739e4128add9726dfe3f5736bcb605dcbc00dec8cc959e", "inspection": "PASS" }
   ]
 }

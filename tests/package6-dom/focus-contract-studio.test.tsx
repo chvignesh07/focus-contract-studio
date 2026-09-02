@@ -223,6 +223,7 @@ test('exact acknowledgement gates review confirmation and resets on variant CAS 
   await user.click(approve);
 
   await user.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(approve).toHaveFocus();
   await user.click(screen.getByRole('tab', { name: 'Danger-emphasis' }));
   expect(await screen.findByRole('tab', { name: 'Danger-emphasis', selected: true })).toBeVisible();
   expect(within(authority).getByRole('checkbox', {
@@ -232,6 +233,7 @@ test('exact acknowledgement gates review confirmation and resets on variant CAS 
   expect(switchCall.body).toEqual({
     variant: 'delete-account-danger-emphasis',
     expectedViewRevision: 1,
+    idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/u),
   });
   expect(value.calls.filter(({ url }) => url === '/api/focus-review')).toHaveLength(2);
   expect(value.calls.filter(({ url }) => url === '/api/focus-history')).toHaveLength(2);

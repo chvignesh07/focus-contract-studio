@@ -167,6 +167,63 @@ test('current-tree identity changes when already-dirty content changes', () => {
   }
 });
 
+test('tracked Gitleaks evidence is stable across platform executable hashes', async () => {
+  const releaseChecks = await import('../../scripts/package8-release-checks.mjs');
+  const buildTrackedGitleaksEvidence = Reflect.get(
+    releaseChecks,
+    'buildTrackedGitleaksEvidence',
+  ) as (receipt: Record<string, unknown>) => Record<string, unknown>;
+  assert.equal(typeof buildTrackedGitleaksEvidence, 'function');
+
+  const receipt = {
+    version: '8.30.1',
+    policy: {
+      config_path: '.gitleaks.toml',
+      config_sha256: '1'.repeat(64),
+      ignore_path: '.gitleaksignore.package8',
+      ignore_sha256: '2'.repeat(64),
+      environment_config_scrubbed: true,
+      inline_allow_comments_ignored: true,
+    },
+    scans: {
+      current_tree: {
+        scope: 'exact tracked and non-ignored untracked current-tree snapshot',
+        command_sha256: '3'.repeat(64),
+        exit_status: 0,
+        findings: 0,
+      },
+      reachable_history: {
+        scope: 'git log -p --all',
+        command_sha256: '4'.repeat(64),
+        exit_status: 0,
+        findings: 0,
+      },
+      planted_negative: {
+        command_sha256: '5'.repeat(64),
+        exit_status: 1,
+        findings: 1,
+        rejected: true,
+      },
+    },
+  };
+  const macos = buildTrackedGitleaksEvidence({
+    ...receipt,
+    executable_sha256: 'a'.repeat(64),
+  });
+  const linux = buildTrackedGitleaksEvidence({
+    ...receipt,
+    executable_sha256: 'b'.repeat(64),
+  });
+
+  assert.deepEqual(macos, linux);
+  assert.equal('executable_sha256' in macos, false);
+  const trackedArtifact = JSON.parse(readFileSync(
+    path.join(repositoryRoot, '.artifacts/security/release-security.json'),
+    'utf8',
+  ));
+  assert.equal('executable_sha256' in trackedArtifact.live_gitleaks, false);
+});
+
 test('canonical release checks fail closed when the live Gitleaks executable is unavailable', () => {
   const emptyPath = mkdtempSync(path.join(tmpdir(), 'fcs-package8-empty-path-'));
   const originalPath = process.env.PATH;

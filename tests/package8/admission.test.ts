@@ -25,7 +25,11 @@ import {
 } from '../../lib/server/package5-apply-history-undo.ts';
 import { runtimeSecurityConfig } from '../../lib/server/runtime-config.ts';
 import { verifyFocusContract } from '../../lib/server/verify-focus-contract.ts';
-import { bootstrapWorkspace, resetWorkspace } from '../../lib/server/workspaces.ts';
+import {
+  bootstrapWorkspace,
+  resetWorkspace,
+  setActiveVariantBySlug,
+} from '../../lib/server/workspaces.ts';
 import {
   approvePackage5Fixture,
   package5Now,
@@ -71,8 +75,124 @@ function fullRehearsal(variantId: string, revision: number) {
 beforeEach(async () => {
   await env.DB.prepare('DROP TRIGGER IF EXISTS package5_test_apply_failure').run();
   await env.DB.prepare('DROP TRIGGER IF EXISTS package8_test_apply_failure').run();
+  await env.DB.prepare('DROP TRIGGER IF EXISTS package8_test_variant_failure').run();
   await env.DB.prepare('DELETE FROM workspaces').run();
   await env.DB.prepare('DELETE FROM rate_limit_windows').run();
+});
+
+test('variant selection replays before admission and saturates without another write', async () => {
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: package5Now,
+    tokenBytes: new Uint8Array(32).fill(235),
+    ...package5Secrets,
+  });
+  const select = (
+    variant: 'delete-account-standard' | 'delete-account-danger-emphasis',
+    expectedViewRevision: number,
+    idempotencyKey: string,
+  ) => setActiveVariantBySlug({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    slug: variant,
+    expectedViewRevision,
+    idempotencyKey,
+    now: package5Now + 1,
+    admitOperation: workspaceAdmission({
+      db: env.DB,
+      operation: 'variant',
+      now: package5Now + 1,
+      secret: rateSecret,
+    }),
+  });
+  const key = '80000000-0000-4000-8000-000000000239';
+  const first = await select('delete-account-danger-emphasis', 1, key);
+  await expect(select('delete-account-danger-emphasis', 1, key)).resolves.toEqual(first);
+  await expect(select('delete-account-standard', 2, key)).rejects.toMatchObject({
+    code: 'IDEMPOTENCY_CONFLICT',
+    status: 409,
+  });
+
+  for (let attempt = 2; attempt <= WORKSPACE_OPERATION_LIMITS.variant; attempt += 1) {
+    await select(
+      attempt % 2 === 0
+        ? 'delete-account-standard'
+        : 'delete-account-danger-emphasis',
+      attempt,
+      `80000000-0000-4000-8000-${String(239 + attempt).padStart(12, '0')}`,
+    );
+  }
+  await expect(select(
+    'delete-account-danger-emphasis',
+    WORKSPACE_OPERATION_LIMITS.variant + 1,
+    '80000000-0000-4000-8000-000000000299',
+  )).rejects.toMatchObject({ code: 'RATE_LIMITED', status: 429 });
+  expect(await env.DB.prepare(
+    `SELECT
+       (SELECT view_revision FROM workspace_view_state WHERE workspace_id = ?) AS view_revision,
+       (SELECT COUNT(*) FROM variant_selection_commits WHERE workspace_id = ?) AS commits,
+       (SELECT request_count FROM rate_limit_windows
+         WHERE workspace_id = ? AND operation = 'variant') AS admission_count`,
+  ).bind(
+    session.workspace.id,
+    session.workspace.id,
+    session.workspace.id,
+  ).first()).toEqual({
+    view_revision: WORKSPACE_OPERATION_LIMITS.variant + 1,
+    commits: WORKSPACE_OPERATION_LIMITS.variant,
+    admission_count: WORKSPACE_OPERATION_LIMITS.variant,
+  });
+});
+
+test('downstream variant failure rolls back view state, commit, audit, and admission', async () => {
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: package5Now,
+    tokenBytes: new Uint8Array(32).fill(236),
+    ...package5Secrets,
+  });
+  await env.DB.prepare(
+    `CREATE TRIGGER package8_test_variant_failure
+     BEFORE INSERT ON audit_events
+     WHEN NEW.action = 'variant.selected'
+     BEGIN SELECT RAISE(ABORT, 'PACKAGE8_TEST_VARIANT_FAILURE'); END`,
+  ).run();
+
+  await expect(setActiveVariantBySlug({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    slug: 'delete-account-danger-emphasis',
+    expectedViewRevision: 1,
+    idempotencyKey: '80000000-0000-4000-8000-000000000300',
+    now: package5Now + 1,
+    admitOperation: workspaceAdmission({
+      db: env.DB,
+      operation: 'variant',
+      now: package5Now + 1,
+      secret: rateSecret,
+    }),
+  })).rejects.toMatchObject({ code: 'VARIANT_SELECTION_WRITE_FAILED', status: 503 });
+  expect(await env.DB.prepare(
+    `SELECT
+       (SELECT view_revision FROM workspace_view_state WHERE workspace_id = ?) AS view_revision,
+       (SELECT COUNT(*) FROM variant_selection_commits WHERE workspace_id = ?) AS commits,
+       (SELECT COUNT(*) FROM audit_events
+         WHERE workspace_id = ? AND action = 'variant.selected') AS audits,
+       (SELECT COUNT(*) FROM rate_limit_windows
+         WHERE workspace_id = ? AND operation = 'variant') AS admission_rows`,
+  ).bind(
+    session.workspace.id,
+    session.workspace.id,
+    session.workspace.id,
+    session.workspace.id,
+  ).first()).toEqual({
+    view_revision: 1,
+    commits: 0,
+    audits: 0,
+    admission_rows: 0,
+  });
 });
 
 test('workspace admission is atomic, bounded per operation, and stores only a digest', async () => {

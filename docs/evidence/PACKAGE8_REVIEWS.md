@@ -1,6 +1,6 @@
 # Package 8 Implementation Reviews
 
-<!-- package8-source-binding file_count=62 sha256=64f641af6f5642dd5b1a46ce4500870b46b16901e6349d300c6db936c101a0a8 -->
+<!-- package8-source-binding file_count=78 sha256=f72a696c800affbbbd98e052b0586634419b985cd42cca2f338ce070f730d3ee -->
 
 Exactly two bounded, independent, read-only implementation reviews examined the repaired Package 8 working tree. Each material finding was fixed by the root writer, covered by a focused regression, and returned to the same reviewer for closure.
 
@@ -19,10 +19,10 @@ CI/evidence/privacy/accessibility/claim review — disposition: PASS
 - Initial finding: porcelain status alone could accept a stale scan after another edit to an already-dirty file. The repair scans an exact snapshot of tracked and non-ignored untracked regular files and binds its file count/content digest; the regression proves unchanged dirty status with changed content is rejected.
 - Fresh Gitleaks `8.30.1` proof passed: exact current-tree snapshot zero findings, reachable `--all` history zero findings, and planted-negative rejected. Negative evidence tests reject wrong policy, scope, content digest, commit, version, and executable availability.
 - CI retains read-only permissions and immutable action pins, checksum-installs Gitleaks `8.30.1`, installs project-local Chromium, and runs the canonical verifier. Package 8 remains overall `BLOCKED`, Package 0 remains `INCONCLUSIVE`, and external rows remain `NOT_RUN`.
-- The browser bootstrap applies migrations `0005` and `0006`. The local gate records and enforces the exact `523`-test breakdown.
+- The browser bootstrap applies migrations `0005` and `0006`. The local gate records and enforces the exact `526`-test breakdown, including transaction-coupled active-variant selection.
 
 unresolved critical/high/material: 0
 
 unresolved license: 0
 
-This is not adversarial Review 1 (`E-018`). Formal `E-018`, hosted use, supported-client evidence, Chrome trace, deployment, holdout, founder-manual evaluation, push, merge, publication, and Devpost remain `NOT_RUN`.
+These pre-Review-1 implementation reviews are distinct from adversarial Review 1 (`E-018`), now `LOCAL PASS`. Hosted use, supported-client evidence, Chrome trace, deployment, holdout, founder-manual evaluation, true browser UI 200% zoom, push, merge, publication, and Devpost remain `NOT_RUN`.

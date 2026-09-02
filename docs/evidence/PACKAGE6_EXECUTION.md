@@ -22,7 +22,7 @@ Focused green evidence:
 | Package 6 real D1 | `3/3` |
 | Package 6 DOM | `4/4` |
 | Package 6 production-domain coverage replay | `4/4`; `100%` lines / branches / functions |
-| Package 6 built browser | `4/4` desktop, 320 px, 375 px, effective 200% page reflow |
+| Package 6 built browser | `4/4` desktop, 320 px, 375 px, 640 CSS px at DPR 2 responsive emulation; browser UI 200% zoom `NOT_RUN` |
 | Fresh screenshot-only cold evaluator | `5/5` in displayed `<0.1 seconds` |
 | Frozen inherited Package 5 verification | `360/360` from exact commit `f54f3c2e2db24d9ce177c47dd16837f0d0b00db0` |
 | Package 6 post-core local gate | `382/382` including inherited Package 5 |

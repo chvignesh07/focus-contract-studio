@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 import { activeVariantRequestSchema } from '../../../lib/domain/package6';
+import { workspaceAdmission } from '../../../lib/server/admission';
 import { FcsError } from '../../../lib/server/errors';
 import {
   errorResponse,
@@ -21,10 +22,11 @@ export async function GET(): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   try {
     const configuration = runtimeSecurityConfig();
+    const now = Math.floor(Date.now() / 1_000);
     const session = await resolveWorkspaceEvidenceSession({
       db: env.DB,
       cookieHeader: request.headers.get('cookie'),
-      now: Math.floor(Date.now() / 1_000),
+      now,
       sessionSecret: configuration.sessionSecret,
     });
     const body = await readStrictJsonMutation(request, {
@@ -36,12 +38,20 @@ export async function POST(request: Request): Promise<Response> {
     if (!parsed.success) {
       throw new FcsError('INVALID_REQUEST', 'The request is invalid.', 400);
     }
-    const result = await setActiveVariantBySlug(
-      env.DB,
-      session.workspace.id,
-      parsed.data.variant,
-      parsed.data.expectedViewRevision,
-    );
+    const result = await setActiveVariantBySlug({
+      db: env.DB,
+      workspaceId: session.workspace.id,
+      slug: parsed.data.variant,
+      expectedViewRevision: parsed.data.expectedViewRevision,
+      idempotencyKey: parsed.data.idempotencyKey,
+      now,
+      admitOperation: workspaceAdmission({
+        db: env.DB,
+        operation: 'variant',
+        now,
+        secret: configuration.rateLimitSecret,
+      }),
+    });
     return jsonNoStore({
       ok: true,
       data: {

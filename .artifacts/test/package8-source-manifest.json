@@ -3,8 +3,8 @@
   "package": 8,
   "algorithm": "sha256",
   "inventory": "EXACT_PACKAGE8_IMPLEMENTATION_DOCUMENTATION_AND_GATE_SOURCE",
-  "file_count": 62,
-  "aggregate_sha256": "64f641af6f5642dd5b1a46ce4500870b46b16901e6349d300c6db936c101a0a8",
+  "file_count": 78,
+  "aggregate_sha256": "f72a696c800affbbbd98e052b0586634419b985cd42cca2f338ce070f730d3ee",
   "files": [
     {
       "path": ".gitleaks.toml",
@@ -27,14 +27,24 @@
       "sha256": "331ffca26f656faae3a9e063fb7affc9b47a4a8d117fbcbacff0461bcdd6aa68"
     },
     {
+      "path": ".devpost-hackathon-state.json",
+      "bytes": 1527,
+      "sha256": "dc3d6f9f55747b2fdfea28ee92422e008eebea3cd99dc3e6866b568d5b99d9b6"
+    },
+    {
       "path": "README.md",
-      "bytes": 10195,
-      "sha256": "b3ab51dab6cf4aeea4e42cadb5658df1df5ae6532a70ae8a0c5c7023d1f864fb"
+      "bytes": 10218,
+      "sha256": "cd5f8d32f486686db4d188a10411ee3977df9684af4de9bdb1a8c40a81036050"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
       "bytes": 95867,
       "sha256": "6ce56f058f763d12f5ed75c6943858dd4f9545c1458ba1018b24a7192bdf5693"
+    },
+    {
+      "path": "app/api/active-variant/route.ts",
+      "bytes": 2046,
+      "sha256": "a0a8470ea2601027c07acc184be4bd966058b27b2eb953e7782013d89da3dbb3"
     },
     {
       "path": "app/api/focus-proposals/[proposalId]/apply/route.ts",
@@ -93,8 +103,8 @@
     },
     {
       "path": "app/focus-contract-studio.tsx",
-      "bytes": 68237,
-      "sha256": "6b63ffee708d363a5e8dd85f339cbf5a1750096c340278fbba1cbd9d9bd36e5a"
+      "bytes": 68798,
+      "sha256": "7eb46f5a929181bc1cbca40ad46228482a5b4f95a2c295569bfd29bc76d78a01"
     },
     {
       "path": "app/globals.css",
@@ -108,18 +118,38 @@
     },
     {
       "path": "docs/delivery/EVIDENCE_REGISTRY.md",
-      "bytes": 13116,
-      "sha256": "a3568f4e5031acb0c05d47b401d5755a279067c2b8527119dc7483b14685b15a"
+      "bytes": 13165,
+      "sha256": "5c03a91c502f64870628c904c4de9bb65c17f5f6e903b0471dfdf4d11e7f21b6"
     },
     {
       "path": "docs/evidence/EXECUTION_STATE.json",
-      "bytes": 2709,
-      "sha256": "a96da950eb6cf926662c1c7bfec6d3040fc54da47f2343fcb8dbf2fb36fb79bf"
+      "bytes": 2816,
+      "sha256": "3a44a7a033969ad082b5947a699edf0891181a797d95f31f94b63816369e6dd8"
     },
     {
       "path": "docs/evidence/EXECUTION_STATE.md",
-      "bytes": 4313,
-      "sha256": "49c482c6068784a5680feb161b2cf32cd3f68d2acefbaaed6411bebdd03bf406"
+      "bytes": 4467,
+      "sha256": "40d33fe8aa4a598cdf45dd38070edd97dfc9721b0584970dc36b049b2717fbc0"
+    },
+    {
+      "path": "docs/evidence/PACKAGE6_EXECUTION.md",
+      "bytes": 2644,
+      "sha256": "8160194a1e284768a85e2cf12d8ced1e834cb554dc23defccc2470df52c4d703"
+    },
+    {
+      "path": "docs/evidence/PACKAGE6_VERIFICATION.md",
+      "bytes": 2510,
+      "sha256": "332042cdba5ec614fe78f30f255299f56588dbeee568b11ec9560692ed2b2b7e"
+    },
+    {
+      "path": "docs/evidence/PACKAGE6_VISUAL_MANIFEST.json",
+      "bytes": 3506,
+      "sha256": "a7ba4d95a9355687d0a0c4bff91f9041519aef9754ee980fee502304b2d2bc48"
+    },
+    {
+      "path": "docs/evidence/PACKAGE_6_RED_TO_GREEN.md",
+      "bytes": 2061,
+      "sha256": "a7144c83a8d8b3769243e249af3743c75acb3d962d1998af4c96689ad06dac2e"
     },
     {
       "path": "docs/evidence/PROVENANCE_LEDGER.md",
@@ -128,13 +158,13 @@
     },
     {
       "path": "docs/quality/SECURITY_AND_PRIVACY.md",
-      "bytes": 12978,
-      "sha256": "4fc49e013bdd4cc5c5e901185a24f883fc7496e1c6457ee58fd3343df6474287"
+      "bytes": 13156,
+      "sha256": "fd376cb8821841a0174cd8d89c1a905c8ab74ba801978007eedaa64465bfb1f4"
     },
     {
       "path": "db/schema.ts",
-      "bytes": 12825,
-      "sha256": "53616327bce60a9359c3bf31937952be577bca48956244e5784e922ea5a67a18"
+      "bytes": 13289,
+      "sha256": "85584e5fdba202c0d0ec82866a3258737d46a5e86cca96b18b10afe6693ae357"
     },
     {
       "path": "drizzle/0005_package8_admission_lineage.sql",
@@ -143,8 +173,8 @@
     },
     {
       "path": "drizzle/0006_package8_atomic_admission.sql",
-      "bytes": 5363,
-      "sha256": "d5b2995c2f7ac68ab0c77f3c2484bbe7feb6f78d86e03843335df030994576fe"
+      "bytes": 7451,
+      "sha256": "ce66bc2568669742c1ac7be7c26b9ac51c7aedd02fb2eb321df62829d876c167"
     },
     {
       "path": "lib/client/zod-jitless.ts",
@@ -152,9 +182,14 @@
       "sha256": "8d1d9a38e86a8b4f0e2914b01ed3cbfedae4c5337e3a48c6ad42f93d1b67e77b"
     },
     {
+      "path": "lib/domain/package6.ts",
+      "bytes": 7739,
+      "sha256": "0a3ee972d61d6c3359af473452f848f4d7b4a6b1dc99c86fc2877e93740a8613"
+    },
+    {
       "path": "lib/server/admission.ts",
-      "bytes": 7469,
-      "sha256": "a878ed2e809218dd47fedd62736529e90f9c431514a43bbe7b2f8445e9e522ce"
+      "bytes": 7484,
+      "sha256": "608d3a880fd1dc96eb1c1a45fc6487390299b9644a49c927b5e8b97402a5be4c"
     },
     {
       "path": "lib/server/create-proposal.ts",
@@ -203,13 +238,13 @@
     },
     {
       "path": "lib/server/workspaces.ts",
-      "bytes": 24374,
-      "sha256": "fdfd4f87775b3df36da81344f068a7c2cdb820ab29c96edf0caf94f3e394ac2f"
+      "bytes": 28262,
+      "sha256": "75e46b0aa0fc3789b2002e29a6df3f21f4f534d4960229b87c6b809b16ccb21b"
     },
     {
       "path": "package.json",
-      "bytes": 18266,
-      "sha256": "3ed47448ecd235f6028b728e477c872becb3593559b0c0e80ee888633d4cd9a2"
+      "bytes": 18394,
+      "sha256": "d1a01c994f2929a199e51d15a04272591fce73703a12cbbd35f2c7ec05bc3932"
     },
     {
       "path": "playwright.config.ts",
@@ -227,29 +262,34 @@
       "sha256": "758552e8958cc8d4d92b8ccd24e05b2efa362744ef3bef830d40d2160383a6e9"
     },
     {
+      "path": "scripts/package6-design-cold.mjs",
+      "bytes": 4551,
+      "sha256": "b84de1838d799dac22676faaf26ecc5f700f732e79a06efaf04c5cbe17d2b702"
+    },
+    {
       "path": "scripts/package8-clean-d1.mjs",
       "bytes": 3478,
       "sha256": "73877c9d7c9e1884fcff39b69407dfb0b01e91828952beff9eae2f8dfa6831a7"
     },
     {
       "path": "scripts/package8-evidence-binding.mjs",
-      "bytes": 16021,
-      "sha256": "c5af1b0ad3059aa214d616847c4c0e5fa3b0a61fc945a88f073cd69e5d2f2de3"
+      "bytes": 18572,
+      "sha256": "02ca5eeae8ff74ba231469145806905bd061741078b070342c477d5bbaff6cbc"
     },
     {
       "path": "scripts/package8-local-gate.mjs",
-      "bytes": 2861,
-      "sha256": "53a41acfc710f42cd81148c215347c6f2ab95b660422ae2afc3fe0c192db7f4b"
+      "bytes": 2906,
+      "sha256": "6b8f3e50982f7b7c8afc011929cb97bfcdd47fbd541e995037a61c0dcb13eb52"
     },
     {
       "path": "scripts/package8-release-checks.mjs",
-      "bytes": 31872,
-      "sha256": "c5e66796db90f401682bc65f18973d5ef87426b37613356f81c02ad51744876c"
+      "bytes": 31888,
+      "sha256": "3cc299ac6b362c060bd5fb21c4f0f852ca36128b236e6cfee915bb9e216170a9"
     },
     {
       "path": "scripts/package8-source-manifest.mjs",
-      "bytes": 5083,
-      "sha256": "6966861d6f7723be4a3cda3ad242fc9544fd171cbd6cf4b9cc9f9170ed2181c6"
+      "bytes": 5785,
+      "sha256": "b2fae18619e97cf5aa05d0259ef0f3d277cf63b72a446741c784ecf644fbab65"
     },
     {
       "path": "scripts/package8-verify-package7-frozen.mjs",
@@ -257,9 +297,14 @@
       "sha256": "cb84a956ce1ac9f72ca69f8bbf81408b618f3567df239d82287015609a5dc7d8"
     },
     {
+      "path": "tests/helpers/set-active-variant.ts",
+      "bytes": 792,
+      "sha256": "ac0713de2ad83839d538bd56562cb4f523f87f5df571dfcb7d55799cef60fa33"
+    },
+    {
       "path": "tests/package8-browser/security-runtime.spec.ts",
-      "bytes": 9653,
-      "sha256": "0ca740dc51533892bce6f3c48e521cfad733274a52d158277fb02ae2b34b058b"
+      "bytes": 10346,
+      "sha256": "dea1cc443d08ceb21f3a93b3f3e6adbb4191ece6a4e33b027c2c02c310bf18af"
     },
     {
       "path": "tests/package1/admission.test.ts",
@@ -272,9 +317,44 @@
       "sha256": "e2e71df127c4cc386507307e1d0dc150a976d551a55623697c64b17d8f11d915"
     },
     {
+      "path": "tests/package1/workspace-isolation.test.ts",
+      "bytes": 4453,
+      "sha256": "c5ad333ca98f04bf8d894df12b0acd309281f70df2ff9836a1c95582ad218e0d"
+    },
+    {
+      "path": "tests/package2/proposal-create.test.ts",
+      "bytes": 10131,
+      "sha256": "4a19aa4fd6f0fe167afd035cb7e9acfce1587a1041c76010577448809d949f1c"
+    },
+    {
+      "path": "tests/package3/verification-persistence.test.ts",
+      "bytes": 27346,
+      "sha256": "4373607dbd61314e1609ee9de7bc1d930b4f0b62b6cf20f332750943d2c8f0a2"
+    },
+    {
+      "path": "tests/package6-browser/premium-surface.spec.ts",
+      "bytes": 17463,
+      "sha256": "9eeeeb7ba728545d2f1386f0cb78929d4118bc35aec5f7501bdbb391b941a664"
+    },
+    {
+      "path": "tests/package6-dom/focus-contract-studio.test.tsx",
+      "bytes": 12351,
+      "sha256": "fc9364bae2bd6b0b9197f7fd397337217741fe01bf3c5f360c1046ba907e00f2"
+    },
+    {
+      "path": "tests/package6-node/package6-domain.test.ts",
+      "bytes": 4421,
+      "sha256": "0565c146e2e967b6b92ded1ba32b045358b4623fd31c330e5783412755e67c7a"
+    },
+    {
+      "path": "tests/package6/active-variant.test.ts",
+      "bytes": 5880,
+      "sha256": "8b9debb1020af9afd762236027411073f46e9f87585bc418944521606845732d"
+    },
+    {
       "path": "tests/package8-node/admission-wiring.test.ts",
-      "bytes": 1299,
-      "sha256": "b4d6c05dcfd9a6a94db1d24aba1da32a623248cd9183d1db015218ca03b049e0"
+      "bytes": 1347,
+      "sha256": "9a91e331a1a8fae74487c66d825ac5951bd3f9390b1853ca93290c1d2359147e"
     },
     {
       "path": "tests/package8-node/browser-setup.test.ts",
@@ -283,8 +363,8 @@
     },
     {
       "path": "tests/package8-node/package8-scripts.test.ts",
-      "bytes": 7966,
-      "sha256": "c52b0a6542b7bb60afea87328928c73ee94d0a40c5e34e9f08166ebdc599a4c3"
+      "bytes": 9742,
+      "sha256": "d54d45a8c188aa11a7d83ae358d0b0d44c8fe10abe1e8e1983c98bf0a9e5c16c"
     },
     {
       "path": "tests/package8-node/security-headers.test.ts",
@@ -293,13 +373,13 @@
     },
     {
       "path": "tests/package8-node/source-evidence.test.ts",
-      "bytes": 5375,
-      "sha256": "2e65e6f87f46137c579ec756d7fd90f6e26200888006942e7fa449975cc2ea7a"
+      "bytes": 7950,
+      "sha256": "60a6d96072c15ef25d87c5f3f48f0a31260478463928312db34700891a581e52"
     },
     {
       "path": "tests/package8/admission.test.ts",
-      "bytes": 24496,
-      "sha256": "5ae356e1e3297d0c079f837482e34a9dd841091755915f6785bb45a009d5b244"
+      "bytes": 28627,
+      "sha256": "b933c459182c3ff957d0a01005105a78a2cd2223903765a2889f39c545e4f1c6"
     },
     {
       "path": "tests/package8/d1-vitest-setup.ts",

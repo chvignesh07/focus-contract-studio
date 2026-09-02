@@ -13,6 +13,7 @@ export const GLOBAL_OPERATION_LIMITS = {
 export type GlobalOperation = keyof typeof GLOBAL_OPERATION_LIMITS;
 
 export const WORKSPACE_OPERATION_LIMITS = {
+  variant: 12,
   proposal: 10,
   review: 10,
   apply: 6,

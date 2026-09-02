@@ -11,6 +11,7 @@ export const activeVariantRequestSchema = z
   .object({
     variant: z.enum(PACKAGE6_VARIANTS),
     expectedViewRevision: z.number().int().positive().safe(),
+    idempotencyKey: z.uuid(),
   })
   .strict();
 

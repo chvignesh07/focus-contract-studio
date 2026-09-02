@@ -14,7 +14,7 @@ Status: **LOCAL PACKAGE 6 PASS; EXTERNAL NOT RUN**
 | Lost-response same-key recovery and durable copyable receipt | `PASS` |
 | Revision-2 rehearsal, six checks, raw sequences, history, undo/reset/reload | `PASS` |
 | Opening-dialog return focus before and after the intentional animation-frame restoration | `PASS` |
-| Desktop, 320 px, 375 px, effective 200% page reflow | `PASS` |
+| Desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation | `PASS`; browser UI 200% zoom `NOT_RUN` |
 | Native modal/inertness, keyboard/focus, 44 px targets, reduced motion | `PASS` |
 | Axe critical/serious findings | `0` |
 | Exactly two WebMCP tools | `PASS`: `read_active_focus_review` and `create_focus_contract_proposal` |
@@ -26,7 +26,7 @@ Status: **LOCAL PACKAGE 6 PASS; EXTERNAL NOT RUN**
 | Complete composed local gate | `PASS`; `387/387` including inherited and binding tests |
 | Exact final commit clean clone | `NOT_RUN` |
 
-The effective 200% profile uses browser device metrics to produce a 640 CSS px viewport from a 1280 px physical profile at DPR 2 while asserting that CSS `zoom` is unset. Every profile completes the full human workflow with WebMCP unavailable and no page-level horizontal or two-dimensional scrolling.
+The fourth profile uses browser device metrics to produce a 640 CSS px viewport from a 1280 px physical profile at DPR 2 while asserting that CSS `zoom` is unset. It proves responsive reflow, not browser UI zoom. Actual browser UI 200% zoom remains founder-manual `NOT_RUN`. Every automated profile completes the full human workflow with WebMCP unavailable and no page-level horizontal or two-dimensional scrolling.
 
 Spec Kit convergence was invoked exactly once. It checked the feature inventory, found the missing final reviewer-evidence record, appended T029, and the task was completed without rerunning convergence.
 

@@ -434,12 +434,14 @@ export function FocusContractStudio() {
   const [reviewAcknowledgedKey, setReviewAcknowledgedKey] = useState<string | null>(null);
   const [variantBusy, setVariantBusy] = useState(false);
   const [rehearsalRequest, setRehearsalRequest] = useState(0);
+  const pendingVariantKey = useRef<string | null>(null);
   const pendingProposalKey = useRef<string | null>(null);
   const pendingMutation = useRef<{ action: string; key: string } | null>(null);
   const readController = useRef<AbortController | null>(null);
   const receiptDialog = useRef<HTMLDialogElement>(null);
-  const receiptCancel = useRef<HTMLButtonElement>(null);
+  const receiptClose = useRef<HTMLButtonElement>(null);
   const confirmationButton = useRef<HTMLButtonElement>(null);
+  const confirmationReturn = useRef<HTMLElement | null>(null);
   const toolPageKey = page.kind === 'ready'
     ? `${page.generation}:${page.activeVariant.slug}:${page.review.review.implementedRevision}`
     : '';
@@ -554,12 +556,16 @@ export function FocusContractStudio() {
   useEffect(() => {
     if (applicationReceipt && !receiptDialog.current?.open) {
       receiptDialog.current?.showModal();
-      receiptCancel.current?.focus();
+      receiptClose.current?.focus();
     }
   }, [applicationReceipt]);
 
   useEffect(() => {
-    if (confirmAction) confirmationButton.current?.focus();
+    if (confirmAction) {
+      confirmationButton.current?.focus();
+    } else if (confirmationReturn.current?.isConnected) {
+      confirmationReturn.current.focus();
+    }
   }, [confirmAction]);
 
   if (page.kind === 'loading') {
@@ -848,6 +854,7 @@ export function FocusContractStudio() {
       return;
     }
     setVariantBusy(true);
+    pendingVariantKey.current ??= crypto.randomUUID();
     setReviewAcknowledgedKey(null);
     setConfirmAction(null);
     setApplicationReceipt(null);
@@ -869,6 +876,7 @@ export function FocusContractStudio() {
           body: JSON.stringify({
             variant,
             expectedViewRevision: activeVariant.viewRevision,
+            idempotencyKey: pendingVariantKey.current,
           }),
           credentials: 'same-origin',
           cache: 'no-store',
@@ -883,6 +891,7 @@ export function FocusContractStudio() {
         },
         generation,
       );
+      pendingVariantKey.current = null;
       setActivity(
         `${variant === 'delete-account-standard' ? 'Standard' : 'Danger-emphasis'} is active. The implemented revision did not change.`,
         'success',
@@ -910,6 +919,9 @@ export function FocusContractStudio() {
     }
     if (pendingMutation.current?.action !== action) {
       pendingMutation.current = { action, key: crypto.randomUUID() };
+    }
+    if (confirmAction !== action && document.activeElement instanceof HTMLElement) {
+      confirmationReturn.current = document.activeElement;
     }
     setConfirmAction(action);
     setActivity(`Confirmation opened for ${action}. Focus moved to the deliberate confirm action.`);
@@ -1502,9 +1514,9 @@ export function FocusContractStudio() {
               is claimed.
             </li>
             <li>
-              Per anonymous workspace lineage/hour limits are 10 proposals, 10
-              reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5
-              resets. Reset preserves that admission lineage. Request bodies,
+              Per anonymous workspace lineage/hour limits are 12 variant selections,
+              10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications,
+              6 undos, and 5 resets. Reset preserves that admission lineage. Request bodies,
               observation events, retrieval results, and WebMCP outputs are bounded.
             </li>
             <li>
@@ -1545,10 +1557,10 @@ export function FocusContractStudio() {
               autoFocus
               className="button button-secondary"
               onClick={() => receiptDialog.current?.close()}
-              ref={receiptCancel}
+              ref={receiptClose}
               type="button"
             >
-              Cancel
+              Close receipt
             </button>
             <button
               className="button button-secondary"

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const routes = {
+  'app/api/active-variant/route.ts': 'variant',
   'app/api/focus-proposals/route.ts': 'proposal',
   'app/api/focus-proposals/reviewer/route.ts': 'proposal',
   'app/api/focus-proposals/[proposalId]/review/route.ts': 'review',

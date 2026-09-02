@@ -670,6 +670,30 @@ export function validateReleaseLineage(repositoryRoot) {
   return { base_commit: PACKAGE7_COMMIT, status: 'PASS' };
 }
 
+export function buildTrackedGitleaksEvidence(gitleaks) {
+  return {
+    version: gitleaks.version,
+    config_path: gitleaks.policy.config_path,
+    config_sha256: gitleaks.policy.config_sha256,
+    ignore_path: gitleaks.policy.ignore_path,
+    ignore_sha256: gitleaks.policy.ignore_sha256,
+    environment_config_scrubbed: gitleaks.policy.environment_config_scrubbed,
+    inline_allow_comments_ignored: gitleaks.policy.inline_allow_comments_ignored,
+    current_tree_scope: gitleaks.scans.current_tree.scope,
+    current_tree_command_sha256: gitleaks.scans.current_tree.command_sha256,
+    reachable_history_scope: gitleaks.scans.reachable_history.scope,
+    reachable_history_command_sha256: gitleaks.scans.reachable_history.command_sha256,
+    planted_negative_command_sha256: gitleaks.scans.planted_negative.command_sha256,
+    current_tree_exit_status: gitleaks.scans.current_tree.exit_status,
+    current_tree_findings: gitleaks.scans.current_tree.findings,
+    reachable_history_exit_status: gitleaks.scans.reachable_history.exit_status,
+    reachable_history_findings: gitleaks.scans.reachable_history.findings,
+    planted_negative_exit_status: gitleaks.scans.planted_negative.exit_status,
+    planted_negative_findings: gitleaks.scans.planted_negative.findings,
+    planted_negative_rejected: gitleaks.scans.planted_negative.rejected,
+  };
+}
+
 function buildReleaseSecurity(repositoryRoot, gitleaks) {
   const worktreeFindings = scanTrackedSource(repositoryRoot);
   const historyFindings = scanReachableHistory(repositoryRoot);
@@ -684,7 +708,7 @@ function buildReleaseSecurity(repositoryRoot, gitleaks) {
   requireCondition(bundleFindings.length === 0, `production bundle finding: ${JSON.stringify(bundleFindings[0])}`);
   requireCondition(brokenLinks.length === 0, `broken local link: ${brokenLinks[0]}`);
   return {
-    schema_version: 'fcs-package8-release-security-v1',
+    schema_version: 'fcs-package8-release-security-v2',
     package: 8,
     status: 'BLOCKED',
     local_integrity_status: 'PASS',
@@ -709,28 +733,7 @@ function buildReleaseSecurity(repositoryRoot, gitleaks) {
       package7_ancestry_and_safe_tracked_paths: lineage.status,
     },
     findings: { critical: 0, high: 0, unresolved_license: 0 },
-    live_gitleaks: {
-      version: gitleaks.version,
-      executable_sha256: gitleaks.executable_sha256,
-      config_path: gitleaks.policy.config_path,
-      config_sha256: gitleaks.policy.config_sha256,
-      ignore_path: gitleaks.policy.ignore_path,
-      ignore_sha256: gitleaks.policy.ignore_sha256,
-      environment_config_scrubbed: gitleaks.policy.environment_config_scrubbed,
-      inline_allow_comments_ignored: gitleaks.policy.inline_allow_comments_ignored,
-      current_tree_scope: gitleaks.scans.current_tree.scope,
-      current_tree_command_sha256: gitleaks.scans.current_tree.command_sha256,
-      reachable_history_scope: gitleaks.scans.reachable_history.scope,
-      reachable_history_command_sha256: gitleaks.scans.reachable_history.command_sha256,
-      planted_negative_command_sha256: gitleaks.scans.planted_negative.command_sha256,
-      current_tree_exit_status: gitleaks.scans.current_tree.exit_status,
-      current_tree_findings: gitleaks.scans.current_tree.findings,
-      reachable_history_exit_status: gitleaks.scans.reachable_history.exit_status,
-      reachable_history_findings: gitleaks.scans.reachable_history.findings,
-      planted_negative_exit_status: gitleaks.scans.planted_negative.exit_status,
-      planted_negative_findings: gitleaks.scans.planted_negative.findings,
-      planted_negative_rejected: gitleaks.scans.planted_negative.rejected,
-    },
+    live_gitleaks: buildTrackedGitleaksEvidence(gitleaks),
     dependency_inventory_sha256: sha256(
       readRegular(repositoryRoot, '.artifacts/security/package8-dependency-license.json'),
     ),

@@ -27,6 +27,13 @@ export const workspaceViewState = sqliteTable('workspace_view_state', {
   viewRevision: integer('view_revision').notNull(), updatedAt: integer('updated_at').notNull(),
 });
 
+export const variantSelectionCommits = sqliteTable('variant_selection_commits', {
+  id: text('id').primaryKey(), workspaceId: text('workspace_id').notNull(),
+  variantId: text('variant_id').notNull(), idempotencyKey: text('idempotency_key').notNull(),
+  requestHash: text('request_hash').notNull(), fromViewRevision: integer('from_view_revision').notNull(),
+  toViewRevision: integer('to_view_revision').notNull(), createdAt: integer('created_at').notNull(),
+});
+
 export const implementedFocusRevisions = sqliteTable('implemented_focus_revisions', {
   id: text('id').primaryKey(), workspaceId: text('workspace_id').notNull(),
   variantId: text('variant_id').notNull(), revision: integer('revision').notNull(),

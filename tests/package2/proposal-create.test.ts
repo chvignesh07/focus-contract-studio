@@ -8,7 +8,8 @@ import {
   commitInitialFocusObservation,
   INITIAL_FOCUS_MANIFEST,
 } from '../../lib/server/initial-focus-observation';
-import { bootstrapWorkspace, setActiveVariant } from '../../lib/server/workspaces';
+import { bootstrapWorkspace } from '../../lib/server/workspaces';
+import { setActiveVariantFixture } from '../helpers/set-active-variant';
 
 const secrets = {
   sessionSecret: 'package2-test-session-secret-material-32-bytes-minimum',
@@ -198,7 +199,7 @@ test('tamper, wrong citation, cross-session, expiry, and active-variant drift co
         )
           .bind(session.workspace.id)
           .first<{ id: string }>();
-        await setActiveVariant(env.DB, session.workspace.id, danger!.id, 1);
+        await setActiveVariantFixture(env.DB, session.workspace.id, danger!.id, 1);
         return {
           cookie: session.setCookie,
           at: now + 3,

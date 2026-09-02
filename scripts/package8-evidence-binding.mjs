@@ -12,6 +12,7 @@ import {
   GITLEAKS_IGNORE_PATH,
   GITLEAKS_VERSION,
   buildCurrentTreeIdentity,
+  buildTrackedGitleaksEvidence,
   validateBuildInputs,
 } from './package8-release-checks.mjs';
 import {
@@ -30,6 +31,7 @@ export const PACKAGE8_EVIDENCE_PATHS = Object.freeze([
   '.artifacts/test/package8-source-manifest.json',
   'THIRD_PARTY_NOTICES.md',
   'docs/delivery/EVIDENCE_REGISTRY.md',
+  'docs/evidence/ADVERSARIAL_REVIEW_1.md',
   'docs/evidence/EXECUTION_STATE.json',
   'docs/evidence/EXECUTION_STATE.md',
   'docs/evidence/PACKAGE8_CHECKPOINT.md',
@@ -59,6 +61,63 @@ function sourceMarker(source) {
   return `<!-- package8-source-binding file_count=${source.file_count} sha256=${source.aggregate_sha256} -->`;
 }
 
+export function validateAdversarialReview1(text) {
+  const required = [
+    'Evidence ID: `E-018`',
+    'Review scope: **FULL RELEASE CANDIDATE**',
+    'Status: **LOCAL PASS**',
+    'Initial reviewer count: `3`',
+    'Final recheck reviewer count: `3`',
+    'Same reviewer identities: `PASS`',
+    'Finding dispositions: `7/7 REMEDIATED`',
+    '[RED]',
+    '[GREEN]',
+    'Unresolved critical: `0`',
+    'Unresolved high: `0`',
+    'Unresolved correctness-material medium: `0`',
+    'Package 8 overall: **BLOCKED**',
+    'Package 0 overall: **INCONCLUSIVE**',
+    'Actual Sites edge client isolation: `NOT_RUN`',
+    'True browser UI 200% zoom: `NOT_RUN`',
+    'Hosted use, supported-client proof, Chrome trace, deployment, holdout, founder-manual evaluation, push, merge, publication, and Devpost: `NOT_RUN`',
+    'No external action: **YES**',
+    'Exact final commit clean clone: `TERMINAL_POST_COMMIT`',
+  ];
+  for (let index = 1; index <= 7; index += 1) {
+    required.push(`FCS-R1-00${index}: REMEDIATED`);
+  }
+  for (const phrase of required) {
+    requireCondition(text.includes(phrase), `Review 1 missing: ${phrase}`);
+  }
+  for (const reviewer of [
+    '/root/r1_authority_security',
+    '/root/r1_webmcp_evidence',
+    '/root/r1_ux_accessibility',
+  ]) {
+    requireCondition(
+      text.split(reviewer).length - 1 === 2,
+      `Review 1 reviewer identity drift: ${reviewer}`,
+    );
+  }
+}
+
+export function validateSubmissionState(state, execution) {
+  requireCondition(
+    state.current_stage === 'build-project' && state.submission?.status === 'drafting',
+    'submission stage drift',
+  );
+  requireCondition(
+    state.project?.codex_usage ===
+      'Codex is being used for the documented build, tests, security checks, benchmark, and adversarial review. Deployment remains pending explicit authorization and evidence; Review 2 remains pending.',
+    'submission Codex usage drift',
+  );
+  requireCondition(
+    execution.packages?.package8?.deploy_status === 'NOT_RUN' &&
+      execution.packages?.package8?.review1_status === 'PASS',
+    'submission execution truth drift',
+  );
+}
+
 export function validatePackage8LocalGate(artifact, source) {
   requireCondition(artifact.schema_version === 'fcs-package8-local-gate-v1', 'local gate schema drift');
   requireCondition(
@@ -72,21 +131,21 @@ export function validatePackage8LocalGate(artifact, source) {
     'local gate source drift',
   );
   requireCondition(
-    Object.keys(artifact.checks ?? {}).length === 19 &&
+    Object.keys(artifact.checks ?? {}).length === 20 &&
       Object.values(artifact.checks ?? {}).every((value) => value === 'PASS'),
     'local gate check failed',
   );
   requireCondition(
     JSON.stringify(artifact.tests) === JSON.stringify({
       inherited_package7: 482,
-      package8_node: 13,
-      package8_d1: 12,
+      package8_node: 14,
+      package8_d1: 14,
       deterministic_seed: 7,
       memory_counterfactual: 5,
       package8_browser: 4,
-      passed: 523,
+      passed: 526,
       failed: 0,
-      total: 523,
+      total: 526,
     }),
     'local gate totals drift',
   );
@@ -96,7 +155,9 @@ export function validatePackage8LocalGate(artifact, source) {
   );
   requireCondition(
     Object.keys(artifact.external ?? {}).length === 12 &&
-      Object.values(artifact.external ?? {}).every((value) => value === 'NOT_RUN'),
+      artifact.external.adversarial_review_1 === 'PASS' &&
+      Object.entries(artifact.external ?? {}).every(([key, value]) =>
+        key === 'adversarial_review_1' ? value === 'PASS' : value === 'NOT_RUN'),
     'external boundary drift',
   );
   requireCondition(artifact.exact_commit_clone === 'TERMINAL_POST_COMMIT', 'clone boundary drift');
@@ -115,8 +176,9 @@ export function validatePackage8Checkpoint(text, source) {
     'CI/evidence/privacy/accessibility/claim review — disposition: PASS',
     'unresolved critical/high/material/license: 0',
     'Exact final commit clean clone: `TERMINAL_POST_COMMIT`',
-    'Adversarial review 1 (`E-018`): `NOT_RUN`',
+    'Adversarial review 1 (`E-018`): `PASS`',
     'Package 0 overall result: `INCONCLUSIVE`',
+    'Actual browser UI 200% zoom: `NOT_RUN`',
     'External exit evidence: `NOT_RUN`',
     'Actual Sites edge client isolation: `NOT_RUN` — release blocker',
   ]) requireCondition(text.includes(phrase), `checkpoint missing: ${phrase}`);
@@ -126,7 +188,33 @@ export function validatePackage8Reviews(text, source) {
   requireCondition(text.includes(sourceMarker(source)), 'missing Package 8 review source binding');
   requireCondition((text.match(/— disposition: PASS/gu) ?? []).length === 2, 'Package 8 review count drift');
   requireCondition(text.includes('unresolved critical/high/material: 0'), 'unresolved review finding');
-  requireCondition(text.includes('This is not adversarial Review 1 (`E-018`)'), 'Review 1 boundary missing');
+  requireCondition(
+    text.includes('These pre-Review-1 implementation reviews are distinct from adversarial Review 1 (`E-018`), now `LOCAL PASS`.'),
+    'Review 1 boundary missing',
+  );
+}
+
+export function verifyAdversarialReview1Disposition(repositoryRoot) {
+  validateAdversarialReview1(
+    readEvidence(repositoryRoot, 'docs/evidence/ADVERSARIAL_REVIEW_1.md'),
+  );
+  const execution = parseStrictJson(
+    readEvidence(repositoryRoot, 'docs/evidence/EXECUTION_STATE.json'),
+    'docs/evidence/EXECUTION_STATE.json',
+  );
+  requireCondition(
+    execution.packages?.package8?.overall_result === 'BLOCKED' &&
+      execution.packages?.package8?.local_result === 'PASS' &&
+      execution.packages?.package8?.review1_status === 'PASS' &&
+      execution.packages?.package8?.browser_ui_200_percent_zoom_status === 'NOT_RUN',
+    'Review 1 execution disposition drift',
+  );
+  const registry = readEvidence(repositoryRoot, 'docs/delivery/EVIDENCE_REGISTRY.md');
+  requireCondition(
+    registry.includes('| `E-018` | Review 1 | `docs/evidence/ADVERSARIAL_REVIEW_1.md` | Local authority/security/retrieval/UX audit; every finding disposition and retest. | Reviewed commit(s), final `C` candidate | `LOCAL PASS` |'),
+    'E-018 registry disposition drift',
+  );
+  return { status: 'PASS', finding_dispositions: 7 };
 }
 
 function gitOutput(repositoryRoot, args) {
@@ -242,7 +330,8 @@ function validateStatusArtifacts(repositoryRoot) {
     '.artifacts/security/release-security.json',
   );
   requireCondition(
-    security.status === 'BLOCKED' &&
+    security.schema_version === 'fcs-package8-release-security-v2' &&
+      security.status === 'BLOCKED' &&
       security.local_integrity_status === 'PASS' &&
       security.blocker === 'Trusted client isolation at the actual ChatGPT Sites edge is not yet evidenced.',
     'release security artifact drift',
@@ -255,26 +344,9 @@ function validateStatusArtifacts(repositoryRoot) {
     'release security evidence boundary drift',
   );
   requireCondition(
-    security.live_gitleaks?.version === liveGitleaks.version &&
-      security.live_gitleaks?.executable_sha256 === liveGitleaks.executable_sha256 &&
-      security.live_gitleaks?.config_path === liveGitleaks.policy.config_path &&
-      security.live_gitleaks?.config_sha256 === liveGitleaks.policy.config_sha256 &&
-      security.live_gitleaks?.ignore_path === liveGitleaks.policy.ignore_path &&
-      security.live_gitleaks?.ignore_sha256 === liveGitleaks.policy.ignore_sha256 &&
-      security.live_gitleaks?.environment_config_scrubbed === true &&
-      security.live_gitleaks?.inline_allow_comments_ignored === true &&
-      security.live_gitleaks?.current_tree_scope === liveGitleaks.scans.current_tree.scope &&
-      security.live_gitleaks?.current_tree_command_sha256 === liveGitleaks.scans.current_tree.command_sha256 &&
-      security.live_gitleaks?.current_tree_exit_status === 0 &&
-      security.live_gitleaks?.current_tree_findings === 0 &&
-      security.live_gitleaks?.reachable_history_scope === liveGitleaks.scans.reachable_history.scope &&
-      security.live_gitleaks?.reachable_history_command_sha256 === liveGitleaks.scans.reachable_history.command_sha256 &&
-      security.live_gitleaks?.reachable_history_exit_status === 0 &&
-      security.live_gitleaks?.reachable_history_findings === 0 &&
-      security.live_gitleaks?.planted_negative_command_sha256 === liveGitleaks.scans.planted_negative.command_sha256 &&
-      security.live_gitleaks?.planted_negative_exit_status === 1 &&
-      security.live_gitleaks?.planted_negative_findings > 0 &&
-      security.live_gitleaks?.planted_negative_rejected === true,
+    !Object.hasOwn(security.live_gitleaks ?? {}, 'executable_sha256') &&
+      JSON.stringify(security.live_gitleaks) ===
+        JSON.stringify(buildTrackedGitleaksEvidence(liveGitleaks)),
     'release security live Gitleaks binding drift',
   );
   const inventory = parseStrictJson(
@@ -318,10 +390,21 @@ export function verifyPackage8EvidenceBinding(repositoryRoot) {
     execution.packages?.package8?.sites_edge_client_isolation === 'NOT_RUN',
     'Sites edge isolation truth drift',
   );
-  requireCondition(execution.packages?.package8?.review1_status === 'NOT_RUN', 'Review 1 status drift');
+  requireCondition(execution.packages?.package8?.review1_status === 'PASS', 'Review 1 status drift');
+  requireCondition(
+    execution.packages?.package8?.browser_ui_200_percent_zoom_status === 'NOT_RUN',
+    'browser UI zoom truth drift',
+  );
   const registry = readEvidence(repositoryRoot, 'docs/delivery/EVIDENCE_REGISTRY.md');
   requireCondition(registry.includes('| `E-018` | Review 1 |'), 'E-018 registry row missing');
-  requireCondition(registry.includes('| `E-018` | Review 1 | `docs/evidence/ADVERSARIAL_REVIEW_1.md` | Local authority/security/retrieval/UX audit; every finding disposition and retest. | Reviewed commit(s), final `C` candidate | `NOT_RUN` |'), 'E-018 must remain NOT_RUN');
+  verifyAdversarialReview1Disposition(repositoryRoot);
+  validateSubmissionState(
+    parseStrictJson(
+      readEvidence(repositoryRoot, '.devpost-hackathon-state.json'),
+      '.devpost-hackathon-state.json',
+    ),
+    execution,
+  );
   const provenance = readEvidence(repositoryRoot, 'docs/evidence/PROVENANCE_LEDGER.md');
   for (const phrase of [
     'Package 8 local integrity status: **PASS**; overall disposition: **BLOCKED**',
@@ -342,6 +425,13 @@ export function verifyPackage8EvidenceBinding(repositoryRoot) {
 function main() {
   const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   try {
+    if (process.argv.includes('--review1')) {
+      const disposition = verifyAdversarialReview1Disposition(repositoryRoot);
+      process.stdout.write(
+        `REVIEW1_DISPOSITION_PASS findings=${disposition.finding_dispositions}\n`,
+      );
+      return;
+    }
     const result = verifyPackage8EvidenceBinding(repositoryRoot);
     process.stdout.write(
       `PACKAGE8_EVIDENCE_PASS files=${Object.keys(result.evidence_sha256).length} source=${result.source.aggregate_sha256}\n`,

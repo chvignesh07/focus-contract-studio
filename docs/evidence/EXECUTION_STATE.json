@@ -58,6 +58,7 @@
       "deploy_status": "NOT_RUN",
       "holdout_status": "NOT_RUN",
       "founder_manual_status": "NOT_RUN",
+      "browser_ui_200_percent_zoom_status": "NOT_RUN",
       "push_status": "NOT_RUN",
       "merge_status": "NOT_RUN",
       "publication_status": "NOT_RUN",
@@ -76,11 +77,12 @@
       "deploy_status": "NOT_RUN",
       "holdout_status": "NOT_RUN",
       "founder_manual_status": "NOT_RUN",
+      "browser_ui_200_percent_zoom_status": "NOT_RUN",
       "push_status": "NOT_RUN",
       "merge_status": "NOT_RUN",
       "publication_status": "NOT_RUN",
       "devpost_status": "NOT_RUN",
-      "review1_status": "NOT_RUN",
+      "review1_status": "PASS",
       "exact_commit_clone": "TERMINAL_POST_COMMIT"
     }
   }

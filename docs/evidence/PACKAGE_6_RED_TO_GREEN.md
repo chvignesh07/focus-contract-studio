@@ -24,7 +24,7 @@ Status: `PASS`
 | Package 6 real D1 | `3/3` |
 | Package 6 DOM | `4/4` |
 | Package 6 coverage replay | `4/4`; `100%` lines, branches, and functions for `lib/domain/package6.ts` |
-| Package 6 built browser | `4/4` desktop, 320 px, 375 px, and effective 200% page reflow |
+| Package 6 built browser | `4/4` desktop, 320 px, 375 px, and 640 CSS px at DPR 2 responsive emulation; browser UI 200% zoom `NOT_RUN` |
 
 The browser journeys run the complete human workflow with WebMCP unavailable and assert native-dialog modality, keyboard focus/order/wrap/return, exact acknowledgement and confirmation, lost-response recovery, durable receipt/copy/rehearsal, six verification checks, chronological history, undo/reset/reload, reduced motion, 44 px targets, page reflow, and zero axe critical or serious findings.
 

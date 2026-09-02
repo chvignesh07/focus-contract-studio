@@ -4,9 +4,9 @@ import { beforeEach, expect, test } from 'vitest';
 import {
   bootstrapWorkspace,
   getVariantForWorkspace,
-  setActiveVariant,
 } from '../../lib/server/workspaces';
 import type { FcsError } from '../../lib/server/errors';
+import { setActiveVariantFixture } from '../helpers/set-active-variant';
 
 const secrets = {
   sessionSecret: 'package1-test-session-secret-material-32-bytes-minimum',
@@ -67,7 +67,7 @@ test('two sessions cannot observe or mutate each other and unavailable IDs are i
   );
 
   await expect(
-    setActiveVariant(env.DB, sessionB.workspace.id, variantA!.id, 1),
+    setActiveVariantFixture(env.DB, sessionB.workspace.id, variantA!.id, 1),
   ).rejects.toMatchObject({ code: 'VARIANT_NOT_FOUND' });
   const stateA = await env.DB.prepare(
     `SELECT active_variant_id, view_revision FROM workspace_view_state WHERE workspace_id = ?`,
@@ -118,7 +118,7 @@ test('active-variant compare-and-swap fails stably if the workspace disappears a
   } as unknown as D1Database;
 
   await expect(
-    setActiveVariant(raceDb, session.workspace.id, target!.id, 1),
+    setActiveVariantFixture(raceDb, session.workspace.id, target!.id, 1),
   ).rejects.toMatchObject({ code: 'VIEW_STATE_STALE', status: 409 });
   expect(injected).toBe(true);
   expect(

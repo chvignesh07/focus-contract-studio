@@ -6,7 +6,8 @@ import {
   startFocusRehearsal,
 } from '../../lib/server/focus-rehearsal';
 import { verifyFocusContract } from '../../lib/server/verify-focus-contract';
-import { bootstrapWorkspace, setActiveVariant } from '../../lib/server/workspaces';
+import { bootstrapWorkspace } from '../../lib/server/workspaces';
+import { setActiveVariantFixture } from '../helpers/set-active-variant';
 
 const now = 1_788_300_000;
 const secrets = {
@@ -125,7 +126,7 @@ test('pre-evaluation rejects nonexistent, foreign, unfinished, stale, and wrong 
   const variants = await env.DB.prepare(
     `SELECT v.id FROM component_variants v WHERE v.workspace_id = ? AND v.id <> ?`,
   ).bind(complete.session.workspace.id, complete.started.variantId).first<{ id: string }>();
-  await setActiveVariant(env.DB, complete.session.workspace.id, variants!.id, 1);
+  await setActiveVariantFixture(env.DB, complete.session.workspace.id, variants!.id, 1);
   await expect(verifyFocusContract({
     db: env.DB,
     workspaceId: complete.session.workspace.id,

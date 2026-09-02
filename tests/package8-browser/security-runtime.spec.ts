@@ -11,7 +11,7 @@ type Profile = {
 const responsiveProfiles: Profile[] = [
   { name: '320px', physicalWidth: 320, physicalHeight: 760, zoom: 1 },
   { name: '375px', physicalWidth: 375, physicalHeight: 812, zoom: 1 },
-  { name: 'true 200% zoom', physicalWidth: 1_280, physicalHeight: 900, zoom: 2 },
+  { name: '640 CSS px at DPR 2', physicalWidth: 1_280, physicalHeight: 900, zoom: 2 },
 ];
 
 async function expectNoSeriousAxeViolations(page: Page) {
@@ -195,6 +195,20 @@ test('built page enforces nonce headers without breaking WebMCP, privacy, or acc
   ).__package8UntrustedScriptExecuted ?? false)).toBe(false);
 
   await expectNoSeriousAxeViolations(page);
+
+  await page.getByRole('button', { name: 'Create Cancel proposal' }).click();
+  const authority = page.getByRole('heading', { name: 'Complete exact authority' }).locator('..');
+  await authority.getByRole('checkbox', {
+    name: 'I reviewed this exact proposal and revision',
+  }).check();
+  const approve = authority.getByRole('button', { name: 'Approve exact proposal' });
+  await approve.focus();
+  await approve.press('Enter');
+  await expect(page.getByRole('button', { name: 'Confirm approve' })).toBeFocused();
+  const cancel = page.getByRole('button', { name: 'Cancel', exact: true });
+  await cancel.focus();
+  await cancel.press('Enter');
+  await expect(approve).toBeFocused();
 });
 
 for (const profile of responsiveProfiles) {

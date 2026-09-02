@@ -51,9 +51,11 @@ beforeEach(async () => {
 test('protected route switches only an allowlisted slug through view-state CAS', async () => {
   expect((await activeVariantGet()).status).toBe(405);
   const value = await fixture();
+  const idempotencyKey = '60000000-0000-4000-8000-000000000002';
   const response = await activeVariantPost(request({
     variant: 'delete-account-danger-emphasis',
     expectedViewRevision: 1,
+    idempotencyKey,
   }, value.headers));
   expect(response.status).toBe(200);
   const body = await response.json();
@@ -73,9 +75,22 @@ test('protected route switches only an allowlisted slug through view-state CAS',
   });
   expect(review.review.variant).toBe('delete-account-danger-emphasis');
 
+  const replay = await activeVariantPost(request({
+    variant: 'delete-account-danger-emphasis',
+    expectedViewRevision: 1,
+    idempotencyKey,
+  }, value.headers));
+  expect(replay.status).toBe(200);
+  expect(await replay.json()).toEqual(body);
+  expect(await env.DB.prepare(
+    `SELECT request_count FROM rate_limit_windows
+      WHERE workspace_id = ? AND operation = 'variant'`,
+  ).bind(value.session.workspace.id).first()).toEqual({ request_count: 1 });
+
   const stale = await activeVariantPost(request({
     variant: 'delete-account-standard',
     expectedViewRevision: 1,
+    idempotencyKey: '60000000-0000-4000-8000-000000000003',
   }, value.headers));
   expect(stale.status).toBe(409);
   expect(await stale.json()).toMatchObject({
@@ -89,14 +104,17 @@ test('route rejects private IDs, unknown slugs, Origin, CSRF, and invalid sessio
   for (const body of [
     { variant: 'delete-account-unknown', expectedViewRevision: 1 },
     { variant: 'delete-account-standard', expectedViewRevision: 0 },
+    { variant: 'delete-account-standard', expectedViewRevision: 1 },
     {
       variant: 'delete-account-standard',
       expectedViewRevision: 1,
+      idempotencyKey: '60000000-0000-4000-8000-000000000004',
       workspaceId: value.session.workspace.id,
     },
     {
       variantId: crypto.randomUUID(),
       expectedViewRevision: 1,
+      idempotencyKey: '60000000-0000-4000-8000-000000000005',
     },
   ]) {
     expect((await activeVariantPost(request(body, value.headers))).status).toBe(400);
@@ -104,16 +122,19 @@ test('route rejects private IDs, unknown slugs, Origin, CSRF, and invalid sessio
   const foreign = request({
     variant: 'delete-account-danger-emphasis',
     expectedViewRevision: 1,
+    idempotencyKey: '60000000-0000-4000-8000-000000000006',
   }, value.headers);
   foreign.headers.set('origin', 'https://attacker.example');
   expect((await activeVariantPost(foreign)).status).toBe(403);
   expect((await activeVariantPost(request({
     variant: 'delete-account-danger-emphasis',
     expectedViewRevision: 1,
+    idempotencyKey: '60000000-0000-4000-8000-000000000007',
   }, { cookie: value.session.setCookie! }))).status).toBe(403);
   expect((await activeVariantPost(request({
     variant: 'delete-account-danger-emphasis',
     expectedViewRevision: 1,
+    idempotencyKey: '60000000-0000-4000-8000-000000000008',
   }))).status).toBe(401);
 
   const active = await env.DB.prepare(
