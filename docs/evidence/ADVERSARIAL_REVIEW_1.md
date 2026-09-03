@@ -831,3 +831,51 @@ configuration, and every external/manual truth boundary.
 - Documentation/binding reviewer `/root/r6_documentation_binding_reviewer`: `PASS`.
 - Hosted D1 and Sites, credentials, push, tag, merge, deployment, publication,
   GitHub Releases, Package 10, media, and Devpost: `NOT_RUN`.
+
+## Final WebMCP client-signal compatibility overlay R7
+
+This descendant preserves the frozen R6 checkpoint at
+`51e0ec4de665778b5f3492b06f30d81ff8a001bb` and changes only the shared
+WebMCP execution-signal boundary, its regression coverage, the current release
+gate, and judge-facing release wording.
+
+<!-- package9-webmcp-client-signal-r7-source-binding files=5 sha256=98dc5b8446ee217067818a5c6ccff9ad93b4a84d9d31ea7b9e71fed6d8fa5b1c -->
+
+### Root cause and repair
+
+- [Empirical] The historical owner-only Sites Version 7 deployment of R6 commit
+  `51e0ec4de665778b5f3492b06f30d81ff8a001bb` registered exactly the four locked
+  tools, but a supported in-app-browser read call failed before its same-origin
+  request because the client-provided call signal could not be converted by
+  `AbortSignal.any`. This observation is the defect reproduction, not R7 hosted
+  verification.
+- [Empirical] Focused RED: `7/8 PASS`, `1/8 FAIL`; an absent client call signal
+  reproduced the conversion failure.
+- [Empirical] Missing-signal GREEN: `8/8 PASS` after the shared boundary began
+  using the page lifecycle signal when no valid call signal is available.
+- [Empirical] Independent review found that a cross-realm signal also needs to
+  retain per-call cancellation. The shared boundary now mirrors a signal-shaped
+  foreign bridge value into a native controller before composing it with the
+  lifecycle signal.
+- Missing or malformed call signals use the page lifecycle signal.
+- Foreign bridge signals preserve call cancellation.
+- Native call cancellation and lifecycle cancellation remain composed.
+- [Empirical] Final contract/lifecycle GREEN: `11/11 PASS`; typecheck and lint:
+  `PASS`.
+- [Empirical] Signal/cancellation reviewer `/root/r7_signal_review`: `FINAL PASS`.
+- [Empirical] Release/evidence reviewer `/root/r7_release_review`: `FINAL PASS`.
+- [High-Conviction] The repair belongs at the one shared tool boundary because
+  all four callbacks route through it; no route, schema, operation, dependency,
+  persistence, or authorization behavior changed.
+
+### Release truth boundary
+
+- The canonical Package 9 gate now executes the current WebMCP contract suite
+  in addition to its frozen historical gates.
+- Pre-commit canonical: `PASS_TO_CLEAN_TREE_GITLEAKS`; the final release check
+  rejected the intentionally dirty tree after every earlier stage passed.
+- Final clean-commit canonical and exact-clone verification:
+  `TERMINAL_POST_COMMIT`.
+- Hosted revalidation: `NOT_RUN`.
+- Public access, source publication, deployment, media, and Devpost remain
+  unchanged by this local overlay.

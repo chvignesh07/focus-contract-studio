@@ -322,11 +322,37 @@ function readiness(options: FcsWebMcpV2Options, signal: AbortSignal): void {
 
 function executionSignal(
   options: FcsWebMcpV2Options,
-  callSignal: AbortSignal,
+  callSignal: unknown,
 ): AbortSignal {
+  let normalizedSignal: AbortSignal;
+  if (callSignal instanceof AbortSignal) {
+    normalizedSignal = callSignal;
+  } else if (typeof callSignal === 'object' && callSignal !== null) {
+    const controller = new AbortController();
+    try {
+      const aborted = Reflect.get(callSignal, 'aborted');
+      const addEventListener = Reflect.get(callSignal, 'addEventListener');
+      if (typeof aborted !== 'boolean' || typeof addEventListener !== 'function') {
+        return options.lifecycleSignal ?? controller.signal;
+      }
+      if (aborted) {
+        controller.abort();
+      } else {
+        addEventListener.call(callSignal, 'abort', () => controller.abort(), {
+          once: true,
+        });
+        if (Reflect.get(callSignal, 'aborted') === true) controller.abort();
+      }
+      normalizedSignal = controller.signal;
+    } catch {
+      return options.lifecycleSignal ?? controller.signal;
+    }
+  } else {
+    return options.lifecycleSignal ?? new AbortController().signal;
+  }
   return options.lifecycleSignal
-    ? AbortSignal.any([callSignal, options.lifecycleSignal])
-    : callSignal;
+    ? AbortSignal.any([normalizedSignal, options.lifecycleSignal])
+    : normalizedSignal;
 }
 
 async function requestBody(

@@ -121,7 +121,7 @@
     ,"test:package9:d1": "vitest run --config vitest.package9.config.ts"
     ,"test:package9:migration-packaging": "npm run build && npm run test:package9:d1 && npm run test:package9:node"
     ,"verify:package9:binding": "node --experimental-strip-types --test tests/package9-node/source-evidence.test.ts"
-    ,"verify:package9": "npm run verify:package8:core && npm run test:package9:d1 && npm run test:package9:node && npm run verify:review1:disposition && npm run verify:package9:binding"
+    ,"verify:package9": "npm run verify:package8:core && npm run test:package7:node:core && npm run test:package9:d1 && npm run test:package9:node && npm run verify:review1:disposition && npm run verify:package9:binding"
     ,"verify": "npm run verify:package9"
   },
   "dependencies": {

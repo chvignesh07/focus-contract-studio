@@ -562,3 +562,52 @@ test('freshness, cancellation, response limits, and safe public errors fail clos
     }), { message: publicCode });
   }
 });
+
+test('a client bridge without a native call signal still executes under the page lifecycle', async () => {
+  let observedSignal: AbortSignal | undefined;
+  const lifecycle = new AbortController();
+  const tools = createFcsWebMcpV2Tools({
+    csrfToken: 'csrf',
+    lifecycleSignal: lifecycle.signal,
+    fetcher: async (_input, init) => {
+      observedSignal = init?.signal ?? undefined;
+      return jsonResponse(readPayload);
+    },
+  });
+
+  const result = await tools[0]!.execute({}, {
+    signal: undefined as unknown as AbortSignal,
+  });
+
+  assert.equal(typeof result, 'object');
+  assert.equal(observedSignal, lifecycle.signal);
+});
+
+test('a foreign client bridge signal preserves cancellation', async () => {
+  const target = new EventTarget();
+  const foreignSignal = {
+    aborted: false,
+    addEventListener: target.addEventListener.bind(target),
+  };
+  let observedSignal: AbortSignal | undefined;
+  const tools = createFcsWebMcpV2Tools({
+    csrfToken: 'csrf',
+    fetcher: async (_input, init) => {
+      observedSignal = init?.signal ?? undefined;
+      return new Promise<Response>((_resolve, reject) => {
+        observedSignal?.addEventListener('abort', () => {
+          reject(new DOMException('cancelled', 'AbortError'));
+        }, { once: true });
+      });
+    },
+  });
+
+  const pending = tools[0]!.execute({}, {
+    signal: foreignSignal as unknown as AbortSignal,
+  });
+  foreignSignal.aborted = true;
+  target.dispatchEvent(new Event('abort'));
+
+  await assert.rejects(pending, { name: 'AbortError' });
+  assert.equal(observedSignal?.aborted, true);
+});

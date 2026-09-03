@@ -16,6 +16,7 @@ const bootstrapDiagnosticsBase = '72a05e780cc037c5a2e0df6938e1bfcad73ab4e5';
 const bootstrapDiagnosticsReviewBase = '4afbe5521a63a5fc766ac446fd0ff089d93f7f1a';
 const clientFingerprintBase = '49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c';
 const clientFingerprintDocumentationBase = 'fab2eb061f03569d2340c809613058123af936e7';
+const clientFingerprintHead = '51e0ec4de665778b5f3492b06f30d81ff8a001bb';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -56,6 +57,13 @@ const clientFingerprintChangedPaths = [
 const clientFingerprintDocumentationChangedPaths = [
   ...clientFingerprintDocumentationPaths,
   evidencePath,
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const webMcpClientSignalSourcePaths = [
+  'README.md',
+  'lib/webmcp/contracts.ts',
+  'package.json',
+  'tests/package7-node/webmcp-v2-contract.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
@@ -265,10 +273,10 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
 
 test('the Package 9 client-fingerprint descendant and local evidence are exactly source-bound', () => {
   for (const documentationPath of clientFingerprintDocumentationPaths) {
-    const documentation = readFileSync(
-      path.join(repositoryRoot, documentationPath),
-      'utf8',
-    );
+    const documentation = git([
+      'show',
+      `${clientFingerprintHead}:${documentationPath}`,
+    ]);
     assert.doesNotMatch(
       documentation,
       /Cloudflare runtime metadata/iu,
@@ -297,8 +305,13 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   }
 
   const documentationChangedPaths = new Set([
-    ...gitLines(['diff', '--name-only', clientFingerprintDocumentationBase, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines([
+      'diff',
+      '--name-only',
+      clientFingerprintDocumentationBase,
+      clientFingerprintHead,
+      '--',
+    ]),
   ]);
   assert.deepEqual(
     [...documentationChangedPaths].sort(),
@@ -306,8 +319,13 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   );
 
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', clientFingerprintBase, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines([
+      'diff',
+      '--name-only',
+      clientFingerprintBase,
+      clientFingerprintHead,
+      '--',
+    ]),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
@@ -315,13 +333,16 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   );
 
   const priorEvidence = git(['show', `${clientFingerprintBase}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${clientFingerprintHead}:${evidencePath}`]);
   assert.ok(
     evidence.startsWith(priorEvidence),
     'the frozen R5 evidence must remain byte-identical',
   );
 
-  const identity = sourceIdentity(clientFingerprintSourcePaths);
+  const identity = sourceIdentity(
+    clientFingerprintSourcePaths,
+    clientFingerprintHead,
+  );
   assert.match(
     evidence,
     new RegExp(
@@ -331,12 +352,15 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   );
 
   const addedAdmissionTests = topLevelTestCount(
-    readFileSync(path.join(repositoryRoot, 'tests/package8/admission.test.ts'), 'utf8'),
+    git(['show', `${clientFingerprintHead}:tests/package8/admission.test.ts`]),
   ) - topLevelTestCount(
     git(['show', `${clientFingerprintBase}:tests/package8/admission.test.ts`]),
   );
   const addedEvidenceBindingTests = topLevelTestCount(
-    readFileSync(path.join(repositoryRoot, 'tests/package9-node/source-evidence.test.ts'), 'utf8'),
+    git([
+      'show',
+      `${clientFingerprintHead}:tests/package9-node/source-evidence.test.ts`,
+    ]),
   ) - topLevelTestCount(
     git(['show', `${clientFingerprintBase}:tests/package9-node/source-evidence.test.ts`]),
   );
@@ -368,6 +392,44 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   );
 });
 
+test('the final WebMCP client-signal compatibility overlay is exactly source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', clientFingerprintHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...webMcpClientSignalSourcePaths, evidencePath].sort(),
+  );
+
+  const priorEvidence = git(['show', `${clientFingerprintHead}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(
+    evidence.startsWith(priorEvidence),
+    'the frozen R6 evidence must remain byte-identical',
+  );
+
+  const identity = sourceIdentity(webMcpClientSignalSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-webmcp-client-signal-r7-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+  for (const claim of [
+    'Focused RED: `7/8 PASS`, `1/8 FAIL`',
+    'Missing-signal GREEN: `8/8 PASS`',
+    'Final contract/lifecycle GREEN: `11/11 PASS`',
+    'Missing or malformed call signals use the page lifecycle signal.',
+    'Foreign bridge signals preserve call cancellation.',
+    'Native call cancellation and lifecycle cancellation remain composed.',
+    'Hosted revalidation: `NOT_RUN`',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R7 client-signal evidence: ${claim}`);
+  }
+});
+
 test('the Package 9 canonical gate preserves frozen Package 8 configuration and adds its own binding', () => {
   const priorPackage = JSON.parse(
     git(['show', `${package9Base}:package.json`]),
@@ -394,7 +456,7 @@ test('the Package 9 canonical gate preserves frozen Package 8 configuration and 
   );
   assert.equal(
     currentPackage.scripts['verify:package9'],
-    'npm run verify:package8:core && npm run test:package9:d1 && npm run test:package9:node && npm run verify:review1:disposition && npm run verify:package9:binding',
+    'npm run verify:package8:core && npm run test:package7:node:core && npm run test:package9:d1 && npm run test:package9:node && npm run verify:review1:disposition && npm run verify:package9:binding',
   );
   assert.equal(currentPackage.scripts.verify, 'npm run verify:package9');
 });
