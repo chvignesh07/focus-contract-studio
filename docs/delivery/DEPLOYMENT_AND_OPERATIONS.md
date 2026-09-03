@@ -18,7 +18,7 @@ Therefore:
 
 ### Bootstrap edge prerequisite
 
-The local built Worker accepts a new-workspace bootstrap only when the request carries non-HTTP Cloudflare runtime metadata and a valid direct-edge `CF-Connecting-IP`; it derives a minute-rotating HMAC bucket and never stores the raw address. Caller-controlled forwarding headers are ignored, and missing metadata fails with `503` before a workspace write. Current public Sites documentation does not guarantee that this signal reaches the app with a non-spoofable trust boundary. Package 8 is therefore **BLOCKED** until an owner-only deployed probe proves isolation for two independent clients and spoof resistance, or a separately approved edge control provides equivalent evidence. This probe remains `NOT_RUN`; do not weaken the fail-closed behavior to deploy.
+The local built Worker accepts a new-workspace bootstrap only with a strictly validated `CF-Connecting-IP`. The application uses it only to derive an ephemeral abuse-control HMAC bucket; it does not access `request.cf`. `X-Forwarded-For`, `X-Real-IP`, and other forwarding headers cannot select the rate bucket. The raw address is neither stored nor logged. Missing or malformed input returns structured HTTP 503 before application writes. This value is never used for authentication or authorization. Hosted edge overwrite/spoof resistance remains unproven until an owner-only deployed probe passes; Package 8 remains **BLOCKED** and that probe is `NOT_RUN`. Do not weaken the fail-closed behavior to deploy.
 
 ## Environment model
 

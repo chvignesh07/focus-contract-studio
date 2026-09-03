@@ -758,7 +758,7 @@ This descendant repairs only the shared bootstrap client-digest boundary from
 error contract, all migrations, admission persistence, dependencies, hosting
 configuration, and every external/manual truth boundary.
 
-<!-- package9-sites-client-fingerprint-r6-source-binding files=4 sha256=a20e956c83ae5c61154381df121c1c51791037aed57029314c5f2a9b97995e89 -->
+<!-- package9-sites-client-fingerprint-r6-source-binding files=6 sha256=13e27a09adfbce1df32ef8757734e1da6a93d1812c91d047c8fe92b99d3eeb3b -->
 
 ### Root cause and narrow repair
 
@@ -815,3 +815,19 @@ configuration, and every external/manual truth boundary.
   changes, credential access, GitHub Release, Package 10, media, publication, and
   Devpost: `NOT_RUN`.
 - No external action: **YES**.
+
+## Package 9 R6 documentation-closure addendum
+
+- [Empirical] This documentation-only descendant aligns `README.md` and the
+  deployment runbook with the header-only bootstrap boundary: a strictly
+  validated `CF-Connecting-IP` feeds only an ephemeral abuse-control HMAC bucket;
+  `request.cf` and forwarding headers are not inputs, the raw address is neither
+  stored nor logged, and malformed input fails closed before application writes.
+- [Empirical] The R6 source binding now includes both corrected current-state
+  documents while preserving the existing runtime, admission, and Package 8 test
+  source identities.
+- Hosted edge overwrite/spoof resistance remains unproven until an owner-only
+  deployed probe passes.
+- Documentation/binding reviewer `/root/r6_documentation_binding_reviewer`: `PASS`.
+- Hosted D1 and Sites, credentials, push, tag, merge, deployment, publication,
+  GitHub Releases, Package 10, media, and Devpost: `NOT_RUN`.

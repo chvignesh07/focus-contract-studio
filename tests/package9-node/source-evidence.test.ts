@@ -15,6 +15,7 @@ const d1CaseParserBase = '814745b3ce44569c61174eb7a413156955cde831';
 const bootstrapDiagnosticsBase = '72a05e780cc037c5a2e0df6938e1bfcad73ab4e5';
 const bootstrapDiagnosticsReviewBase = '4afbe5521a63a5fc766ac446fd0ff089d93f7f1a';
 const clientFingerprintBase = '49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c';
+const clientFingerprintDocumentationBase = 'fab2eb061f03569d2340c809613058123af936e7';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -37,7 +38,12 @@ const bootstrapDiagnosticsReviewSourcePaths = [
   'tests/package8/admission.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
+const clientFingerprintDocumentationPaths = [
+  'README.md',
+  'docs/delivery/DEPLOYMENT_AND_OPERATIONS.md',
+] as const;
 const clientFingerprintSourcePaths = [
+  ...clientFingerprintDocumentationPaths,
   'docs/quality/SECURITY_AND_PRIVACY.md',
   'lib/server/admission.ts',
   'tests/package8/admission.test.ts',
@@ -46,6 +52,11 @@ const clientFingerprintSourcePaths = [
 const clientFingerprintChangedPaths = [
   ...clientFingerprintSourcePaths,
   evidencePath,
+] as const;
+const clientFingerprintDocumentationChangedPaths = [
+  ...clientFingerprintDocumentationPaths,
+  evidencePath,
+  'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -253,6 +264,47 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
 });
 
 test('the Package 9 client-fingerprint descendant and local evidence are exactly source-bound', () => {
+  for (const documentationPath of clientFingerprintDocumentationPaths) {
+    const documentation = readFileSync(
+      path.join(repositoryRoot, documentationPath),
+      'utf8',
+    );
+    assert.doesNotMatch(
+      documentation,
+      /Cloudflare runtime metadata/iu,
+      `${documentationPath} must not require obsolete Cloudflare runtime metadata`,
+    );
+    assert.doesNotMatch(
+      documentation,
+      /non-HTTP(?:\s+Cloudflare)?\s+(?:runtime\s+)?metadata/iu,
+      `${documentationPath} must not require non-HTTP metadata`,
+    );
+    for (const requirement of [
+      'strictly validated `CF-Connecting-IP`',
+      'does not access `request.cf`',
+      '`X-Forwarded-For`, `X-Real-IP`, and other forwarding headers cannot select the rate bucket.',
+      'The raw address is neither stored nor logged.',
+      'Missing or malformed input returns structured HTTP 503 before application writes.',
+      'ephemeral abuse-control HMAC bucket',
+      'never used for authentication or authorization.',
+      'Hosted edge overwrite/spoof resistance remains unproven until an owner-only deployed probe passes',
+    ]) {
+      assert.ok(
+        documentation.includes(requirement),
+        `${documentationPath} is missing truthful R6 edge-boundary wording: ${requirement}`,
+      );
+    }
+  }
+
+  const documentationChangedPaths = new Set([
+    ...gitLines(['diff', '--name-only', clientFingerprintDocumentationBase, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...documentationChangedPaths].sort(),
+    [...clientFingerprintDocumentationChangedPaths].sort(),
+  );
+
   const changedPaths = new Set([
     ...gitLines(['diff', '--name-only', clientFingerprintBase, '--']),
     ...gitLines(['ls-files', '--others', '--exclude-standard']),
@@ -300,6 +352,8 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
     'request.cf is never accessed for a valid direct-edge request.',
     'Header access and HMAC derivation remain distinct client-fingerprint failure boundaries.',
     'No raw edge address or secret reaches logs, public responses, storage, or evidence.',
+    'Package 9 R6 documentation-closure addendum',
+    'Documentation/binding reviewer `/root/r6_documentation_binding_reviewer`: `PASS`',
     'Correctness/security reviewer `/root/client_fingerprint_correctness_security`: `PASS`',
     'Test/evidence reviewer `/root/client_fingerprint_tests_evidence`: `PASS`',
     'Hosted D1 and Sites: `NOT_RUN`',
@@ -308,6 +362,10 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
   ]) {
     assert.ok(evidence.includes(claim), `missing R6 client-fingerprint evidence: ${claim}`);
   }
+  assert.match(
+    evidence,
+    /Hosted edge overwrite\/spoof resistance remains unproven until an owner-only\s+deployed probe passes\./u,
+  );
 });
 
 test('the Package 9 canonical gate preserves frozen Package 8 configuration and adds its own binding', () => {
