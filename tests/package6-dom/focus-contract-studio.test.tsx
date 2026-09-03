@@ -191,7 +191,11 @@ test('first viewport truth and six inspectable real stages replace package-facin
   expect(truth).toHaveTextContent('Fresh finalized raw keyboard/focus events');
   expect(truth).toHaveTextContent('cannot authorize apply, manufacture events, or prove WCAG/general conformance');
   expect(truth).toHaveTextContent('NOT APPLIED');
-  expect(screen.getByText(/Only an exact human review can authorize apply\./u)).toBeVisible();
+  expect(screen.getByText(/Only an exact visible UI review can authorize apply\./u)).toBeVisible();
+  expect(screen.getByText(
+    /until the current UI-mediated reviewer decision passes the guarded application checks\./u,
+  )).toBeVisible();
+  expect(document.body).not.toHaveTextContent(/exact human review|human approval passes/u);
 });
 
 test('exact acknowledgement gates review confirmation and resets on variant CAS refresh', async () => {

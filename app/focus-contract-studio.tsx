@@ -1133,7 +1133,7 @@ export function FocusContractStudio() {
             <h1 id="review-heading">Govern one real focus decision</h1>
             <p className="hero-copy">
               Browser observation and precedent can inform a proposal. Only an exact
-              human review can authorize apply.
+              visible UI review can authorize apply.
             </p>
           </div>
           <div className="variant-control" id="variant-tabs">
@@ -1422,8 +1422,8 @@ export function FocusContractStudio() {
             />
           ) : (
             <p>
-              No application receipt exists. A proposal changes nothing until an exact
-              human approval passes the guarded application checks.
+              No application receipt exists. A proposal changes nothing until the current
+              UI-mediated reviewer decision passes the guarded application checks.
             </p>
           )}
         </section>

@@ -883,10 +883,10 @@ gate, and judge-facing release wording.
 ## Final release CI and provenance closure
 
 This overlay preserves R7 at
-`c4152ec524ec339b1939811ecab5773fe8e33903` and closes only the two proven
+`c4152ec524ec339b1939811ecab5773fe8e33903` and closes only the three proven
 publication blockers plus the judge-facing release pointers.
 
-<!-- final-release-source-binding files=8 sha256=2f1efeba5006faad074350cb3d5278b645ee3bee79b7e7701b8074f552881961 -->
+<!-- final-release-source-binding files=11 sha256=561f242013abd573c3d2cb2757c2f2f52dc2395a82b5797f26247f7ce82cea60 -->
 
 - [Empirical] Public CI reproduction: `FAIL` at the inherited five-second per-test default.
 - [Empirical] Bounded concurrency timeout: `20 seconds`. Only the existing 100-pair
@@ -894,6 +894,9 @@ publication blockers plus the judge-facing release pointers.
 - [Empirical] Reserved final source tag name: `webmcp-challenge-2026-final`.
   The release-series name remains `webmcp-challenge-2026`; prior immutable tags are
   preserved. Tag creation and peel verification remain post-commit actions.
+- [Empirical] Active authority copy now uses only exact visible UI review and a
+  UI-mediated reviewer decision. DOM coverage rejects both superseded phrases;
+  the browser journey verifies the corrected hero copy.
 - [Empirical] `release/BUILD_INPUTS.json`, its validator, and the deployment
   runbook name the same exact final tag.
 - [High-Conviction] A per-test timeout is the narrow root fix because the public

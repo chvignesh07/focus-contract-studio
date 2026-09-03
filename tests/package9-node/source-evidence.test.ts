@@ -70,10 +70,13 @@ const webMcpClientSignalSourcePaths = [
 const finalReleaseSourcePaths = [
   'README.md',
   'START_HERE.md',
+  'app/focus-contract-studio.tsx',
   'docs/delivery/DEPLOYMENT_AND_OPERATIONS.md',
   'release/BUILD_INPUTS.json',
   'scripts/package8-release-checks.mjs',
   'tests/package5/apply-concurrency.test.ts',
+  'tests/package6-browser/premium-surface.spec.ts',
+  'tests/package6-dom/focus-contract-studio.test.tsx',
   'tests/package8-node/package8-scripts.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;

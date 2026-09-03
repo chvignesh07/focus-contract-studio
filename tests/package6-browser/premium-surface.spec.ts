@@ -179,7 +179,7 @@ async function completeJourney(page: Page, profile: Profile) {
   await expect(truth).toContainText('IMPLEMENTED REVISION 1');
   await expect(truth).toContainText('D001');
   await expect(truth).toContainText('NOT APPLIED');
-  await expect(page.getByText('Only an exact human review can authorize apply.')).toBeVisible();
+  await expect(page.getByText('Only an exact visible UI review can authorize apply.')).toBeVisible();
   await expect(truth).toContainText('Fresh finalized raw keyboard/focus events');
   await expect(truth).toContainText('cannot authorize apply, manufacture events, or prove WCAG/general conformance');
   await expect(page.getByRole('navigation', { name: 'Governed workflow stages' }).getByRole('link')).toHaveCount(6);
