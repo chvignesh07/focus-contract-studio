@@ -563,23 +563,26 @@ test('freshness, cancellation, response limits, and safe public errors fail clos
   }
 });
 
-test('a client bridge without a native call signal still executes under the page lifecycle', async () => {
+test('a client bridge without a native call context or signal uses the page lifecycle', async () => {
   let observedSignal: AbortSignal | undefined;
+  let requests = 0;
   const lifecycle = new AbortController();
   const tools = createFcsWebMcpV2Tools({
     csrfToken: 'csrf',
     lifecycleSignal: lifecycle.signal,
     fetcher: async (_input, init) => {
+      requests += 1;
       observedSignal = init?.signal ?? undefined;
       return jsonResponse(readPayload);
     },
   });
 
-  const result = await tools[0]!.execute({}, {
-    signal: undefined as unknown as AbortSignal,
-  });
+  const absentContextResult = await tools[0]!.execute({});
+  const absentSignalResult = await tools[0]!.execute({}, {});
 
-  assert.equal(typeof result, 'object');
+  assert.equal(typeof absentContextResult, 'object');
+  assert.equal(typeof absentSignalResult, 'object');
+  assert.equal(requests, 2);
   assert.equal(observedSignal, lifecycle.signal);
 });
 

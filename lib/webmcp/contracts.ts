@@ -23,6 +23,7 @@ export const FCS_WEBMCP_V2_TOOL_NAMES = [
 
 type ToolName = (typeof PACKAGE2_TOOL_NAMES)[number];
 type FcsWebMcpV2ToolName = (typeof FCS_WEBMCP_V2_TOOL_NAMES)[number];
+type ToolExecutionContext = { signal?: unknown };
 
 type ToolInputSchema = Record<string, unknown> & {
   $schema?: string;
@@ -55,7 +56,7 @@ export type RegisteredFcsWebMcpV2Tool = {
   };
   execute: (
     input: unknown,
-    context: { signal: AbortSignal },
+    context?: ToolExecutionContext,
   ) => Promise<unknown>;
 };
 
@@ -593,10 +594,10 @@ export function createFcsWebMcpV2Tools(
     description: descriptions[index]!,
     inputSchema: webMcpDraft7(schemas[index]!),
     annotations: annotations[index]!,
-    execute: async (rawInput: unknown, context: { signal: AbortSignal }) => {
+    execute: async (rawInput: unknown, context?: ToolExecutionContext) => {
       const parsed = schemas[index]!.safeParse(rawInput);
       if (!parsed.success) throw new Error('INVALID_INPUT');
-      const signal = executionSignal(options, context.signal);
+      const signal = executionSignal(options, context?.signal);
       readiness(options, signal);
       if (name === 'read_active_focus_review') {
         return readResult(await requestBody(options, '/api/focus-review', {
