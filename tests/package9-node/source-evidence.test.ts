@@ -627,7 +627,7 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
     'Exactly four tools were discovered; read, create, guarded apply, and verify completed through the native WebMCP client surface.',
     'The premature apply was rejected before visible UI approval; Chrome returned its generic invocation-failure wrapper.',
     'Visible UI observation and approval remained mandatory before apply advanced implemented revision 1 to 2.',
-    'Final raw-event verification: `6/6 PASS`.',
+    'Final browser-event verification: `6/6 PASS`.',
     'Sanitized native trace: `docs/evidence/webmcp-native-context-r8-trace.json` · SHA-256 `3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92`.',
     'Public CI and the clean local canonical gate both reproduced the immutable Package 5 concurrency test crossing its inherited five-second timeout during the parallel nested replay.',
     'A bounded invocation hook now adds the current test\'s 20-second timeout only to Vitest running `vitest.package5.config.ts` without an explicit timeout.',

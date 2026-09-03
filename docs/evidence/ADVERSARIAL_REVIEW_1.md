@@ -911,7 +911,7 @@ This unpublished descendant preserves the approved final release at
 `835cb812faf8ec043486b2e0ebec7d7784236dbb`, repairs the shared native WebMCP
 callback-context boundary, and stabilizes the immutable nested verification replay.
 
-<!-- package9-webmcp-native-context-r8-source-binding files=5 sha256=9a96c3bed0e66bbac857ddaacaa6adbbc8d03be5486060978a057dadfb95facd -->
+<!-- package9-webmcp-native-context-r8-source-binding files=5 sha256=56afc550b59ffa3402d921370824623b238c8b41a63882fbd2a0dbcb2f07ac43 -->
 
 ### Root cause and minimal repair
 
@@ -933,7 +933,7 @@ callback-context boundary, and stabilizes the immutable nested verification repl
 - Exactly four tools were discovered; read, create, guarded apply, and verify completed through the native WebMCP client surface.
 - The premature apply was rejected before visible UI approval; Chrome returned its generic invocation-failure wrapper.
 - Visible UI observation and approval remained mandatory before apply advanced implemented revision 1 to 2.
-- Final raw-event verification: `6/6 PASS`.
+- Final browser-event verification: `6/6 PASS`.
 - Sanitized native trace: `docs/evidence/webmcp-native-context-r8-trace.json` · SHA-256 `3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92`.
 - [Empirical] The final verification receipt used `focus-event-verifier-v1` and
   passed initial focus, focus order, forward wrap, backward wrap, Escape, and
