@@ -19,6 +19,7 @@ const clientFingerprintDocumentationBase = 'fab2eb061f03569d2340c809613058123af9
 const clientFingerprintHead = '51e0ec4de665778b5f3492b06f30d81ff8a001bb';
 const webMcpClientSignalHead = 'c4152ec524ec339b1939811ecab5773fe8e33903';
 const finalReleaseHead = '835cb812faf8ec043486b2e0ebec7d7784236dbb';
+const r8NativeContextHead = '08c2043df9873ee39852a1fb4c281bb70cc8c45d';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
 const nativeToolNames = [
@@ -97,6 +98,14 @@ const webMcpNativeContextSourcePaths = [
 ] as const;
 const webMcpNativeContextChangedPaths = [
   ...webMcpNativeContextSourcePaths,
+  evidencePath,
+] as const;
+const linuxCiLintSourcePaths = [
+  'eslint.config.mjs',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const linuxCiLintChangedPaths = [
+  ...linuxCiLintSourcePaths,
   evidencePath,
 ] as const;
 
@@ -505,15 +514,14 @@ test('the final release overlay is CI-stable and reserves one exact tag name', (
 
 test('the R8 native WebMCP context compatibility descendant is exactly source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', finalReleaseHead, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines(['diff', '--name-only', finalReleaseHead, r8NativeContextHead, '--']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
     [...webMcpNativeContextChangedPaths].sort(),
   );
   assert.doesNotThrow(() => {
-    git(['merge-base', '--is-ancestor', finalReleaseHead, 'HEAD']);
+    git(['merge-base', '--is-ancestor', finalReleaseHead, r8NativeContextHead]);
   }, 'R8 must descend from the approved final release');
   assert.equal(
     git(['cat-file', '-t', 'webmcp-challenge-2026-final']).trim(),
@@ -527,13 +535,13 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
   );
 
   const priorEvidence = git(['show', `${finalReleaseHead}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${r8NativeContextHead}:${evidencePath}`]);
   assert.ok(
     evidence.startsWith(priorEvidence),
     'the approved final-release evidence must remain byte-identical',
   );
 
-  const identity = sourceIdentity(webMcpNativeContextSourcePaths);
+  const identity = sourceIdentity(webMcpNativeContextSourcePaths, r8NativeContextHead);
   assert.match(
     evidence,
     new RegExp(
@@ -541,7 +549,7 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
       'u',
     ),
   );
-  const traceBytes = readFileSync(path.join(repositoryRoot, nativeTracePath));
+  const traceBytes = Buffer.from(git(['show', `${r8NativeContextHead}:${nativeTracePath}`]));
   assert.equal(
     sha256(traceBytes),
     '3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92',
@@ -570,6 +578,7 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
       'diff',
       '--quiet',
       trace.sourceCommit,
+      r8NativeContextHead,
       '--',
       'lib/webmcp/contracts.ts',
       'tests/package7-node/webmcp-v2-contract.test.ts',
@@ -637,6 +646,52 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
     'ChatGPT in-app-browser trace: `BLOCKED` by unavailable admin-policy verification; no bypass attempted.',
   ]) {
     assert.ok(evidence.includes(claim), `missing R8 native-context evidence: ${claim}`);
+  }
+});
+
+test('the R9 Linux CI lint stabilization ignores only generated browser binaries and is source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', r8NativeContextHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...linuxCiLintChangedPaths].sort(),
+  );
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r8NativeContextHead, 'HEAD']);
+  }, 'R9 must descend from the published R8 release');
+  assert.equal(
+    git(['cat-file', '-t', 'webmcp-challenge-2026-r8']).trim(),
+    'tag',
+    'the published R8 tag must remain annotated',
+  );
+  assert.equal(
+    git(['rev-parse', 'webmcp-challenge-2026-r8^{}']).trim(),
+    r8NativeContextHead,
+    'the published R8 tag must remain immutable',
+  );
+
+  const priorEvidence = git(['show', `${r8NativeContextHead}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(evidence.startsWith(priorEvidence), 'the published R8 evidence must remain byte-identical');
+
+  const identity = sourceIdentity(linuxCiLintSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-linux-ci-lint-r9-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+  const eslintConfig = readFileSync(path.join(repositoryRoot, 'eslint.config.mjs'), 'utf8');
+  assert.match(eslintConfig, /globalIgnores\(\[[^\]]*'\.playwright-browsers\/\*\*'/u);
+  for (const claim of [
+    'R8 public CI failed only when ESLint traversed the installed Linux Chromium inspector bundle.',
+    'The project-local `.playwright-browsers/**` cache is now excluded from lint; project source and test scope are unchanged.',
+    'R9 publication, deployment, and hosted browser revalidation: `NOT_RUN`.',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R9 Linux CI evidence: ${claim}`);
   }
 });
 

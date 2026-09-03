@@ -954,3 +954,21 @@ callback-context boundary, and stabilizes the immutable nested verification repl
 - [Empirical] The local R8 candidate is a descendant, not a replacement claim
   for the approved public release. A distinct public release identity and fresh
   external authorization are required before publication or deployment.
+
+## Package 9 Linux CI lint stabilization overlay R9
+
+This descendant preserves the published R8 tag and removes one generated-browser
+directory from ESLint's input set.
+
+<!-- package9-linux-ci-lint-r9-source-binding files=2 sha256=e4f5c5621e2e82490b38403ac7aa9900db3295ba1e70cf5a7dc5a16f3e9f2baf -->
+
+### Root cause and minimal repair
+
+- [Empirical] R8 public CI failed only when ESLint traversed the installed Linux Chromium inspector bundle.
+- [High-Conviction] The project-local `.playwright-browsers/**` cache is now excluded from lint; project source and test scope are unchanged.
+- [High-Conviction] Installed browser binaries are test prerequisites, not project source; linting them is platform-dependent noise and cannot improve product correctness.
+
+### Truth and publication boundary
+
+- The annotated `webmcp-challenge-2026-r8` tag remains immutable at `08c2043df9873ee39852a1fb4c281bb70cc8c45d`.
+- R9 publication, deployment, and hosted browser revalidation: `NOT_RUN`.
