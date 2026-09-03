@@ -69,6 +69,7 @@ test('build inputs use strict duplicate-aware JSON and exact pre-live identities
   const missing = JSON.parse(buildInputsSource);
   delete missing.buildCommand;
   assert.equal(valid.schemaVersion, 'fcs-build-inputs-v1');
+  assert.equal(valid.gitTag, 'webmcp-challenge-2026-final');
   assert.equal('gitCommit' in valid, false);
   assert.equal('sitesVersionId' in valid, false);
   assert.throws(() => validateBuildInputs(repositoryRoot, '{'), /invalid JSON/u);

@@ -397,7 +397,7 @@ function expectedBuildInputs(repositoryRoot) {
     schemaVersion: 'fcs-build-inputs-v1',
     product: 'Focus Contract Studio',
     release: 'webmcp-challenge-2026',
-    gitTag: 'webmcp-challenge-2026',
+    gitTag: 'webmcp-challenge-2026-final',
     nodeVersion: 'v22.22.3',
     packageManager: 'npm@10.9.8',
     lockfileSha256: sha256(readRegular(repositoryRoot, 'package-lock.json')),

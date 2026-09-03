@@ -879,3 +879,25 @@ gate, and judge-facing release wording.
 - Hosted revalidation: `NOT_RUN`.
 - Public access, source publication, deployment, media, and Devpost remain
   unchanged by this local overlay.
+
+## Final release CI and provenance closure
+
+This overlay preserves R7 at
+`c4152ec524ec339b1939811ecab5773fe8e33903` and closes only the two proven
+publication blockers plus the judge-facing release pointers.
+
+<!-- final-release-source-binding files=8 sha256=2f1efeba5006faad074350cb3d5278b645ee3bee79b7e7701b8074f552881961 -->
+
+- [Empirical] Public CI reproduction: `FAIL` at the inherited five-second per-test default.
+- [Empirical] Bounded concurrency timeout: `20 seconds`. Only the existing 100-pair
+  stress test receives the larger bound; global Vitest and CI timeouts are unchanged.
+- [Empirical] Reserved final source tag name: `webmcp-challenge-2026-final`.
+  The release-series name remains `webmcp-challenge-2026`; prior immutable tags are
+  preserved. Tag creation and peel verification remain post-commit actions.
+- [Empirical] `release/BUILD_INPUTS.json`, its validator, and the deployment
+  runbook name the same exact final tag.
+- [High-Conviction] A per-test timeout is the narrow root fix because the public
+  failure completed the intended work just after Vitest's generic default; no
+  product path, authorization boundary, dependency, or global test policy changed.
+- Final clean-commit verification, public CI, tag creation, deployment, media,
+  and Devpost remain post-commit release actions and are not claimed here.

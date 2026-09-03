@@ -2,10 +2,11 @@
 
 Focus Contract Studio turns an accessibility focus review into a governed, reversible change. Retrieval may support a proposal; it can never approve or authorize one. The user reviews the exact diff in the visible page, applies it through guarded D1 state transitions, rehearses the result in the browser, verifies six focus behaviors, and can undo it.
 
-- **Deployment candidate URL (R7 lineage and public reachability not yet verified):** [focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
-- **Source:** [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio)
+- **Application URL:** [focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
+- **Reserved source tag name:** `webmcp-challenge-2026-final`
+- **Repository:** [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio)
 
-The canonical repository gate is local: it verifies source, tests, security checks, and a reproducible build. Public reachability, supported-client tool execution, and deployed edge behavior are separate release checks and remain `NOT_RUN` for this source checkpoint. Historical package evidence intentionally keeps the status that was true at each checkpoint; it is not a claim about a later release.
+The canonical repository gate verifies source, tests, security checks, and a reproducible build. This source checkpoint reserves the release tag name but does not claim that publication, public reachability, or supported-client execution has occurred; those facts are recorded separately after deployment. Historical package evidence intentionally keeps the status that was true at each checkpoint.
 
 ## 60-second judge path
 

@@ -2,7 +2,7 @@
   "schemaVersion": "fcs-build-inputs-v1",
   "product": "Focus Contract Studio",
   "release": "webmcp-challenge-2026",
-  "gitTag": "webmcp-challenge-2026",
+  "gitTag": "webmcp-challenge-2026-final",
   "nodeVersion": "v22.22.3",
   "packageManager": "npm@10.9.8",
   "lockfileSha256": "c7170285e3d1277a28a35c7177f0771c782d62471da0b60c1635f021e437e729",

@@ -88,7 +88,7 @@ Before source freeze, commit `release/BUILD_INPUTS.json` into source commit `C`:
   "schemaVersion": "fcs-build-inputs-v1",
   "product": "Focus Contract Studio",
   "release": "webmcp-challenge-2026",
-  "gitTag": "webmcp-challenge-2026",
+  "gitTag": "webmcp-challenge-2026-final",
   "nodeVersion": "<exact>",
   "packageManager": "<exact>",
   "lockfileSha256": "<sha256>",
@@ -110,7 +110,7 @@ After public acceptance, video upload, and submission, generate `.artifacts/rele
 {
   "schemaVersion": "fcs-release-attestation-v1",
   "sourceCommit": "<full C sha>",
-  "sourceTag": "webmcp-challenge-2026",
+  "sourceTag": "webmcp-challenge-2026-final",
   "sourceRepository": "<public repository url>",
   "buildInputsSha256": "<sha256 from C>",
   "sitesProjectId": "<exact id>",

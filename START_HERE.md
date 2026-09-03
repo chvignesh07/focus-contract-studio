@@ -2,7 +2,7 @@
 
 Status: **CONTROLLING INTAKE**  
 Authority revision: **2.0 — 2026-08-29 EDT**  
-Current phase: **authority v2 validated; implementation authorized; Package 0 next**
+Current phase: **release candidate implemented; final hosted and submission evidence in progress**
 
 ## New to Codex?
 

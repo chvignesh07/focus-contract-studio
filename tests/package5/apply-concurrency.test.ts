@@ -43,4 +43,4 @@ test('100 paired same-base attempts produce exactly 100 winners and no partial g
     ).first()).toEqual({ receipts: 1, commits: 1, revisions: 1, audits: 1 });
   }
   expect(winners).toBe(100);
-});
+}, 20_000);

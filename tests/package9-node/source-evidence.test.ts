@@ -17,6 +17,7 @@ const bootstrapDiagnosticsReviewBase = '4afbe5521a63a5fc766ac446fd0ff089d93f7f1a
 const clientFingerprintBase = '49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c';
 const clientFingerprintDocumentationBase = 'fab2eb061f03569d2340c809613058123af936e7';
 const clientFingerprintHead = '51e0ec4de665778b5f3492b06f30d81ff8a001bb';
+const webMcpClientSignalHead = 'c4152ec524ec339b1939811ecab5773fe8e33903';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -64,6 +65,16 @@ const webMcpClientSignalSourcePaths = [
   'lib/webmcp/contracts.ts',
   'package.json',
   'tests/package7-node/webmcp-v2-contract.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const finalReleaseSourcePaths = [
+  'README.md',
+  'START_HERE.md',
+  'docs/delivery/DEPLOYMENT_AND_OPERATIONS.md',
+  'release/BUILD_INPUTS.json',
+  'scripts/package8-release-checks.mjs',
+  'tests/package5/apply-concurrency.test.ts',
+  'tests/package8-node/package8-scripts.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
@@ -394,8 +405,7 @@ test('the Package 9 client-fingerprint descendant and local evidence are exactly
 
 test('the final WebMCP client-signal compatibility overlay is exactly source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', clientFingerprintHead, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines(['diff', '--name-only', clientFingerprintHead, webMcpClientSignalHead, '--']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
@@ -403,13 +413,13 @@ test('the final WebMCP client-signal compatibility overlay is exactly source-bou
   );
 
   const priorEvidence = git(['show', `${clientFingerprintHead}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${webMcpClientSignalHead}:${evidencePath}`]);
   assert.ok(
     evidence.startsWith(priorEvidence),
     'the frozen R6 evidence must remain byte-identical',
   );
 
-  const identity = sourceIdentity(webMcpClientSignalSourcePaths);
+  const identity = sourceIdentity(webMcpClientSignalSourcePaths, webMcpClientSignalHead);
   assert.match(
     evidence,
     new RegExp(
@@ -427,6 +437,48 @@ test('the final WebMCP client-signal compatibility overlay is exactly source-bou
     'Hosted revalidation: `NOT_RUN`',
   ]) {
     assert.ok(evidence.includes(claim), `missing R7 client-signal evidence: ${claim}`);
+  }
+});
+
+test('the final release overlay is CI-stable and reserves one exact tag name', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', webMcpClientSignalHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...finalReleaseSourcePaths, evidencePath].sort(),
+  );
+
+  const priorEvidence = git(['show', `${webMcpClientSignalHead}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(evidence.startsWith(priorEvidence), 'the frozen R7 evidence must remain byte-identical');
+
+  const identity = sourceIdentity(finalReleaseSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- final-release-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+
+  const buildInputs = JSON.parse(
+    readFileSync(path.join(repositoryRoot, 'release/BUILD_INPUTS.json'), 'utf8'),
+  ) as { gitTag: string };
+  assert.equal(buildInputs.gitTag, 'webmcp-challenge-2026-final');
+
+  const concurrencyTest = readFileSync(
+    path.join(repositoryRoot, 'tests/package5/apply-concurrency.test.ts'),
+    'utf8',
+  );
+  assert.match(concurrencyTest, /\},\s*20_000\);/u);
+  for (const claim of [
+    'Public CI reproduction: `FAIL` at the inherited five-second per-test default.',
+    'Bounded concurrency timeout: `20 seconds`.',
+    'Reserved final source tag name: `webmcp-challenge-2026-final`.',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing final-release evidence: ${claim}`);
   }
 });
 
