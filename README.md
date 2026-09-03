@@ -3,19 +3,19 @@
 Focus Contract Studio turns an accessibility focus review into a governed, reversible change. Retrieval may support a proposal; it can never approve or authorize one. The user reviews the exact diff in the visible page, applies it through guarded D1 state transitions, rehearses the result in the browser, verifies six focus behaviors, and can undo it.
 
 - **Application URL:** [focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
-- **Reserved source tag name:** `webmcp-challenge-2026-final`
+- **Planned judge release target:** `webmcp-challenge-2026-r10`
 - **Repository:** [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio)
 
-The canonical repository gate verifies source, tests, security checks, and a reproducible build. This source checkpoint reserves the release tag name but does not claim that publication, public reachability, or supported-client execution has occurred; those facts are recorded separately after deployment. Historical package evidence intentionally keeps the status that was true at each checkpoint.
+The canonical repository gate verifies source, tests, security checks, and a reproducible build. Treat the target above as the judge release only after its annotated tag and matching GitHub release resolve publicly; historical package evidence intentionally keeps the status that was true at each earlier checkpoint. Post-deploy receipts live with the matching GitHub release because a source commit cannot truthfully contain evidence produced after its own deployment.
 
 ## 60-second judge path
 
-1. Read the current Delete-versus-Cancel focus mismatch and its cited synthetic precedent.
-2. Create a proposal. The preview remains visibly `NOT APPLIED`.
-3. Open the review panel and choose an explicit UI decision.
-4. Apply the approved exact diff. The model-facing create tool cannot approve or apply it.
-5. Run the dialog rehearsal and verification; inspect the six behavior results.
-6. Undo to the prior revision or reset the isolated anonymous demo.
+1. Open the app in ChatGPT's in-app browser and choose **Reset demo** if the workspace is not at revision 1.
+2. Ask ChatGPT to call `read_active_focus_review`, then `create_focus_contract_proposal` using the returned evidence. The preview remains visibly `NOT APPLIED`.
+3. In the page, check the exact-review acknowledgement and approve the proposal. There is intentionally no approval tool.
+4. Ask ChatGPT to call `apply_approved_focus_contract`. The exact approved diff advances revision 1 to revision 2.
+5. Run the complete keyboard rehearsal in the page. Ask ChatGPT to read again; `verificationTarget` supplies the exact current committed browser rehearsal without privileged lookup.
+6. Ask ChatGPT to call `verify_focus_contract` with that target and inspect the six behavior results. Undo or reset remains a visible human action.
 
 The human workflow remains complete when WebMCP is unavailable.
 
@@ -70,7 +70,7 @@ The page registers exactly:
 - `apply_approved_focus_contract`
 - `verify_focus_contract`
 
-Create never applies, apply never approves, retrieval never authorizes, and all tool output is bounded. Before submission, the deployed tools must be exercised separately in a supported client; local shim/browser tests are not treated as substitutes.
+Create never applies, apply never approves, retrieval never authorizes, and all tool output is bounded. The second read exposes only the exact committed browser rehearsal for the server-resolved active workspace, variant, and revision; the verify tool remains exact-ID and replay-safe.
 
 ## Security and privacy
 

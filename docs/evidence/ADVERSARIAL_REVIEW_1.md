@@ -972,3 +972,34 @@ directory from ESLint's input set.
 
 - The annotated `webmcp-challenge-2026-r8` tag remains immutable at `08c2043df9873ee39852a1fb4c281bb70cc8c45d`.
 - R9 publication, deployment, and hosted browser revalidation: `NOT_RUN`.
+
+## Page-bound verification-target repair R10
+
+This descendant preserves the published R9 tag and closes the final supported-client handoff without adding a tool, approval path, UI state, or implicit “latest rehearsal” verifier behavior.
+
+<!-- package9-webmcp-verification-target-r10-source-binding files=13 sha256=7e920cf8a430de222cf4e4624868d325e2287a134c01a9311af4f054710e6547 -->
+
+### Root cause and selected repair
+
+- [Empirical] `verify_focus_contract` required an exact rehearsal ID, while the read tool exposed only the separate opening-focus observation. The UI held the completed rehearsal ID internally, so a four-tool client rehearsal required an out-of-band database lookup.
+- [High-Conviction] Three independent tournament passes selected one bounded repair: the read tool returns only the exact committed browser rehearsal for the server-resolved active workspace, variant, and implemented revision.
+- [High-Conviction] Playwright, foreign, stale-revision, recording, expired, and uncommitted rehearsals are excluded.
+- [High-Conviction] The exact-ID verify contract and visible UI approval boundary are unchanged.
+- [Empirical] When the result would exceed the locked 1,500-character budget, the WebMCP projection retains the highest-ranked precedent rather than dropping the verification target or broadening output.
+
+The read tool returns only the exact committed browser rehearsal for the server-resolved active workspace, variant, and implemented revision. Playwright, foreign, stale-revision, recording, expired, and uncommitted rehearsals are excluded. The exact-ID verify contract and visible UI approval boundary are unchanged.
+
+### Test evidence
+
+- Focused RED: `8/9 PASS`, `1/9 FAIL`; D1 parity `1/3 PASS`, `2/3 FAIL`.
+- Focused GREEN: contract `9/9 PASS`; D1 parity `3/3 PASS`.
+- TypeScript: `PASS`.
+- ESLint: `PASS`.
+- The D1 parity test proves null-before-commit, expired and foreign-workspace exclusion, recording exclusion, current-revision selection, stale-revision exclusion after apply, newer Playwright exclusion, exact-ID verification, immutable replay, and verified-target replay.
+
+### Current official boundary
+
+- Official deadline extension: `2026-09-04 08:00 UTC / 01:00 PT`.
+- The Devpost API reported `submissions_open` and the participant relationship as registered/submitted when checked at 2026-09-03 21:36 UTC.
+- The public Devpost project exists, but its required video URL is null.
+- R10 publication, deployment, and hosted browser revalidation: `NOT_RUN`.

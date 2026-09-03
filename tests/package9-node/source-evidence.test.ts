@@ -20,6 +20,7 @@ const clientFingerprintHead = '51e0ec4de665778b5f3492b06f30d81ff8a001bb';
 const webMcpClientSignalHead = 'c4152ec524ec339b1939811ecab5773fe8e33903';
 const finalReleaseHead = '835cb812faf8ec043486b2e0ebec7d7784236dbb';
 const r8NativeContextHead = '08c2043df9873ee39852a1fb4c281bb70cc8c45d';
+const r9LinuxCiHead = '21d0a6bd7744c83050a09075d1e7e0d36cd2b778';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
 const nativeToolNames = [
@@ -106,6 +107,25 @@ const linuxCiLintSourcePaths = [
 ] as const;
 const linuxCiLintChangedPaths = [
   ...linuxCiLintSourcePaths,
+  evidencePath,
+] as const;
+const verificationTargetSourcePaths = [
+  '.devpost-hackathon-state.json',
+  'README.md',
+  'devpost-submission.md',
+  'docs/contracts/WEBMCP_TOOL_CONTRACT.md',
+  'docs/delivery/CODEX_IMPLEMENTATION_PLAN.md',
+  'docs/delivery/DEPLOYMENT_AND_OPERATIONS.md',
+  'docs/delivery/SUBMISSION_PLAN.md',
+  'docs/evidence/CLIENT_MATRIX.md',
+  'lib/server/active-focus-review.ts',
+  'lib/webmcp/contracts.ts',
+  'tests/package7-node/webmcp-v2-contract.test.ts',
+  'tests/package7/webmcp-parity.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const verificationTargetChangedPaths = [
+  ...verificationTargetSourcePaths,
   evidencePath,
 ] as const;
 
@@ -651,15 +671,14 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
 
 test('the R9 Linux CI lint stabilization ignores only generated browser binaries and is source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', r8NativeContextHead, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines(['diff', '--name-only', r8NativeContextHead, r9LinuxCiHead, '--']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
     [...linuxCiLintChangedPaths].sort(),
   );
   assert.doesNotThrow(() => {
-    git(['merge-base', '--is-ancestor', r8NativeContextHead, 'HEAD']);
+    git(['merge-base', '--is-ancestor', r8NativeContextHead, r9LinuxCiHead]);
   }, 'R9 must descend from the published R8 release');
   assert.equal(
     git(['cat-file', '-t', 'webmcp-challenge-2026-r8']).trim(),
@@ -673,10 +692,10 @@ test('the R9 Linux CI lint stabilization ignores only generated browser binaries
   );
 
   const priorEvidence = git(['show', `${r8NativeContextHead}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${r9LinuxCiHead}:${evidencePath}`]);
   assert.ok(evidence.startsWith(priorEvidence), 'the published R8 evidence must remain byte-identical');
 
-  const identity = sourceIdentity(linuxCiLintSourcePaths);
+  const identity = sourceIdentity(linuxCiLintSourcePaths, r9LinuxCiHead);
   assert.match(
     evidence,
     new RegExp(
@@ -684,7 +703,7 @@ test('the R9 Linux CI lint stabilization ignores only generated browser binaries
       'u',
     ),
   );
-  const eslintConfig = readFileSync(path.join(repositoryRoot, 'eslint.config.mjs'), 'utf8');
+  const eslintConfig = git(['show', `${r9LinuxCiHead}:eslint.config.mjs`]);
   assert.match(eslintConfig, /globalIgnores\(\[[^\]]*'\.playwright-browsers\/\*\*'/u);
   for (const claim of [
     'R8 public CI failed only when ESLint traversed the installed Linux Chromium inspector bundle.',
@@ -692,6 +711,54 @@ test('the R9 Linux CI lint stabilization ignores only generated browser binaries
     'R9 publication, deployment, and hosted browser revalidation: `NOT_RUN`.',
   ]) {
     assert.ok(evidence.includes(claim), `missing R9 Linux CI evidence: ${claim}`);
+  }
+});
+
+test('the R10 page-bound verification target repair is minimal and source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', r9LinuxCiHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...verificationTargetChangedPaths].sort(),
+  );
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r9LinuxCiHead, 'HEAD']);
+  }, 'R10 must descend from the published R9 release');
+  assert.equal(
+    git(['cat-file', '-t', 'webmcp-challenge-2026-r9']).trim(),
+    'tag',
+    'the published R9 tag must remain annotated',
+  );
+  assert.equal(
+    git(['rev-parse', 'webmcp-challenge-2026-r9^{}']).trim(),
+    r9LinuxCiHead,
+    'the published R9 tag must remain immutable',
+  );
+
+  const priorEvidence = git(['show', `${r9LinuxCiHead}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(evidence.startsWith(priorEvidence), 'the published R9 evidence must remain byte-identical');
+
+  const identity = sourceIdentity(verificationTargetSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-webmcp-verification-target-r10-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+  for (const claim of [
+    'Focused RED: `8/9 PASS`, `1/9 FAIL`; D1 parity `1/3 PASS`, `2/3 FAIL`.',
+    'Focused GREEN: contract `9/9 PASS`; D1 parity `3/3 PASS`.',
+    'The read tool returns only the exact committed browser rehearsal for the server-resolved active workspace, variant, and implemented revision.',
+    'Playwright, foreign, stale-revision, recording, expired, and uncommitted rehearsals are excluded.',
+    'The exact-ID verify contract and visible UI approval boundary are unchanged.',
+    'Official deadline extension: `2026-09-04 08:00 UTC / 01:00 PT`.',
+    'R10 publication, deployment, and hosted browser revalidation: `NOT_RUN`.',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R10 verification-target evidence: ${claim}`);
   }
 });
 

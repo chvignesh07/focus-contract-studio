@@ -181,7 +181,7 @@ At or after the deadline, perform read-only availability checks only. Do not cha
 
 ## Deadline freeze
 
-At **2026-09-03 20:00 UTC / 16:00 EDT / 13:00 PT**:
+At **2026-09-04 08:00 UTC / 04:00 EDT / 01:00 PT**, the extended deadline announced by the organizer on 2026-09-03:
 
 - freeze source tag/commit, deployed Sites project/version/access, public repository, video, screenshots, evidence assets, Devpost content, and links;
 - preserve public availability through the published judging period;

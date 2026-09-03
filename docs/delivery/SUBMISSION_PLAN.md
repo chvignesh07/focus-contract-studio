@@ -1,12 +1,12 @@
 # Focus Contract Studio — Devpost Submission and Demo Plan
 
 Status: **CURRENT SUBMISSION AUTHORITY**  
-Verified: **2026-08-29 EDT**  
+Verified: **2026-09-03 EDT**
 Hackathon: **The WebMCP Challenge — Devpost ID 31011 / slug `webmcp`**
 
 ## Current official facts
 
-**[Empirical]** Submissions close **2026-09-03 20:00 UTC / 16:00 EDT / 13:00 PT**. Judging is listed from **2026-09-04 17:00 UTC through 2026-09-22 00:00 UTC**, with winners announced **2026-09-23 21:00 UTC**. Recheck immediately before submission.
+**[Empirical]** The organizer's September 3 outage announcement extended submissions to **2026-09-04 08:00 UTC / 04:00 EDT / 01:00 PT**. Devpost reported `submissions_open` when rechecked at 2026-09-03 21:36 UTC. Judging is listed from **2026-09-04 17:00 UTC through 2026-09-22 00:00 UTC**, with winners announced **2026-09-23 21:00 UTC**. Recheck immediately before submission.
 
 **[Empirical]** The published criteria are equally weighted and use this order for tie-breaks:
 
@@ -163,10 +163,10 @@ Do not submit externally without founder authorization. The founder must also co
 5. Paste regenerated copy from `devpost-submission.md`; remove every placeholder and every unpassed claim.
 6. Preview on desktop/mobile; verify images, markdown, video embed/playback, and external links while signed out.
 7. Founder reads legal/custom answers, approves final copy/video, and explicitly authorizes submission.
-8. Submit by the internal target **2026-09-02 22:00 EDT**, capture `E-029`, and re-open the entry to confirm saved state.
+8. Submit by the revised internal target **2026-09-04 01:00 EDT**, capture `E-029`, and re-open the entry to confirm saved state.
 9. Generate the final evidence index and `E-030` attestation from `E-001` through `E-029`; validate/hash/publish both as release assets before the official deadline. This does not change source `C` or the deployed Site.
-10. Recheck the public release page, entry, Site, repository, and video; then freeze all artifacts. On September 3 morning perform read-only link/availability checks only.
+10. Recheck the public release page, entry, Site, repository, and video; then freeze all artifacts. After the extended deadline perform read-only link/availability checks only.
 
 ## Post-deadline rule
 
-Do not change the live Site, D1 data/schema, repository, release assets, video, screenshots, description, or Devpost entry after **2026-09-03 20:00 UTC** without written organizer authorization. Preserve availability and record platform incidents without mutating the entry.
+Do not change the live Site, D1 data/schema, repository, release assets, video, screenshots, description, or Devpost entry after **2026-09-04 08:00 UTC** without written organizer authorization. Preserve availability and record platform incidents without mutating the entry.

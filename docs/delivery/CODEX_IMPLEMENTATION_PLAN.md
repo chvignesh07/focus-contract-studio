@@ -284,9 +284,8 @@ These are execution targets, not claims that work is already complete:
 | Sep 2, 09:00 | Review 1 closed; source commit `C` frozen. |
 | Sep 2, 13:00 | Public acceptance, one-time holdout, VoiceOver/manual, and Review 2 complete. |
 | Sep 2, 18:00 | Public repository, screenshots, video export/upload complete. |
-| Sep 2, 22:00 | Devpost submitted and confirmation captured. |
-| Sep 3 morning | Read-only availability/link check only. |
-| Sep 3, 16:00 | Official EDT deadline; no mutations without written organizer authorization. |
+| Sep 4, 01:00 | Revised internal target: video linked, Devpost final action complete, confirmation captured. |
+| Sep 4, 04:00 | Extended official EDT deadline; no mutations without written organizer authorization. |
 
 ## Scope pressure rule
 

@@ -40,6 +40,12 @@ type ObservationRow = {
   event_digest: string;
 };
 
+type VerificationTargetRow = {
+  session_id: string;
+  implemented_revision: number;
+  state: 'finalized' | 'verified_pass' | 'verified_fail';
+};
+
 type ProposalRow = {
   id: string;
   base_implemented_revision: number;
@@ -85,6 +91,11 @@ export type ActiveFocusReviewResult = {
       manifestDigest8: string;
       eventDigest8: string;
       trust: 'untrusted-browser-telemetry';
+    };
+    verificationTarget: null | {
+      rehearsalSessionId: string;
+      expectedImplementedRevision: number;
+      state: VerificationTargetRow['state'];
     };
     precedentComparison: {
       label: 'ALIGNED' | 'DECISION_MISMATCH' | 'NO_PRECEDENT' | 'CONFLICT';
@@ -283,6 +294,30 @@ async function latestObservation(
     )
     .bind(workspaceId, variantId, implementedRevision)
     .first<ObservationRow>();
+}
+
+async function latestVerificationTarget(
+  db: D1Database,
+  workspaceId: string,
+  variantId: string,
+  implementedRevision: number,
+  now: number,
+): Promise<VerificationTargetRow | null> {
+  return db
+    .prepare(
+      `SELECT s.id AS session_id, s.implemented_revision, s.state
+         FROM observation_sessions s
+         JOIN focus_rehearsal_commits f
+           ON f.workspace_id = s.workspace_id AND f.session_id = s.id
+        WHERE s.workspace_id = ? AND s.variant_id = ?
+          AND s.implemented_revision = ? AND s.environment = 'browser'
+          AND (s.state IN ('verified_pass', 'verified_fail')
+            OR (s.state = 'finalized' AND s.expires_at >= ?))
+        ORDER BY f.finalized_at DESC, f.session_id DESC
+        LIMIT 1`,
+    )
+    .bind(workspaceId, variantId, implementedRevision, now)
+    .first<VerificationTargetRow>();
 }
 
 function unsupportedRetrieval(reasonCode: string): RetrievalResult {
@@ -498,11 +533,16 @@ export async function getActiveFocusReview(input: {
     contextDigest: snapshot.contextDigest,
     resultDigest: snapshot.resultDigest,
   });
-  const proposal = await latestProposal(
-    input.db,
-    snapshot.workspaceId,
-    snapshot.variantId,
-  );
+  const [proposal, verificationTarget] = await Promise.all([
+    latestProposal(input.db, snapshot.workspaceId, snapshot.variantId),
+    latestVerificationTarget(
+      input.db,
+      snapshot.workspaceId,
+      snapshot.variantId,
+      snapshot.implementedRevision,
+      input.now,
+    ),
+  ]);
   const precedentOutcome = snapshot.retrieval.returned[0]?.outcomeKey ?? null;
   const precedentSources = new Map(
     snapshot.loadedPrecedents.map(({ provenanceKind, record }) => [
@@ -534,6 +574,13 @@ export async function getActiveFocusReview(input: {
             manifestDigest8: snapshot.observation.manifest_digest.slice(0, 8),
             eventDigest8: snapshot.observation.event_digest.slice(0, 8),
             trust: 'untrusted-browser-telemetry',
+          }
+        : null,
+      verificationTarget: verificationTarget
+        ? {
+            rehearsalSessionId: verificationTarget.session_id,
+            expectedImplementedRevision: verificationTarget.implemented_revision,
+            state: verificationTarget.state,
           }
         : null,
       precedentComparison: {

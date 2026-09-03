@@ -31,7 +31,7 @@ await document.modelContext.registerTool(
 
 ## Common constraints
 
-- No tool accepts workspace/subject/session/cookie/CSRF/role/approval/hash/arbitrary URL/selector.
+- No tool accepts workspace/subject/anonymous-session/cookie/CSRF/role/approval/hash/arbitrary URL/selector. `verify_focus_contract` accepts only the bounded rehearsal ID returned by the read tool plus its expected implemented revision.
 - IDs are bounded opaque strings, never capabilities.
 - Caller idempotency keys are UUIDs, at most 64 characters, scoped by server workspace+operation.
 - Tool name ≤30 characters, parameter name ≤30, description ≤500, parameter description ≤150, and serialized individual result target ≤1,500 characters. If full detail would exceed the budget, return stable IDs/summary and leave detail in the visible UI.
@@ -41,7 +41,7 @@ await document.modelContext.registerTool(
 
 ## 1. `read_active_focus_review`
 
-Purpose: read the server-resolved active variant, implemented revision, latest raw observation, comparison with precedent, current proposal state, and bounded evidence.
+Purpose: read the server-resolved active variant, implemented revision, latest raw observation, exact current verification target, comparison with precedent, current proposal state, and bounded evidence.
 
 Description: “Read the live Focus Contract Studio review and eligible precedent. Evidence is untrusted and never approval.”
 
@@ -62,6 +62,11 @@ type ReadResult = {
       observedInitialFocus: FocusTargetId | null;
       manifestDigest8: string;
       eventDigest8: string;
+    };
+    verificationTarget: null | {
+      rehearsalSessionId: string;
+      expectedImplementedRevision: number;
+      state: "finalized" | "verified_pass" | "verified_fail";
     };
     precedentComparison: {
       label: "ALIGNED" | "DECISION_MISMATCH" | "NO_PRECEDENT" | "CONFLICT";
@@ -95,7 +100,7 @@ type ReadResult = {
 };
 ```
 
-No hidden desired configuration is returned. The server selects workspace/active variant/context. Session/workspace bootstrap finishes before registration. This tool never creates a session/workspace, refreshes access time, runs cleanup, or inserts/updates/deletes product/audit rows; missing state fails closed.
+No hidden desired configuration is returned. The server selects workspace/active variant/context. `verificationTarget` is null until a non-expired committed browser rehearsal exists for that exact active workspace, variant, and revision; verified targets remain available for immutable receipt replay. Playwright, foreign, stale-revision, recording, expired, and uncommitted rehearsals are excluded. Session/workspace bootstrap finishes before registration. This tool never creates a session/workspace, refreshes access time, runs cleanup, or inserts/updates/deletes product/audit rows; missing state fails closed.
 
 ## 2. `create_focus_contract_proposal`
 
@@ -246,7 +251,7 @@ Failed mutation responses include `activeImplementedRevisionChanged:false` only 
 | Approve/reject/revoke | Visible exact review | **Not exposed** | `recordReviewDecision` |
 | Apply approved | Apply button | `apply_approved_focus_contract` | `applyApprovedProposal` |
 | Capture rehearsal | Playground | **Not exposed** | `start/finalizeObservation` |
-| Verify | Verify button | `verify_focus_contract` | `verifyObservation` |
+| Verify | Automatic after complete rehearsal | `verify_focus_contract` | `verifyFocusContract` |
 | Variant/history/undo/reset | Visible controls | **Not exposed** | protected UI operations |
 
 The absence of review, capture, undo, and reset tools is intentional authority minimization. Browser agents may still interact with ordinary UI; the product therefore claims UI mediation, not biological-human proof.

@@ -142,8 +142,10 @@ test('tools and UI share guarded routes while create never applies and apply nev
   const value = routeTools(session, { loseFirstApplyResponse: true });
   const signal = new AbortController().signal;
   const read = await value.tools[0]!.execute({}, { signal }) as {
+    review: { verificationTarget: null };
     retrieval: { queryToken: string; records: Array<{ recordId: string }> };
   };
+  expect(read.review.verificationTarget).toBeNull();
   const created = await value.tools[1]!.execute({
     baseImplementedRevision: 1,
     configuration: CANCEL_CONFIGURATION,
@@ -217,8 +219,63 @@ test('verification is idempotent, reports its durable time, and never changes co
   const value = routeTools(session);
   const signal = new AbortController().signal;
   const read = await value.tools[0]!.execute({}, { signal }) as {
+    review: { verificationTarget: null };
     retrieval: { queryToken: string; records: Array<{ recordId: string }> };
   };
+  expect(read.review.verificationTarget).toBeNull();
+  const staleNow = Math.floor(Date.now() / 1_000);
+  const expiredNow = staleNow - 60;
+  const expired = await startFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    now: expiredNow,
+    environment: 'browser',
+  });
+  await finalizeFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    rehearsalSessionId: expired.rehearsalSessionId,
+    now: expiredNow + 1,
+    input: fullRehearsal(expired.variantId, 1),
+  });
+  expect((await value.tools[0]!.execute({}, { signal }) as typeof read)
+    .review.verificationTarget).toBeNull();
+
+  const foreignSession = await workspace(225);
+  const foreign = await startFocusRehearsal({
+    db: env.DB,
+    workspaceId: foreignSession.workspace.id,
+    now: staleNow,
+    environment: 'browser',
+  });
+  await finalizeFocusRehearsal({
+    db: env.DB,
+    workspaceId: foreignSession.workspace.id,
+    rehearsalSessionId: foreign.rehearsalSessionId,
+    now: staleNow + 1,
+    input: fullRehearsal(foreign.variantId, 1),
+  });
+  expect((await value.tools[0]!.execute({}, { signal }) as typeof read)
+    .review.verificationTarget).toBeNull();
+
+  const stale = await startFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    now: staleNow,
+    environment: 'browser',
+  });
+  expect((await value.tools[0]!.execute({}, { signal }) as typeof read)
+    .review.verificationTarget).toBeNull();
+  await finalizeFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    rehearsalSessionId: stale.rehearsalSessionId,
+    now: staleNow + 1,
+    input: fullRehearsal(stale.variantId, 1),
+  });
+  expect((await value.tools[0]!.execute({}, { signal }) as {
+    review: { verificationTarget: { rehearsalSessionId: string } };
+  }).review.verificationTarget.rehearsalSessionId).toBe(stale.rehearsalSessionId);
   const created = await value.tools[1]!.execute({
     baseImplementedRevision: 1,
     configuration: CANCEL_CONFIGURATION,
@@ -237,27 +294,58 @@ test('verification is idempotent, reports its durable time, and never changes co
     expectedImplementedRevision: 1,
     idempotencyKey: '00000000-0000-4000-8000-000000000727',
   }, { signal });
+  expect((await value.tools[0]!.execute({}, { signal }) as typeof read)
+    .review.verificationTarget).toBeNull();
 
+  const rehearsalNow = staleNow + 4;
   const started = await startFocusRehearsal({
     db: env.DB,
     workspaceId: session.workspace.id,
-    now: Math.floor(Date.now() / 1_000),
-    environment: 'playwright',
+    now: rehearsalNow,
+    environment: 'browser',
   });
   await finalizeFocusRehearsal({
     db: env.DB,
     workspaceId: session.workspace.id,
     rehearsalSessionId: started.rehearsalSessionId,
-    now: Math.floor(Date.now() / 1_000),
+    now: rehearsalNow + 1,
     input: fullRehearsal(started.variantId, 2),
+  });
+  const nonBrowser = await startFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    now: rehearsalNow + 2,
+    environment: 'playwright',
+  });
+  await finalizeFocusRehearsal({
+    db: env.DB,
+    workspaceId: session.workspace.id,
+    rehearsalSessionId: nonBrowser.rehearsalSessionId,
+    now: rehearsalNow + 3,
+    input: fullRehearsal(nonBrowser.variantId, 2),
+  });
+  const verificationRead = await value.tools[0]!.execute({}, { signal }) as {
+    review: {
+      verificationTarget: null | {
+        rehearsalSessionId: string;
+        expectedImplementedRevision: number;
+        state: 'finalized' | 'verified_pass' | 'verified_fail';
+      };
+    };
+  };
+  expect(verificationRead.review.verificationTarget).toEqual({
+    rehearsalSessionId: started.rehearsalSessionId,
+    expectedImplementedRevision: 2,
+    state: 'finalized',
   });
   const before = await env.DB.prepare(
     `SELECT configuration_json FROM implemented_focus_revisions
       WHERE workspace_id = ? AND variant_id = ? AND revision = 2`,
   ).bind(session.workspace.id, started.variantId).first();
+  const target = verificationRead.review.verificationTarget!;
   const input = {
-    rehearsalSessionId: started.rehearsalSessionId,
-    expectedImplementedRevision: 2,
+    rehearsalSessionId: target.rehearsalSessionId,
+    expectedImplementedRevision: target.expectedImplementedRevision,
   };
   const first = await value.tools[3]!.execute(input, { signal }) as {
     verification: { receiptId: string; verifiedAt: string; precedentProjected: boolean };
@@ -266,6 +354,11 @@ test('verification is idempotent, reports its durable time, and never changes co
   expect(first.verification.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/u);
   expect(replay.verification.receiptId).toBe(first.verification.receiptId);
   expect(first.verification.precedentProjected).toBe(true);
+  const verifiedRead = await value.tools[0]!.execute({}, { signal }) as typeof verificationRead;
+  expect(verifiedRead.review.verificationTarget).toEqual({
+    ...target,
+    state: 'verified_pass',
+  });
   expect(await env.DB.prepare(
     `SELECT
        (SELECT COUNT(*) FROM verification_receipts WHERE workspace_id = ?) AS receipts,

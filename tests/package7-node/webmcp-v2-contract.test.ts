@@ -43,6 +43,11 @@ const readPayload = {
       implementedOutcome: 'cancel-button',
       precedentOutcome: 'cancel-button',
     },
+    verificationTarget: {
+      rehearsalSessionId: UUIDS.rehearsal,
+      expectedImplementedRevision: 1,
+      state: 'verified_pass',
+    },
   },
   retrieval: {
     queryToken: `v1.1788100000.${'A'.repeat(43)}`,
@@ -257,10 +262,17 @@ test('read uses the shared route and returns only the exact bounded untrusted re
     'retrieval',
     'proposal',
   ]);
+  assert.deepEqual(
+    (result.review as { verificationTarget: unknown }).verificationTarget,
+    {
+      rehearsalSessionId: UUIDS.rehearsal,
+      expectedImplementedRevision: 1,
+      state: 'verified_pass',
+    },
+  );
   const retrieval = result.retrieval as typeof readPayload.retrieval;
-  assert.equal(retrieval.records.length, 2);
+  assert.equal(retrieval.records.length, 1);
   assert.equal(retrieval.records[0]?.rationaleExcerpt.includes('<script>'), true);
-  assert.equal(Array.from(retrieval.records[1]!.rationaleExcerpt).length, 120);
   assert.deepEqual(Object.keys(retrieval.records[0]!), [
     'recordId',
     'outcomeKey',

@@ -410,6 +410,21 @@ function readResult(body: unknown): unknown {
   const observation = review.observation === null
     ? null
     : objectValue(review.observation);
+  const verificationTarget = review.verificationTarget === null
+    ? null
+    : objectValue(review.verificationTarget);
+  const verificationTargetId = verificationTarget
+    ? rehearsalSessionIdSchema.safeParse(verificationTarget.rehearsalSessionId)
+    : null;
+  const verificationTargetRevision = verificationTarget
+    ? numberValue(verificationTarget.expectedImplementedRevision)
+    : null;
+  if (
+    (verificationTargetId !== null && !verificationTargetId.success) ||
+    (verificationTargetRevision !== null && verificationTargetRevision < 1)
+  ) {
+    invalidResponse();
+  }
   const proposal = root.proposal === null ? null : objectValue(root.proposal);
   const records = arrayValue(retrieval.records).slice(0, 2).map((value) => {
     const record = objectValue(value);
@@ -447,6 +462,15 @@ function readResult(body: unknown): unknown {
           : focusTarget(observation.observedInitialFocus),
         manifestDigest8: stringValue(observation.manifestDigest8),
         eventDigest8: stringValue(observation.eventDigest8),
+      },
+      verificationTarget: verificationTarget && {
+        rehearsalSessionId: verificationTargetId!.data,
+        expectedImplementedRevision: verificationTargetRevision!,
+        state: oneOf(verificationTarget.state, [
+          'finalized',
+          'verified_pass',
+          'verified_fail',
+        ] as const),
       },
       precedentComparison: {
         label: oneOf(comparison.label, [
@@ -487,9 +511,7 @@ function readResult(body: unknown): unknown {
     },
   };
   if (JSON.stringify(result).length > MAX_RESULT_CHARACTERS) {
-    for (const record of result.retrieval.records) {
-      record.rationaleExcerpt = Array.from(record.rationaleExcerpt).slice(0, 60).join('');
-    }
+    result.retrieval.records = result.retrieval.records.slice(0, 1);
   }
   return bounded(result);
 }
