@@ -695,11 +695,10 @@ boundaries.
 - Pre-commit canonical: `PASS_TO_CLEAN_TREE_GITLEAKS`. With
   `VITEST_MAX_WORKERS=1`, every stage through Package 8 browser and offline audit
   passed; the release check then refused the intentionally dirty tree as designed.
-- Four added tests raise the preserved R4 total from `536` to the expected
-  Exact clean-commit canonical total: `540/540`.
-- Exact no-local clone verification remains `TERMINAL_POST_COMMIT` at this
-  pre-commit evidence point.
-- Final clean-commit canonical: `TERMINAL_POST_COMMIT`; current status: `PENDING`.
+- R4 `536` + three Package 8 admission tests + one Package 9 evidence-binding test = exact clean-commit canonical total `540/540`.
+- Final clean-commit canonical and exact no-local clone:
+  `TERMINAL_POST_COMMIT`.
+- Self-reference boundary: This tracked artifact does not claim to prove its own final commit or exact-clone outcomes; those results belong only in the post-commit handoff receipt.
 
 ### Independent review
 
@@ -716,3 +715,38 @@ boundaries.
   changes, credential access, GitHub Release, Package 10, media, publication, and
   Devpost: `NOT_RUN`.
 - No external action: **YES**.
+
+## Package 9 R5 diagnostic review-fix descendant checkpoint
+
+This descendant repairs the diagnostic-boundary and evidence-integrity review
+findings on `4afbe5521a63a5fc766ac446fd0ff089d93f7f1a` without changing the public
+error contract, migrations, dependencies, hosting configuration, or any
+non-bootstrap runtime path.
+
+<!-- package9-sites-bootstrap-diagnostics-r5-review-fix-source-binding files=3 sha256=fa56ff014b93fa66709c24cf6bac9075285d7dfa468256ef1e89f0293e60e494 -->
+
+- Diagnostic RED: `0/1 PASS`, `1/1 FAIL`; a valid existing session with a forced
+  workspace lookup failure was mislabeled `workspace_seed` instead of
+  `session_resolution`.
+- Diagnostic GREEN: `1/1 PASS`; `session_resolution` now covers cookie parsing,
+  subject derivation, existing-workspace lookup, and pre-admission session
+  material. `workspace_seed` begins only after successful global admission at
+  the existing `admitCreate` boundary.
+- The corrected allowlist is `runtime_config`, `request_validation`, `session_resolution`, `client_fingerprint`, `global_admission`, `workspace_seed`, and `active_seed_read`.
+- Evidence-integrity RED: `0/1 PASS`, `1/1 FAIL`; the binding rejected the stale
+  R5 `current status: PENDING` claim.
+- Added-test accounting is derived from source and remains R4 `536` + three
+  admission tests + one evidence-binding test = `540`.
+- Final commit, clean-commit canonical verification, and exact no-local clone
+  verification remain `TERMINAL_POST_COMMIT` and are reported only by the
+  post-commit handoff receipt.
+- Diagnostic correctness/state-boundary reviewer
+  `/root/sites_bootstrap_r5_boundary_review`: `FINAL PASS`; no critical, high,
+  or material finding.
+- Privacy/evidence/test-truthfulness reviewer
+  `/root/sites_bootstrap_r5_privacy_review`: `FINAL PASS`; no critical, high, or
+  material finding.
+- Root is the only writer. Both review lanes were read-only and made no edits or
+  external calls.
+- Hosted D1, Sites, credentials, push, tag, merge, deployment, publication,
+  GitHub Releases, Package 10, media, and Devpost: `NOT_RUN`.

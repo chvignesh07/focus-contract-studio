@@ -13,6 +13,7 @@ const repositoryRoot = path.resolve(
 const package9Base = '825f7ee012d0ab7c59f95ca62581ad5b5e5c28b2';
 const d1CaseParserBase = '814745b3ce44569c61174eb7a413156955cde831';
 const bootstrapDiagnosticsBase = '72a05e780cc037c5a2e0df6938e1bfcad73ab4e5';
+const bootstrapDiagnosticsReviewBase = '4afbe5521a63a5fc766ac446fd0ff089d93f7f1a';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -30,6 +31,11 @@ const bootstrapDiagnosticsSourcePaths = [
   'tests/package8/admission.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
+const bootstrapDiagnosticsReviewSourcePaths = [
+  'app/api/session/bootstrap/route.ts',
+  'tests/package8/admission.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
 
 function sha256(value: string | Buffer) {
   return createHash('sha256').update(value).digest('hex');
@@ -44,6 +50,10 @@ function git(args: string[]) {
 
 function gitLines(args: string[]) {
   return git(args).trim().split('\n').filter(Boolean);
+}
+
+function topLevelTestCount(source: string) {
+  return source.match(/^test\(/gmu)?.length ?? 0;
 }
 
 function sourceIdentity(sourcePaths: readonly string[], revision?: string) {
@@ -151,7 +161,10 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
     'the historical R4 source hash must remain provenance',
   );
 
-  const identity = sourceIdentity(bootstrapDiagnosticsSourcePaths);
+  const identity = sourceIdentity(
+    bootstrapDiagnosticsSourcePaths,
+    bootstrapDiagnosticsReviewBase,
+  );
   assert.match(
     evidence,
     new RegExp(
@@ -159,19 +172,57 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
       'u',
     ),
   );
+
+  const addedAdmissionTests = topLevelTestCount(
+    readFileSync(path.join(repositoryRoot, 'tests/package8/admission.test.ts'), 'utf8'),
+  ) - topLevelTestCount(
+    git(['show', `${bootstrapDiagnosticsBase}:tests/package8/admission.test.ts`]),
+  );
+  const addedEvidenceBindingTests = topLevelTestCount(
+    readFileSync(path.join(repositoryRoot, 'tests/package9-node/source-evidence.test.ts'), 'utf8'),
+  ) - topLevelTestCount(
+    git(['show', `${bootstrapDiagnosticsBase}:tests/package9-node/source-evidence.test.ts`]),
+  );
+  assert.deepEqual(
+    { addedAdmissionTests, addedEvidenceBindingTests },
+    { addedAdmissionTests: 3, addedEvidenceBindingTests: 1 },
+  );
+  assert.equal(536 + addedAdmissionTests + addedEvidenceBindingTests, 540);
+  assert.doesNotMatch(
+    evidence.slice(priorEvidence.length),
+    /current status: `PENDING`/u,
+    'the current R5 evidence must not claim a stale post-commit status',
+  );
+
+  const reviewChangedPaths = new Set([
+    ...gitLines(['diff', '--name-only', bootstrapDiagnosticsReviewBase, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...reviewChangedPaths].sort(),
+    [...bootstrapDiagnosticsReviewSourcePaths, evidencePath].sort(),
+  );
+  const reviewIdentity = sourceIdentity(bootstrapDiagnosticsReviewSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-sites-bootstrap-diagnostics-r5-review-fix-source-binding files=${reviewIdentity.fileCount} sha256=${reviewIdentity.sha256} -->`,
+      'u',
+    ),
+  );
   for (const claim of [
     'Focused RED: `1/3 PASS`, `2/3 FAIL`',
     'Focused GREEN: `3/3 PASS`',
     '`event`, `stage`, and `correlationId`',
-    '`runtime_config`, `request_validation`, `client_fingerprint`, `global_admission`, `workspace_seed`, and `active_seed_read`',
+    '`runtime_config`, `request_validation`, `session_resolution`, `client_fingerprint`, `global_admission`, `workspace_seed`, and `active_seed_read`',
     'Structured `FcsError` responses remain byte-compatible and emit no unexpected-error record.',
     'Pre-commit canonical: `PASS_TO_CLEAN_TREE_GITLEAKS`',
-    'Exact clean-commit canonical total: `540/540`',
+    'R4 `536` + three Package 8 admission tests + one Package 9 evidence-binding test = exact clean-commit canonical total `540/540`.',
     'Archive identity: `PASS`',
     'Correctness/test reviewer `/root/sites_bootstrap_correctness_review`: `PASS`',
     'Security/privacy reviewer `/root/sites_bootstrap_security_review`: `PASS`',
     'Hosted D1 and Sites: `NOT_RUN`',
-    'Final clean-commit canonical: `TERMINAL_POST_COMMIT`',
+    'This tracked artifact does not claim to prove its own final commit or exact-clone outcomes; those results belong only in the post-commit handoff receipt.',
   ]) {
     assert.ok(evidence.includes(claim), `missing R5 diagnostic evidence: ${claim}`);
   }

@@ -472,6 +472,7 @@ const bootstrapDiagnosticEvent = 'fcs.bootstrap.unexpected_error';
 const bootstrapDiagnosticStages = [
   'runtime_config',
   'request_validation',
+  'session_resolution',
   'client_fingerprint',
   'global_admission',
   'workspace_seed',
@@ -704,6 +705,53 @@ test('bootstrap unexpected diagnostics identify each actual execution boundary',
     sessionSecret: configuration.sessionSecret,
     csrfSecret: configuration.csrfSecret,
   });
+  const sessionResolutionRequest = bootstrapRequest({
+    cookie: `${session.setCookie!}; private-cookie=private-session-resolution-cookie-marker`,
+    address: '198.51.100.78',
+  });
+  sessionResolutionRequest.headers.set(
+    'x-private-header',
+    'private-session-resolution-header-marker',
+  );
+  sessionResolutionRequest.headers.set(
+    'oai-authenticated-user-email',
+    'private-session-resolution-identity-marker',
+  );
+  sessionResolutionRequest.headers.set(
+    'authorization',
+    'private-session-resolution-credential-marker',
+  );
+  sessionResolutionRequest.headers.set(
+    'x-private-path',
+    '/private/session-resolution-path',
+  );
+  Object.defineProperty(sessionResolutionRequest, 'cf', {
+    configurable: true,
+    value: { colo: 'private-session-resolution-environment-marker' },
+  });
+  await env.DB.prepare('DROP INDEX idx_workspaces_subject_current').run();
+  try {
+    expectUnexpectedBootstrapDiagnostic(
+      await captureBootstrapFailure(sessionResolutionRequest),
+      'session_resolution',
+      [
+        'idx_workspaces_subject_current',
+        'private-session-resolution-cookie-marker',
+        '198.51.100.78',
+        'private-session-resolution-header-marker',
+        'private-session-resolution-identity-marker',
+        'private-session-resolution-environment-marker',
+        'private-session-resolution-credential-marker',
+        '/private/session-resolution-path',
+      ],
+    );
+  } finally {
+    await env.DB.prepare(
+      `CREATE UNIQUE INDEX idx_workspaces_subject_current
+         ON workspaces(subject_kind, subject_key)
+         WHERE purged_at IS NULL`,
+    ).run();
+  }
   await env.DB.prepare(
     'ALTER TABLE workspace_view_state RENAME TO package8_test_missing_view_state',
   ).run();

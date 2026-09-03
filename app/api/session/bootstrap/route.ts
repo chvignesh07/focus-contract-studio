@@ -20,6 +20,7 @@ const inputSchema = z.object({}).strict();
 type BootstrapStage =
   | 'runtime_config'
   | 'request_validation'
+  | 'session_resolution'
   | 'client_fingerprint'
   | 'global_admission'
   | 'workspace_seed'
@@ -43,7 +44,7 @@ export async function POST(request: Request): Promise<Response> {
       throw new FcsError('INVALID_REQUEST', 'The request is invalid.', 400);
     }
     const now = Math.floor(Date.now() / 1000);
-    stage = 'workspace_seed';
+    stage = 'session_resolution';
     const session = await bootstrapWorkspace({
       db: env.DB,
       cookieHeader: request.headers.get('cookie'),
