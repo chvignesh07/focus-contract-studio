@@ -456,15 +456,27 @@ test('saturating one bootstrap client does not block an independent client', asy
   })).resolves.toBe(1);
 });
 
-function edgeRequest(address: string, forwardedFor: string): Request {
-  const request = new Request('https://focus-contract-studio.example/api/session/bootstrap', {
+function edgeRequest(address: string, headers: HeadersInit = {}): Request {
+  return new Request('https://focus-contract-studio.example/api/session/bootstrap', {
     method: 'POST',
     headers: {
       'cf-connecting-ip': address,
-      'x-forwarded-for': forwardedFor,
+      ...headers,
     },
   });
+}
+
+function edgeRequestWithHeaderValue(address: string | null): Request {
+  const request = edgeRequest('203.0.113.10');
+  const headers = request.headers;
   Object.defineProperty(request, 'cf', { value: { colo: 'TEST' } });
+  Object.defineProperty(request, 'headers', {
+    value: {
+      get(name: string) {
+        return name === 'cf-connecting-ip' ? address : headers.get(name);
+      },
+    },
+  });
   return request;
 }
 
@@ -650,9 +662,15 @@ test('bootstrap unexpected diagnostics identify each actual execution boundary',
   }
 
   const fingerprintRequest = bootstrapRequest();
-  Object.defineProperty(fingerprintRequest, 'cf', {
-    get() {
-      throw new Error('private-client-fingerprint-marker');
+  const fingerprintHeaders = fingerprintRequest.headers;
+  Object.defineProperty(fingerprintRequest, 'headers', {
+    value: {
+      get(name: string) {
+        if (name === 'cf-connecting-ip') {
+          throw new Error('private-client-fingerprint-marker');
+        }
+        return fingerprintHeaders.get(name);
+      },
     },
   });
   expectUnexpectedBootstrapDiagnostic(
@@ -767,39 +785,108 @@ test('bootstrap unexpected diagnostics identify each actual execution boundary',
   }
 });
 
-test('spoofable forwarding metadata cannot bypass trusted bootstrap isolation', async () => {
+test('trusted bootstrap digest uses valid direct-edge input without reading request.cf', async () => {
   const secret = 'package8-edge-test-secret-material-at-least-32-bytes';
   const now = package5Now;
-  const untrusted = new Request('https://focus-contract-studio.example/api/session/bootstrap', {
-    headers: {
-      'cf-connecting-ip': '203.0.113.10',
-      'x-forwarded-for': '198.51.100.200',
+  let cfReads = 0;
+  const firstRequest = edgeRequest('203.0.113.10', {
+    'x-forwarded-for': '198.51.100.1',
+    'x-real-ip': '198.51.100.2',
+  });
+  Object.defineProperty(firstRequest, 'cf', {
+    get() {
+      cfReads += 1;
+      throw new Error('request.cf must not be read');
     },
   });
-  await expect(trustedBootstrapClientDigest({ request: untrusted, now, secret }))
-    .rejects.toMatchObject({ code: 'BOOTSTRAP_EDGE_UNAVAILABLE', status: 503 });
-
   const first = await trustedBootstrapClientDigest({
-    request: edgeRequest('203.0.113.10', '198.51.100.1'),
+    request: firstRequest,
     now,
     secret,
   });
   const spoofChanged = await trustedBootstrapClientDigest({
-    request: edgeRequest('203.0.113.10', '192.0.2.250'),
+    request: edgeRequest('203.0.113.10', {
+      'x-forwarded-for': '192.0.2.250',
+      'x-real-ip': '192.0.2.251',
+    }),
     now,
     secret,
   });
   const independent = await trustedBootstrapClientDigest({
-    request: edgeRequest('203.0.113.11', '198.51.100.1'),
+    request: edgeRequest('203.0.113.11'),
+    now,
+    secret,
+  });
+  const ipv6 = await trustedBootstrapClientDigest({
+    request: edgeRequest('2001:db8::1'),
     now,
     secret,
   });
   expect(first).toMatch(/^[0-9a-f]{64}$/u);
+  expect(cfReads).toBe(0);
   expect(spoofChanged).toBe(first);
   expect(independent).not.toBe(first);
+  expect(ipv6).toMatch(/^[0-9a-f]{64}$/u);
+  expect(ipv6).not.toBe(first);
 });
 
-test('untrusted new bootstrap writes nothing while a valid reload needs no edge signal', async () => {
+test('trusted bootstrap digest distinguishes header and HMAC failures from request.cf', async () => {
+  const secret = 'package8-edge-test-secret-material-at-least-32-bytes';
+  const request = edgeRequest('203.0.113.10');
+  const headers = request.headers;
+  Object.defineProperty(request, 'cf', {
+    get() {
+      throw new Error('request.cf must not be read');
+    },
+  });
+  Object.defineProperty(request, 'headers', {
+    value: {
+      get(name: string) {
+        if (name === 'cf-connecting-ip') {
+          throw new Error('client-fingerprint-header-access-marker');
+        }
+        return headers.get(name);
+      },
+    },
+  });
+  await expect(trustedBootstrapClientDigest({ request, now: package5Now, secret }))
+    .rejects.toThrow('client-fingerprint-header-access-marker');
+  const hmacRequest = edgeRequest('203.0.113.10');
+  Object.defineProperty(hmacRequest, 'cf', {
+    get() {
+      throw new Error('request.cf must not be read');
+    },
+  });
+  await expect(trustedBootstrapClientDigest({
+    request: hmacRequest,
+    now: package5Now,
+    secret: 'short',
+  })).rejects.toThrow('Server cryptographic secret must contain at least 32 bytes.');
+});
+
+test('trusted bootstrap digest fails closed on missing, malformed, list, whitespace, and control edge input', async () => {
+  const secret = 'package8-edge-test-secret-material-at-least-32-bytes';
+  for (const address of [
+    null,
+    'abcd',
+    '999.999.999.999',
+    '203.0.113.10, 198.51.100.1',
+    ' 203.0.113.10',
+    '203.0.113.10\u0000',
+  ]) {
+    await expect(trustedBootstrapClientDigest({
+      request: edgeRequestWithHeaderValue(address),
+      now: package5Now,
+      secret,
+    })).rejects.toMatchObject({
+      code: 'BOOTSTRAP_EDGE_UNAVAILABLE',
+      status: 503,
+      retryable: true,
+    });
+  }
+});
+
+test('bootstrap rejects invalid edge input without writes and accepts a Vinext-shaped request', async () => {
   const now = Math.floor(Date.now() / 1000);
   const expired = await bootstrapWorkspace({
     db: env.DB,
@@ -822,24 +909,25 @@ test('untrusted new bootstrap writes nothing while a valid reload needs no edge 
   ).first();
   const before = await counts();
   const configuration = runtimeSecurityConfig();
-  const rejected = await bootstrapRoute(new Request(
+  const rejected = await captureBootstrapFailure(new Request(
     `${configuration.publicOrigin}/api/session/bootstrap`,
     {
       method: 'POST',
       headers: {
         origin: configuration.publicOrigin,
         'content-type': 'application/json',
-        'cf-connecting-ip': '203.0.113.10',
-        'x-forwarded-for': '198.51.100.200',
+        'cf-connecting-ip': 'invalid-edge-address-marker',
       },
       body: '{}',
     },
   ));
-  expect(rejected.status).toBe(503);
-  expect(await rejected.json()).toMatchObject({
+  expect(rejected.response.status).toBe(503);
+  expect(JSON.parse(rejected.body)).toMatchObject({
     ok: false,
     error: { code: 'BOOTSTRAP_EDGE_UNAVAILABLE', retryable: true },
   });
+  expect(rejected.body).not.toContain('invalid-edge-address-marker');
+  expect(rejected.calls).toHaveLength(0);
   expect(await counts()).toEqual(before);
   expect(await env.DB.prepare(
     'SELECT id FROM workspaces WHERE id = ?',
@@ -857,9 +945,16 @@ test('untrusted new bootstrap writes nothing while a valid reload needs no edge 
       body: '{}',
     },
   );
-  Object.defineProperty(trustedCreateRequest, 'cf', { value: { colo: 'TEST' } });
+  let cfReads = 0;
+  Object.defineProperty(trustedCreateRequest, 'cf', {
+    get() {
+      cfReads += 1;
+      throw new Error('vinext-request-cf-access-marker');
+    },
+  });
   const active = await bootstrapRoute(trustedCreateRequest);
   expect(active.status).toBe(201);
+  expect(cfReads).toBe(0);
   const beforeReload = await counts();
   const reload = await bootstrapRoute(new Request(
     `${configuration.publicOrigin}/api/session/bootstrap`,

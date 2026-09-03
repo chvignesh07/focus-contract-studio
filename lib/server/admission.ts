@@ -25,6 +25,32 @@ export const WORKSPACE_OPERATION_LIMITS = {
 
 export type WorkspaceOperation = keyof typeof WORKSPACE_OPERATION_LIMITS;
 
+function isStrictEdgeAddress(address: string): boolean {
+  if (
+    address.length < 2 ||
+    address.length > 64 ||
+    /[\s\u0000-\u001f\u007f]/u.test(address)
+  ) {
+    return false;
+  }
+  if (address.includes(':')) {
+    try {
+      new URL(`http://[${address}]/`);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  if (!/^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$/u.test(address)) {
+    return false;
+  }
+  try {
+    return new URL(`http://${address}/`).hostname === address;
+  } catch {
+    return false;
+  }
+}
+
 async function cleanupExpiredWindows(db: D1Database, now: number): Promise<void> {
   const cleanup = await db
     .prepare(
@@ -102,17 +128,8 @@ export async function trustedBootstrapClientDigest(input: {
   now: number;
   secret: string;
 }): Promise<string> {
-  const cloudflare = (input.request as Request & { cf?: unknown }).cf;
   const address = input.request.headers.get('cf-connecting-ip');
-  if (
-    cloudflare === null ||
-    typeof cloudflare !== 'object' ||
-    address === null ||
-    address !== address.trim() ||
-    address.length < 2 ||
-    address.length > 64 ||
-    !/^[0-9a-f:.]+$/iu.test(address)
-  ) {
+  if (address === null || !isStrictEdgeAddress(address)) {
     throw new FcsError(
       'BOOTSTRAP_EDGE_UNAVAILABLE',
       'A trusted client boundary is unavailable.',

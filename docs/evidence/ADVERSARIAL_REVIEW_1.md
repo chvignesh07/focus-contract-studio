@@ -750,3 +750,68 @@ non-bootstrap runtime path.
   external calls.
 - Hosted D1, Sites, credentials, push, tag, merge, deployment, publication,
   GitHub Releases, Package 10, media, and Devpost: `NOT_RUN`.
+
+## Package 9 Sites client-fingerprint R6 descendant checkpoint
+
+This descendant repairs only the shared bootstrap client-digest boundary from
+`49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c`. It preserves the bootstrap public
+error contract, all migrations, admission persistence, dependencies, hosting
+configuration, and every external/manual truth boundary.
+
+<!-- package9-sites-client-fingerprint-r6-source-binding files=4 sha256=a20e956c83ae5c61154381df121c1c51791037aed57029314c5f2a9b97995e89 -->
+
+### Root cause and narrow repair
+
+- [Empirical] The focused regression made a valid direct-edge request expose a
+  throwing `request.cf` getter. The pre-repair helper failed at that getter before
+  either header access or HMAC derivation, matching the hosted private stage
+  `client_fingerprint` without exposing an address, secret, or stack.
+- [Empirical] The helper now uses only a strictly bounded IPv4/IPv6
+  `CF-Connecting-IP` value as ephemeral HMAC input. It does not read
+  `request.cf`, `X-Forwarded-For`, `X-Real-IP`, or any other forwarding header;
+  absent, malformed, list, whitespace, or control-character input becomes the
+  existing retryable `BOOTSTRAP_EDGE_UNAVAILABLE` 503 before admission or a
+  workspace write.
+- [High-Conviction] Repairing this one shared helper is the smallest complete
+  correction because the bootstrap route is its only production caller.
+- [Hypothesis] A deployed Sites boundary supplies a trustworthy
+  `CF-Connecting-IP` value only if the edge strips or overwrites caller-supplied
+  values. A hosted probe proving that behavior is required before this local
+  control can be presented as deployed protection; it was not run here.
+
+### Red-to-green and local verification
+
+- Focused RED: `0/1 PASS`, `1/1 FAIL`; the failure was the deliberate
+  `request.cf must not be read` marker at the shared helper.
+- Focused GREEN: `5/5 PASS`; the direct-edge getter is not accessed, IPv4 and
+  IPv6 produce isolated HMAC digests, spoofed forwarding headers cannot select a
+  bucket, invalid input fails closed, header/HMAC failures remain separately
+  attributable, and the route writes nothing on rejection.
+- `request.cf is never accessed for a valid direct-edge request.`
+- Header access and HMAC derivation remain distinct client-fingerprint failure boundaries.
+- No raw edge address or secret reaches logs, public responses, storage, or evidence.
+- Package 8 atomic D1 admission tests: `22/22 PASS`; typecheck, lint, explicit
+  production build, built Package 8 browser tests `4/4`, and both offline audits
+  passed in the inherited local gate before its intentional terminal refusal to
+  attest a dirty worktree.
+- Package 9 fresh-D1/rerun: `1/1 PASS`; migration/archive Node suite: `9/9 PASS`;
+  complete Package 9 source/evidence binding: `4/4 PASS`.
+- Final clean-commit canonical and exact no-local clone: `TERMINAL_POST_COMMIT`.
+
+### Independent review
+
+- Correctness/security reviewer `/root/client_fingerprint_correctness_security`: `PASS`;
+  its sole contract-drift finding was corrected by adding the header-only
+  constraint to the source-bound security/privacy contract.
+- Test/evidence reviewer `/root/client_fingerprint_tests_evidence`: `PASS`; no
+  material test, source-binding, or evidence-truthfulness finding remains.
+- Root is the only writer. Both reviewer lanes are read-only and made no edits or
+  external calls.
+
+### Truth boundary
+
+- Hosted D1 and Sites: `NOT_RUN`.
+- Push, tag, merge, deployment, saved Site version, Sites access/environment/source
+  changes, credential access, GitHub Release, Package 10, media, publication, and
+  Devpost: `NOT_RUN`.
+- No external action: **YES**.

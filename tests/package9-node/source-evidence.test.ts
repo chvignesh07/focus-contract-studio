@@ -14,6 +14,7 @@ const package9Base = '825f7ee012d0ab7c59f95ca62581ad5b5e5c28b2';
 const d1CaseParserBase = '814745b3ce44569c61174eb7a413156955cde831';
 const bootstrapDiagnosticsBase = '72a05e780cc037c5a2e0df6938e1bfcad73ab4e5';
 const bootstrapDiagnosticsReviewBase = '4afbe5521a63a5fc766ac446fd0ff089d93f7f1a';
+const clientFingerprintBase = '49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -35,6 +36,16 @@ const bootstrapDiagnosticsReviewSourcePaths = [
   'app/api/session/bootstrap/route.ts',
   'tests/package8/admission.test.ts',
   'tests/package9-node/source-evidence.test.ts',
+] as const;
+const clientFingerprintSourcePaths = [
+  'docs/quality/SECURITY_AND_PRIVACY.md',
+  'lib/server/admission.ts',
+  'tests/package8/admission.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const clientFingerprintChangedPaths = [
+  ...clientFingerprintSourcePaths,
+  evidencePath,
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -140,8 +151,13 @@ test('the Package 9 D1 CASE-parser descendant and local evidence are exactly sou
 
 test('the Package 9 bootstrap-diagnostics descendant and local evidence are exactly source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', bootstrapDiagnosticsBase, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines([
+      'diff',
+      '--name-only',
+      bootstrapDiagnosticsBase,
+      clientFingerprintBase,
+      '--',
+    ]),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
@@ -149,7 +165,7 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
   );
 
   const priorEvidence = git(['show', `${bootstrapDiagnosticsBase}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${clientFingerprintBase}:${evidencePath}`]);
   assert.ok(
     evidence.startsWith(priorEvidence),
     'the frozen R4 evidence must remain byte-identical',
@@ -174,12 +190,12 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
   );
 
   const addedAdmissionTests = topLevelTestCount(
-    readFileSync(path.join(repositoryRoot, 'tests/package8/admission.test.ts'), 'utf8'),
+    git(['show', `${clientFingerprintBase}:tests/package8/admission.test.ts`]),
   ) - topLevelTestCount(
     git(['show', `${bootstrapDiagnosticsBase}:tests/package8/admission.test.ts`]),
   );
   const addedEvidenceBindingTests = topLevelTestCount(
-    readFileSync(path.join(repositoryRoot, 'tests/package9-node/source-evidence.test.ts'), 'utf8'),
+    git(['show', `${clientFingerprintBase}:tests/package9-node/source-evidence.test.ts`]),
   ) - topLevelTestCount(
     git(['show', `${bootstrapDiagnosticsBase}:tests/package9-node/source-evidence.test.ts`]),
   );
@@ -195,14 +211,22 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
   );
 
   const reviewChangedPaths = new Set([
-    ...gitLines(['diff', '--name-only', bootstrapDiagnosticsReviewBase, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines([
+      'diff',
+      '--name-only',
+      bootstrapDiagnosticsReviewBase,
+      clientFingerprintBase,
+      '--',
+    ]),
   ]);
   assert.deepEqual(
     [...reviewChangedPaths].sort(),
     [...bootstrapDiagnosticsReviewSourcePaths, evidencePath].sort(),
   );
-  const reviewIdentity = sourceIdentity(bootstrapDiagnosticsReviewSourcePaths);
+  const reviewIdentity = sourceIdentity(
+    bootstrapDiagnosticsReviewSourcePaths,
+    clientFingerprintBase,
+  );
   assert.match(
     evidence,
     new RegExp(
@@ -225,6 +249,64 @@ test('the Package 9 bootstrap-diagnostics descendant and local evidence are exac
     'This tracked artifact does not claim to prove its own final commit or exact-clone outcomes; those results belong only in the post-commit handoff receipt.',
   ]) {
     assert.ok(evidence.includes(claim), `missing R5 diagnostic evidence: ${claim}`);
+  }
+});
+
+test('the Package 9 client-fingerprint descendant and local evidence are exactly source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', clientFingerprintBase, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...clientFingerprintChangedPaths].sort(),
+  );
+
+  const priorEvidence = git(['show', `${clientFingerprintBase}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(
+    evidence.startsWith(priorEvidence),
+    'the frozen R5 evidence must remain byte-identical',
+  );
+
+  const identity = sourceIdentity(clientFingerprintSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-sites-client-fingerprint-r6-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+
+  const addedAdmissionTests = topLevelTestCount(
+    readFileSync(path.join(repositoryRoot, 'tests/package8/admission.test.ts'), 'utf8'),
+  ) - topLevelTestCount(
+    git(['show', `${clientFingerprintBase}:tests/package8/admission.test.ts`]),
+  );
+  const addedEvidenceBindingTests = topLevelTestCount(
+    readFileSync(path.join(repositoryRoot, 'tests/package9-node/source-evidence.test.ts'), 'utf8'),
+  ) - topLevelTestCount(
+    git(['show', `${clientFingerprintBase}:tests/package9-node/source-evidence.test.ts`]),
+  );
+  assert.deepEqual(
+    { addedAdmissionTests, addedEvidenceBindingTests },
+    { addedAdmissionTests: 2, addedEvidenceBindingTests: 1 },
+  );
+  assert.equal(540 + addedAdmissionTests + addedEvidenceBindingTests, 543);
+
+  for (const claim of [
+    'Focused RED: `0/1 PASS`, `1/1 FAIL`',
+    'Focused GREEN: `5/5 PASS`',
+    'request.cf is never accessed for a valid direct-edge request.',
+    'Header access and HMAC derivation remain distinct client-fingerprint failure boundaries.',
+    'No raw edge address or secret reaches logs, public responses, storage, or evidence.',
+    'Correctness/security reviewer `/root/client_fingerprint_correctness_security`: `PASS`',
+    'Test/evidence reviewer `/root/client_fingerprint_tests_evidence`: `PASS`',
+    'Hosted D1 and Sites: `NOT_RUN`',
+    'Final clean-commit canonical and exact no-local clone: `TERMINAL_POST_COMMIT`',
+    'No external action: **YES**',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R6 client-fingerprint evidence: ${claim}`);
   }
 });
 
