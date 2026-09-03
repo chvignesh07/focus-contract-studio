@@ -9,7 +9,7 @@ import {
   cleanupExpiredWorkspaces,
   getActiveSeedState,
 } from '../../../../lib/server/workspaces';
-import { FcsError } from '../../../../lib/server/errors';
+import { FcsError, normalizePublicError } from '../../../../lib/server/errors';
 import {
   admitGlobalOperation,
   trustedBootstrapClientDigest,
@@ -17,13 +17,23 @@ import {
 
 const inputSchema = z.object({}).strict();
 
+type BootstrapStage =
+  | 'runtime_config'
+  | 'request_validation'
+  | 'client_fingerprint'
+  | 'global_admission'
+  | 'workspace_seed'
+  | 'active_seed_read';
+
 export async function GET(): Promise<Response> {
   return methodNotAllowed();
 }
 
 export async function POST(request: Request): Promise<Response> {
+  let stage: BootstrapStage = 'runtime_config';
   try {
     const configuration = runtimeSecurityConfig();
+    stage = 'request_validation';
     const body = await readStrictJsonMutation(request, {
       expectedOrigin: configuration.publicOrigin,
       maxBytes: 128,
@@ -33,6 +43,7 @@ export async function POST(request: Request): Promise<Response> {
       throw new FcsError('INVALID_REQUEST', 'The request is invalid.', 400);
     }
     const now = Math.floor(Date.now() / 1000);
+    stage = 'workspace_seed';
     const session = await bootstrapWorkspace({
       db: env.DB,
       cookieHeader: request.headers.get('cookie'),
@@ -40,19 +51,23 @@ export async function POST(request: Request): Promise<Response> {
       sessionSecret: configuration.sessionSecret,
       csrfSecret: configuration.csrfSecret,
       admitCreate: async () => {
+        stage = 'client_fingerprint';
         const clientDigest = await trustedBootstrapClientDigest({
           request,
           now,
           secret: configuration.rateLimitSecret,
         });
+        stage = 'global_admission';
         await admitGlobalOperation({
           db: env.DB,
           operation: 'workspace_bootstrap',
           now,
           clientDigest,
         });
+        stage = 'workspace_seed';
       },
     });
+    stage = 'active_seed_read';
     const activeVariant = await getActiveSeedState(env.DB, session.workspace.id);
     if (session.created) {
       try {
@@ -74,6 +89,14 @@ export async function POST(request: Request): Promise<Response> {
       session.setCookie ? { 'set-cookie': session.setCookie } : undefined,
     );
   } catch (error) {
-    return errorResponse(error);
+    const publicError = normalizePublicError(error);
+    if (!(error instanceof FcsError)) {
+      console.error({
+        event: 'fcs.bootstrap.unexpected_error',
+        stage,
+        correlationId: publicError.correlationId,
+      });
+    }
+    return errorResponse(publicError);
   }
 }

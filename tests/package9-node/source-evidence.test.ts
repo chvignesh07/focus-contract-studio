@@ -12,6 +12,7 @@ const repositoryRoot = path.resolve(
 );
 const package9Base = '825f7ee012d0ab7c59f95ca62581ad5b5e5c28b2';
 const d1CaseParserBase = '814745b3ce44569c61174eb7a413156955cde831';
+const bootstrapDiagnosticsBase = '72a05e780cc037c5a2e0df6938e1bfcad73ab4e5';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const d1CaseParserSourcePaths = [
   '.gitattributes',
@@ -21,6 +22,12 @@ const d1CaseParserSourcePaths = [
   'drizzle/0004_package5_review_apply_undo.sql',
   'drizzle/0006_package8_atomic_admission.sql',
   'tests/package9-node/sites-migration-packaging.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const bootstrapDiagnosticsSourcePaths = [
+  'app/api/session/bootstrap/route.ts',
+  'docs/delivery/DEPLOYMENT_AND_OPERATIONS.md',
+  'tests/package8/admission.test.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
@@ -39,12 +46,17 @@ function gitLines(args: string[]) {
   return git(args).trim().split('\n').filter(Boolean);
 }
 
-function sourceIdentity() {
-  const files = d1CaseParserSourcePaths.map((relativePath) => {
-    const absolutePath = path.join(repositoryRoot, relativePath);
-    const stat = lstatSync(absolutePath);
-    assert.equal(stat.isFile() && !stat.isSymbolicLink(), true, relativePath);
-    const bytes = readFileSync(absolutePath);
+function sourceIdentity(sourcePaths: readonly string[], revision?: string) {
+  const files = sourcePaths.map((relativePath) => {
+    let bytes: Buffer;
+    if (revision) {
+      bytes = Buffer.from(git(['show', `${revision}:${relativePath}`]));
+    } else {
+      const absolutePath = path.join(repositoryRoot, relativePath);
+      const stat = lstatSync(absolutePath);
+      assert.equal(stat.isFile() && !stat.isSymbolicLink(), true, relativePath);
+      bytes = readFileSync(absolutePath);
+    }
     return {
       path: relativePath,
       bytes: bytes.length,
@@ -64,8 +76,13 @@ function sourceIdentity() {
 
 test('the Package 9 D1 CASE-parser descendant and local evidence are exactly source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', d1CaseParserBase, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines([
+      'diff',
+      '--name-only',
+      d1CaseParserBase,
+      bootstrapDiagnosticsBase,
+      '--',
+    ]),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
@@ -73,7 +90,7 @@ test('the Package 9 D1 CASE-parser descendant and local evidence are exactly sou
   );
 
   const priorEvidence = git(['show', `${d1CaseParserBase}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${bootstrapDiagnosticsBase}:${evidencePath}`]);
   assert.ok(
     evidence.startsWith(priorEvidence),
     'the frozen pre-descendant evidence must remain byte-identical',
@@ -85,7 +102,7 @@ test('the Package 9 D1 CASE-parser descendant and local evidence are exactly sou
     'the historical R3 source hash must remain provenance',
   );
 
-  const identity = sourceIdentity();
+  const identity = sourceIdentity(d1CaseParserSourcePaths, bootstrapDiagnosticsBase);
   assert.match(
     evidence,
     new RegExp(
@@ -108,6 +125,55 @@ test('the Package 9 D1 CASE-parser descendant and local evidence are exactly sou
     'Final clean-commit canonical: `TERMINAL_POST_COMMIT`',
   ]) {
     assert.ok(evidence.includes(claim), `missing Package 9 evidence: ${claim}`);
+  }
+});
+
+test('the Package 9 bootstrap-diagnostics descendant and local evidence are exactly source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', bootstrapDiagnosticsBase, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...bootstrapDiagnosticsSourcePaths, evidencePath].sort(),
+  );
+
+  const priorEvidence = git(['show', `${bootstrapDiagnosticsBase}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(
+    evidence.startsWith(priorEvidence),
+    'the frozen R4 evidence must remain byte-identical',
+  );
+  assert.ok(
+    priorEvidence.includes(
+      '<!-- package9-sites-d1-case-parser-r4-source-binding files=8 sha256=1ca3b470b227f2289a2fc1d1562374b2fd3cf19dd77ddb1e91956978b77fc16c -->',
+    ),
+    'the historical R4 source hash must remain provenance',
+  );
+
+  const identity = sourceIdentity(bootstrapDiagnosticsSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-sites-bootstrap-diagnostics-r5-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+  for (const claim of [
+    'Focused RED: `1/3 PASS`, `2/3 FAIL`',
+    'Focused GREEN: `3/3 PASS`',
+    '`event`, `stage`, and `correlationId`',
+    '`runtime_config`, `request_validation`, `client_fingerprint`, `global_admission`, `workspace_seed`, and `active_seed_read`',
+    'Structured `FcsError` responses remain byte-compatible and emit no unexpected-error record.',
+    'Pre-commit canonical: `PASS_TO_CLEAN_TREE_GITLEAKS`',
+    'Exact clean-commit canonical total: `540/540`',
+    'Archive identity: `PASS`',
+    'Correctness/test reviewer `/root/sites_bootstrap_correctness_review`: `PASS`',
+    'Security/privacy reviewer `/root/sites_bootstrap_security_review`: `PASS`',
+    'Hosted D1 and Sites: `NOT_RUN`',
+    'Final clean-commit canonical: `TERMINAL_POST_COMMIT`',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R5 diagnostic evidence: ${claim}`);
   }
 });
 

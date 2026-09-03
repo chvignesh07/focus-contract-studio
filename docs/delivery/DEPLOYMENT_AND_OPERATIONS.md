@@ -41,11 +41,13 @@ Inspect the generated `.openai/hosting.json` and commit only documented fields:
 - R2 disabled/null;
 - no invented or undocumented binding.
 
-Secrets are configured through the official Sites mechanism and never committed:
+The current runtime requires exactly four values configured through the official
+Sites mechanism and never committed:
 
-- `FCS_SESSION_HMAC_SECRET`;
-- `FCS_IDENTITY_HMAC_SECRET` only if optional sign-in passed its hosted probes;
-- any generated Sites secret explicitly required by the starter.
+- `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and
+  `FCS_RATE_LIMIT_HMAC_SECRET`: three distinct canonical unpadded base64url secrets,
+  each decoding to exactly 32 bytes;
+- `FCS_PUBLIC_ORIGIN`: the exact public origin, with no path, query, or fragment.
 
 Local development uses separately generated ignored values. The server fails closed with a non-secret correlation ID when required configuration is absent. Logs, tool results, receipts, screenshots, CI artifacts, and error pages never reveal secret values.
 

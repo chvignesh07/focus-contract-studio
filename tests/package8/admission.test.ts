@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers';
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import { POST as bootstrapRoute } from '../../app/api/session/bootstrap/route.ts';
 import { POST as resetRoute } from '../../app/api/session/reset/route.ts';
@@ -467,6 +467,257 @@ function edgeRequest(address: string, forwardedFor: string): Request {
   Object.defineProperty(request, 'cf', { value: { colo: 'TEST' } });
   return request;
 }
+
+const bootstrapDiagnosticEvent = 'fcs.bootstrap.unexpected_error';
+const bootstrapDiagnosticStages = [
+  'runtime_config',
+  'request_validation',
+  'client_fingerprint',
+  'global_admission',
+  'workspace_seed',
+  'active_seed_read',
+] as const;
+
+function bootstrapRequest(options: {
+  body?: BodyInit;
+  cookie?: string;
+  address?: string;
+} = {}): Request {
+  const request = new Request(
+    'https://focus-contract-studio.example/api/session/bootstrap',
+    {
+      method: 'POST',
+      headers: {
+        origin: 'https://focus-contract-studio.example',
+        'content-type': 'application/json',
+        'cf-connecting-ip': options.address ?? '203.0.113.10',
+        ...(options.cookie ? { cookie: options.cookie } : {}),
+      },
+      body: options.body ?? '{}',
+    },
+  );
+  Object.defineProperty(request, 'cf', {
+    configurable: true,
+    value: { colo: 'TEST' },
+  });
+  return request;
+}
+
+async function captureBootstrapFailure(request: Request) {
+  const privateLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  try {
+    const response = await bootstrapRoute(request);
+    return {
+      response,
+      body: await response.text(),
+      calls: [...privateLog.mock.calls],
+    };
+  } finally {
+    privateLog.mockRestore();
+  }
+}
+
+function expectUnexpectedBootstrapDiagnostic(
+  captured: Awaited<ReturnType<typeof captureBootstrapFailure>>,
+  stage: (typeof bootstrapDiagnosticStages)[number],
+  forbidden: string[] = [],
+) {
+  expect(captured.response.status).toBe(500);
+  const envelope = JSON.parse(captured.body) as {
+    error: { correlationId: string };
+  };
+  expect(envelope.error.correlationId).toMatch(/^[0-9a-f-]{36}$/u);
+  expect(captured.body).toBe(JSON.stringify({
+    ok: false,
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: 'The request could not be completed.',
+      retryable: true,
+      correlationId: envelope.error.correlationId,
+    },
+  }));
+  expect(captured.calls).toHaveLength(1);
+  expect(captured.calls[0]).toHaveLength(1);
+  expect(captured.calls[0]![0]).toEqual({
+    event: bootstrapDiagnosticEvent,
+    stage,
+    correlationId: envelope.error.correlationId,
+  });
+  expect(Object.keys(captured.calls[0]![0] as object)).toEqual([
+    'event',
+    'stage',
+    'correlationId',
+  ]);
+  expect(bootstrapDiagnosticStages).toContain(stage);
+  const observableOutput = `${captured.body}\n${JSON.stringify(captured.calls)}`;
+  for (const marker of forbidden) expect(observableOutput).not.toContain(marker);
+}
+
+test('unexpected bootstrap failure emits one allowlisted private record without sensitive material', async () => {
+  const forbidden = [
+    'private-exception-message',
+    'private-stack-marker',
+    'SELECT private_sql_marker',
+    'private-request-body',
+    'private-header-marker',
+    'private-cookie-marker',
+    '198.51.100.77',
+    'private-identity-marker',
+    'FCS_SESSION_HMAC_SECRET',
+    '/private/runtime/path',
+    'private-credential-marker',
+  ];
+  const failure = new Error(forbidden.join(' '));
+  failure.stack = 'private-stack-marker';
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.error(failure);
+    },
+  });
+  const request = new Request(
+    'https://focus-contract-studio.example/api/session/bootstrap',
+    {
+      method: 'POST',
+      headers: {
+        origin: 'https://focus-contract-studio.example',
+        'content-type': 'application/json',
+        'x-private-header': 'private-header-marker',
+        cookie: '__Host-fcs_session=private-cookie-marker',
+        'cf-connecting-ip': '198.51.100.77',
+        'oai-authenticated-user-email': 'private-identity-marker',
+      },
+      body,
+    },
+  );
+  Object.defineProperty(request, 'cf', {
+    value: { colo: 'private-request-body' },
+  });
+
+  expectUnexpectedBootstrapDiagnostic(
+    await captureBootstrapFailure(request),
+    'request_validation',
+    forbidden,
+  );
+});
+
+test('structured bootstrap errors remain byte-compatible and emit no unexpected record', async () => {
+  const privateLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  try {
+    const response = await bootstrapRoute(new Request(
+      'https://focus-contract-studio.example/api/session/bootstrap',
+      {
+        method: 'POST',
+        headers: {
+          origin: 'https://attacker.example',
+          'content-type': 'application/json',
+        },
+        body: '{}',
+      },
+    ));
+    const body = await response.text();
+    const envelope = JSON.parse(body) as { error: { correlationId: string } };
+    expect(response.status).toBe(403);
+    expect(body).toBe(JSON.stringify({
+      ok: false,
+      error: {
+        code: 'ORIGIN_REJECTED',
+        message: 'The request origin is not allowed.',
+        retryable: false,
+        correlationId: envelope.error.correlationId,
+      },
+    }));
+    expect(privateLog).not.toHaveBeenCalled();
+  } finally {
+    privateLog.mockRestore();
+  }
+});
+
+test('bootstrap unexpected diagnostics identify each actual execution boundary', async () => {
+  const mutableEnv = env as Cloudflare.Env & {
+    FCS_SESSION_HMAC_SECRET: string;
+  };
+  const sessionSecret = mutableEnv.FCS_SESSION_HMAC_SECRET;
+  try {
+    mutableEnv.FCS_SESSION_HMAC_SECRET = 'private-runtime-config-marker';
+    expectUnexpectedBootstrapDiagnostic(
+      await captureBootstrapFailure(bootstrapRequest()),
+      'runtime_config',
+      ['private-runtime-config-marker', 'FCS_SESSION_HMAC_SECRET'],
+    );
+  } finally {
+    mutableEnv.FCS_SESSION_HMAC_SECRET = sessionSecret;
+  }
+
+  const fingerprintRequest = bootstrapRequest();
+  Object.defineProperty(fingerprintRequest, 'cf', {
+    get() {
+      throw new Error('private-client-fingerprint-marker');
+    },
+  });
+  expectUnexpectedBootstrapDiagnostic(
+    await captureBootstrapFailure(fingerprintRequest),
+    'client_fingerprint',
+    ['private-client-fingerprint-marker'],
+  );
+
+  await env.DB.prepare(
+    `CREATE TRIGGER package8_test_bootstrap_admission_diagnostic
+       BEFORE INSERT ON rate_limit_windows
+       WHEN NEW.operation = 'workspace_bootstrap'
+       BEGIN SELECT RAISE(ABORT, 'private-global-admission-marker'); END`,
+  ).run();
+  try {
+    expectUnexpectedBootstrapDiagnostic(
+      await captureBootstrapFailure(bootstrapRequest({ address: '203.0.113.11' })),
+      'global_admission',
+      ['private-global-admission-marker'],
+    );
+  } finally {
+    await env.DB.prepare(
+      'DROP TRIGGER IF EXISTS package8_test_bootstrap_admission_diagnostic',
+    ).run();
+  }
+
+  await env.DB.prepare(
+    `CREATE TRIGGER package8_test_bootstrap_seed_diagnostic
+       BEFORE INSERT ON workspaces
+       BEGIN SELECT RAISE(ABORT, 'private-workspace-seed-marker'); END`,
+  ).run();
+  try {
+    expectUnexpectedBootstrapDiagnostic(
+      await captureBootstrapFailure(bootstrapRequest({ address: '203.0.113.12' })),
+      'workspace_seed',
+      ['private-workspace-seed-marker'],
+    );
+  } finally {
+    await env.DB.prepare(
+      'DROP TRIGGER IF EXISTS package8_test_bootstrap_seed_diagnostic',
+    ).run();
+  }
+
+  const configuration = runtimeSecurityConfig();
+  const session = await bootstrapWorkspace({
+    db: env.DB,
+    cookieHeader: null,
+    now: Math.floor(Date.now() / 1000),
+    tokenBytes: new Uint8Array(32).fill(240),
+    sessionSecret: configuration.sessionSecret,
+    csrfSecret: configuration.csrfSecret,
+  });
+  await env.DB.prepare(
+    'ALTER TABLE workspace_view_state RENAME TO package8_test_missing_view_state',
+  ).run();
+  try {
+    expectUnexpectedBootstrapDiagnostic(
+      await captureBootstrapFailure(bootstrapRequest({ cookie: session.setCookie! })),
+      'active_seed_read',
+    );
+  } finally {
+    await env.DB.prepare(
+      'ALTER TABLE package8_test_missing_view_state RENAME TO workspace_view_state',
+    ).run();
+  }
+});
 
 test('spoofable forwarding metadata cannot bypass trusted bootstrap isolation', async () => {
   const secret = 'package8-edge-test-secret-material-at-least-32-bytes';

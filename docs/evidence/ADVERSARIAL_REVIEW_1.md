@@ -629,3 +629,90 @@ truth boundary.
   Sites access/environment/source changes, GitHub Release, Package 10, media,
   publication, and Devpost: `NOT_RUN`.
 - No external action: **YES**.
+
+## Package 9 Sites bootstrap diagnostics R5 descendant checkpoint
+
+This descendant is limited to a private, bootstrap-only diagnostic for an
+unexpected plain exception based on
+`72a05e780cc037c5a2e0df6938e1bfcad73ab4e5`. It preserves the public error
+contract, every structured `FcsError` response, runtime behavior outside the
+bootstrap route, dependencies, migrations, and all external/manual truth
+boundaries.
+
+<!-- package9-sites-bootstrap-diagnostics-r5-source-binding files=4 sha256=501e5b68df7936a225980f9ce9774b925e284329d663e39d1e573c6ad3b1dbe6 -->
+
+### Hosted evidence and diagnostic boundary
+
+- [Empirical — user-provided, not independently accessed] Exact R4 source is
+  deployed owner-only as saved Sites Version 5; all 33 expected D1 tables exist;
+  production environment revision 1 contains three distinct HMAC secrets and the
+  exact public origin; and a real bootstrap POST reached the Worker with the
+  expected Origin and Cloudflare client-address metadata but returned HTTP 500
+  `INTERNAL_ERROR` before the first admission commit. `rate_limit_windows` and
+  `workspaces` remained empty.
+- [Empirical — user-provided, not independently accessed] Structured `FcsError`
+  codes survive publicly, so the remaining failure is an unexpected plain
+  exception. The SIWC bypass token was rotated before this local checkpoint.
+- This checkpoint did not obtain, read, print, use, or modify any Sites credential.
+  It did not access Sites or hosted D1.
+
+### Minimal diagnostic and runbook repair
+
+- The existing bootstrap route tracks only these actual execution boundaries:
+  `runtime_config`, `request_validation`, `client_fingerprint`, `global_admission`, `workspace_seed`, and `active_seed_read`.
+- An unexpected non-`FcsError` emits exactly one private structured record with
+  only `event`, `stage`, and `correlationId`. The stable event is
+  `fcs.bootstrap.unexpected_error`, and the correlation ID is the same one in the
+  unchanged generic public HTTP 500 envelope.
+- The record never includes the exception, message, stack, SQL, body, headers,
+  cookies, IP address, identity data, environment values, secret names, paths, or
+  credentials. Structured `FcsError` responses remain byte-compatible and emit no unexpected-error record.
+- The deployment runbook now names all four required runtime values without
+  recording any value: three distinct canonical unpadded base64url HMAC secrets,
+  each exactly 32 bytes decoded, and exact `FCS_PUBLIC_ORIGIN`.
+
+### Red-to-green and local verification
+
+- Focused RED: `1/3 PASS`, `2/3 FAIL`; both new unexpected-error checks observed
+  zero private records before the route change. The first restricted-sandbox run
+  was `INCONCLUSIVE` because local loopback bind failed with `EPERM`; the
+  authorized local-only rerun supplied the valid RED result.
+- Focused GREEN: `3/3 PASS` after the bootstrap-only route change.
+- Package 8 Node core `16/16`, atomic D1 `20/20`, deterministic seed `7/7`,
+  memory counterfactual `5/5`, clean-D1 rerun, development benchmark `12/12`,
+  production build, built Chromium `4/4`, and both offline audits with zero
+  vulnerabilities: `PASS`.
+- Package 9 fresh-D1/rerun `1/1`, migration/archive Node `9/9`, and descendant
+  source/evidence binding `3/3`: `PASS`. Archive identity: `PASS`; all six packaged
+  SQL files and `meta/_journal.json` are byte-identical to `drizzle/`, preserving
+  aggregate SHA-256
+  `902c4fb1f97bb75cfa26549c53e5fb586d0ea618b6172e7ad641e76b2b82febd`.
+- Two default-worker canonical attempts were `INCONCLUSIVE` only because the
+  unchanged inherited Package 5 concurrency stress test exceeded its 5-second
+  timeout in a later nested frozen replay. The same test passed earlier in each
+  run and passed isolated; serial file execution then passed the entire inherited
+  suite `24/24` without changing source.
+- Pre-commit canonical: `PASS_TO_CLEAN_TREE_GITLEAKS`. With
+  `VITEST_MAX_WORKERS=1`, every stage through Package 8 browser and offline audit
+  passed; the release check then refused the intentionally dirty tree as designed.
+- Four added tests raise the preserved R4 total from `536` to the expected
+  Exact clean-commit canonical total: `540/540`.
+- Exact no-local clone verification remains `TERMINAL_POST_COMMIT` at this
+  pre-commit evidence point.
+- Final clean-commit canonical: `TERMINAL_POST_COMMIT`; current status: `PENDING`.
+
+### Independent review
+
+- Correctness/test reviewer `/root/sites_bootstrap_correctness_review`: `PASS`;
+  no critical, high, or correctness-material finding.
+- Security/privacy reviewer `/root/sites_bootstrap_security_review`: `PASS`; no
+  critical, high, or security/privacy/data-integrity-material finding.
+- Root is the only writer. Both reviewer lanes are read-only.
+
+### Truth boundary
+
+- Hosted D1 and Sites: `NOT_RUN`.
+- Push, tag, merge, deployment, saved Site version, Sites access/environment/source
+  changes, credential access, GitHub Release, Package 10, media, publication, and
+  Devpost: `NOT_RUN`.
+- No external action: **YES**.
