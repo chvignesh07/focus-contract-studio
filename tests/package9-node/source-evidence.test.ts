@@ -18,7 +18,15 @@ const clientFingerprintBase = '49f5b679b0c0ff71ec73a96725a9c89e65b4bb3c';
 const clientFingerprintDocumentationBase = 'fab2eb061f03569d2340c809613058123af936e7';
 const clientFingerprintHead = '51e0ec4de665778b5f3492b06f30d81ff8a001bb';
 const webMcpClientSignalHead = 'c4152ec524ec339b1939811ecab5773fe8e33903';
+const finalReleaseHead = '835cb812faf8ec043486b2e0ebec7d7784236dbb';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
+const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
+const nativeToolNames = [
+  'read_active_focus_review',
+  'create_focus_contract_proposal',
+  'apply_approved_focus_contract',
+  'verify_focus_contract',
+] as const;
 const d1CaseParserSourcePaths = [
   '.gitattributes',
   'drizzle/0001_package1_domain.sql',
@@ -79,6 +87,16 @@ const finalReleaseSourcePaths = [
   'tests/package6-dom/focus-contract-studio.test.tsx',
   'tests/package8-node/package8-scripts.test.ts',
   'tests/package9-node/source-evidence.test.ts',
+] as const;
+const webMcpNativeContextSourcePaths = [
+  'lib/webmcp/contracts.ts',
+  'tests/package7-node/webmcp-v2-contract.test.ts',
+  'tests/package9-node/source-evidence.test.ts',
+  nativeTracePath,
+] as const;
+const webMcpNativeContextChangedPaths = [
+  ...webMcpNativeContextSourcePaths,
+  evidencePath,
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -445,8 +463,7 @@ test('the final WebMCP client-signal compatibility overlay is exactly source-bou
 
 test('the final release overlay is CI-stable and reserves one exact tag name', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', webMcpClientSignalHead, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines(['diff', '--name-only', webMcpClientSignalHead, finalReleaseHead, '--']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
@@ -454,10 +471,10 @@ test('the final release overlay is CI-stable and reserves one exact tag name', (
   );
 
   const priorEvidence = git(['show', `${webMcpClientSignalHead}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${finalReleaseHead}:${evidencePath}`]);
   assert.ok(evidence.startsWith(priorEvidence), 'the frozen R7 evidence must remain byte-identical');
 
-  const identity = sourceIdentity(finalReleaseSourcePaths);
+  const identity = sourceIdentity(finalReleaseSourcePaths, finalReleaseHead);
   assert.match(
     evidence,
     new RegExp(
@@ -467,14 +484,14 @@ test('the final release overlay is CI-stable and reserves one exact tag name', (
   );
 
   const buildInputs = JSON.parse(
-    readFileSync(path.join(repositoryRoot, 'release/BUILD_INPUTS.json'), 'utf8'),
+    git(['show', `${finalReleaseHead}:release/BUILD_INPUTS.json`]),
   ) as { gitTag: string };
   assert.equal(buildInputs.gitTag, 'webmcp-challenge-2026-final');
 
-  const concurrencyTest = readFileSync(
-    path.join(repositoryRoot, 'tests/package5/apply-concurrency.test.ts'),
-    'utf8',
-  );
+  const concurrencyTest = git([
+    'show',
+    `${finalReleaseHead}:tests/package5/apply-concurrency.test.ts`,
+  ]);
   assert.match(concurrencyTest, /\},\s*20_000\);/u);
   for (const claim of [
     'Public CI reproduction: `FAIL` at the inherited five-second per-test default.',
@@ -482,6 +499,140 @@ test('the final release overlay is CI-stable and reserves one exact tag name', (
     'Reserved final source tag name: `webmcp-challenge-2026-final`.',
   ]) {
     assert.ok(evidence.includes(claim), `missing final-release evidence: ${claim}`);
+  }
+});
+
+test('the R8 native WebMCP context compatibility descendant is exactly source-bound', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', finalReleaseHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...webMcpNativeContextChangedPaths].sort(),
+  );
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', finalReleaseHead, 'HEAD']);
+  }, 'R8 must descend from the approved final release');
+  assert.equal(
+    git(['cat-file', '-t', 'webmcp-challenge-2026-final']).trim(),
+    'tag',
+    'the approved final tag must remain annotated',
+  );
+  assert.equal(
+    git(['rev-parse', 'webmcp-challenge-2026-final^{}']).trim(),
+    finalReleaseHead,
+    'the approved final tag must still peel to the approved release',
+  );
+
+  const priorEvidence = git(['show', `${finalReleaseHead}:${evidencePath}`]);
+  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  assert.ok(
+    evidence.startsWith(priorEvidence),
+    'the approved final-release evidence must remain byte-identical',
+  );
+
+  const identity = sourceIdentity(webMcpNativeContextSourcePaths);
+  assert.match(
+    evidence,
+    new RegExp(
+      `<!-- package9-webmcp-native-context-r8-source-binding files=${identity.fileCount} sha256=${identity.sha256} -->`,
+      'u',
+    ),
+  );
+  const traceBytes = readFileSync(path.join(repositoryRoot, nativeTracePath));
+  assert.equal(
+    sha256(traceBytes),
+    '3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92',
+    'the sanitized native trace must remain byte-identical',
+  );
+  const trace = JSON.parse(traceBytes.toString('utf8')) as {
+    schemaVersion: string;
+    sourceCommit: string;
+    client: { product: string; version: string; nativeProtocolDomain: string };
+    target: { kind: string; database: string; migrations: string[] };
+    discoveredTools: Array<{ name: string }>;
+    journey: {
+      read: { status: string; contractVersion: string; implementedRevision: number };
+      create: { status: string; label: string; applied: boolean };
+      prematureApply: { status: string; nativeErrorText: string };
+      visibleReview: { openingObservation: string; acknowledgement: string; decision: string };
+      apply: { status: string; fromImplementedRevision: number; toImplementedRevision: number };
+      verify: { status: string; verifierVersion: string; overall: string; checks: Array<{ behavior: string; result: string }> };
+    };
+    boundaries: { publicReleaseCommit: string; publicHotfixDeployment: string; chatGptInAppBrowser: string };
+  };
+  assert.equal(trace.schemaVersion, 'fcs-webmcp-native-context-r8-trace-v1');
+  assert.equal(trace.sourceCommit, '8ef435aa2fadd424c5bde824077e5bbd69afb1b8');
+  assert.doesNotThrow(() => {
+    git([
+      'diff',
+      '--quiet',
+      trace.sourceCommit,
+      '--',
+      'lib/webmcp/contracts.ts',
+      'tests/package7-node/webmcp-v2-contract.test.ts',
+    ]);
+  }, 'the native trace must describe the current WebMCP repair bytes');
+  assert.deepEqual(trace.client, {
+    product: 'Google Chrome',
+    version: '152.0.7977.66',
+    nativeProtocolDomain: 'WebMCP',
+  });
+  assert.equal(trace.target.kind, 'local-built-worker');
+  assert.equal(trace.target.database, 'isolated-disposable-d1');
+  assert.equal(trace.target.migrations.length, 6);
+  assert.deepEqual(
+    trace.discoveredTools.map(({ name }) => name),
+    [...nativeToolNames],
+  );
+  assert.deepEqual(trace.journey.read, {
+    status: 'completed',
+    contractVersion: 'fcs-webmcp-v2',
+    implementedRevision: 1,
+  });
+  assert.deepEqual(trace.journey.create, {
+    status: 'completed',
+    label: 'NOT APPLIED',
+    applied: false,
+  });
+  assert.equal(trace.journey.prematureApply.status, 'rejected');
+  assert.match(trace.journey.prematureApply.nativeErrorText, /invocation failed/iu);
+  assert.deepEqual(trace.journey.visibleReview, {
+    openingObservation: 'recorded',
+    acknowledgement: 'checked-in-page-ui',
+    decision: 'approved-in-page-ui',
+  });
+  assert.deepEqual(trace.journey.apply, {
+    status: 'completed',
+    fromImplementedRevision: 1,
+    toImplementedRevision: 2,
+  });
+  assert.equal(trace.journey.verify.status, 'completed');
+  assert.equal(trace.journey.verify.verifierVersion, 'focus-event-verifier-v1');
+  assert.equal(trace.journey.verify.overall, 'pass');
+  assert.deepEqual(
+    trace.journey.verify.checks,
+    ['initialFocus', 'focusOrder', 'trapTab', 'trapShiftTab', 'escapeAction', 'returnFocus']
+      .map((behavior) => ({ behavior, result: 'pass' })),
+  );
+  assert.deepEqual(trace.boundaries, {
+    publicReleaseCommit: finalReleaseHead,
+    publicHotfixDeployment: 'NOT_RUN',
+    chatGptInAppBrowser: 'BLOCKED_ADMIN_POLICY_VERIFICATION_UNAVAILABLE',
+  });
+  for (const claim of [
+    'Local native Chrome 152.0.7977.66 four-tool trace: `PASS`.',
+    'Exactly four tools were discovered; read, create, guarded apply, and verify completed through the native WebMCP client surface.',
+    'The premature apply was rejected before visible UI approval; Chrome returned its generic invocation-failure wrapper.',
+    'Visible UI observation and approval remained mandatory before apply advanced implemented revision 1 to 2.',
+    'Final raw-event verification: `6/6 PASS`.',
+    'Sanitized native trace: `docs/evidence/webmcp-native-context-r8-trace.json` · SHA-256 `3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92`.',
+    'Public main, release branch, final tag, and deployed Site remain on approved commit `835cb812faf8ec043486b2e0ebec7d7784236dbb`.',
+    'R8 source publication, tag, deployment, and public hosted revalidation: `NOT_RUN`.',
+    'ChatGPT in-app-browser trace: `BLOCKED` by unavailable admin-policy verification; no bypass attempted.',
+  ]) {
+    assert.ok(evidence.includes(claim), `missing R8 native-context evidence: ${claim}`);
   }
 });
 

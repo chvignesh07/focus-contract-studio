@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "fcs-webmcp-native-context-r8-trace-v1",
+  "sourceCommit": "8ef435aa2fadd424c5bde824077e5bbd69afb1b8",
+  "capturedAt": "2026-09-03T17:47:53Z",
+  "client": {
+    "product": "Google Chrome",
+    "version": "152.0.7977.66",
+    "nativeProtocolDomain": "WebMCP"
+  },
+  "target": {
+    "kind": "local-built-worker",
+    "database": "isolated-disposable-d1",
+    "migrations": [
+      "0001_package1_domain",
+      "0002_package2_vertical_slice",
+      "0003_package3_raw_observer_verifier",
+      "0004_package5_review_apply_undo",
+      "0005_package8_admission_lineage",
+      "0006_package8_atomic_admission"
+    ]
+  },
+  "discoveredTools": [
+    {
+      "name": "read_active_focus_review",
+      "inputSchemaSha256": "sha256:a649977f724ad625a17d237428e9f67e00163c0ba0ebd27f205c20ea9904d44e",
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": true
+      }
+    },
+    {
+      "name": "create_focus_contract_proposal",
+      "inputSchemaSha256": "sha256:08c87876adac0a983d4de721ab6fb4ab87508b3500a1ace3d9af43c0870b2bdc",
+      "annotations": {
+        "readOnly": false,
+        "untrustedContent": true
+      }
+    },
+    {
+      "name": "apply_approved_focus_contract",
+      "inputSchemaSha256": "sha256:8697b56c7f207010e09ae9e3f165226d8c118963ae3e5e8654d04834df6721a9",
+      "annotations": {
+        "readOnly": false,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "verify_focus_contract",
+      "inputSchemaSha256": "sha256:9dc23e7143539d8d69424225688f9aa079d9172c1c1c5416f9e52570f0d2f271",
+      "annotations": {
+        "readOnly": false,
+        "untrustedContent": false
+      }
+    }
+  ],
+  "journey": {
+    "read": {
+      "status": "completed",
+      "contractVersion": "fcs-webmcp-v2",
+      "implementedRevision": 1
+    },
+    "create": {
+      "status": "completed",
+      "label": "NOT APPLIED",
+      "applied": false
+    },
+    "prematureApply": {
+      "status": "rejected",
+      "nativeErrorText": "Tool was executed but the invocation failed. For example, the script function threw an error"
+    },
+    "visibleReview": {
+      "openingObservation": "recorded",
+      "acknowledgement": "checked-in-page-ui",
+      "decision": "approved-in-page-ui"
+    },
+    "apply": {
+      "status": "completed",
+      "fromImplementedRevision": 1,
+      "toImplementedRevision": 2
+    },
+    "verify": {
+      "status": "completed",
+      "verifierVersion": "focus-event-verifier-v1",
+      "overall": "pass",
+      "checks": [
+        {
+          "behavior": "initialFocus",
+          "result": "pass"
+        },
+        {
+          "behavior": "focusOrder",
+          "result": "pass"
+        },
+        {
+          "behavior": "trapTab",
+          "result": "pass"
+        },
+        {
+          "behavior": "trapShiftTab",
+          "result": "pass"
+        },
+        {
+          "behavior": "escapeAction",
+          "result": "pass"
+        },
+        {
+          "behavior": "returnFocus",
+          "result": "pass"
+        }
+      ]
+    }
+  },
+  "boundaries": {
+    "publicReleaseCommit": "835cb812faf8ec043486b2e0ebec7d7784236dbb",
+    "publicHotfixDeployment": "NOT_RUN",
+    "chatGptInAppBrowser": "BLOCKED_ADMIN_POLICY_VERIFICATION_UNAVAILABLE"
+  }
+}

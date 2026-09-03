@@ -904,3 +904,47 @@ publication blockers plus the judge-facing release pointers.
   product path, authorization boundary, dependency, or global test policy changed.
 - Final clean-commit verification, public CI, tag creation, deployment, media,
   and Devpost remain post-commit release actions and are not claimed here.
+
+## Package 9 WebMCP native-context compatibility overlay R8
+
+This unpublished descendant preserves the approved final release at
+`835cb812faf8ec043486b2e0ebec7d7784236dbb` and repairs only the shared native
+WebMCP callback-context boundary plus its regression and evidence binding.
+
+<!-- package9-webmcp-native-context-r8-source-binding files=4 sha256=6fdee5055c0addbb5b13a491c9d533a825d321ccb88bfa6ebed545a31512c865 -->
+
+### Root cause and minimal repair
+
+- [Empirical] Google Chrome 152.0.7977.66 discovered the approved release's
+  exact four tools, then invoked the registered callback without a second
+  context argument. The first read failed before its same-origin request when
+  the callback accessed `context.signal`.
+- [High-Conviction] The smallest complete repair is at the one callback shared
+  by all four tools: accept an omitted context and pass `context?.signal` into
+  the existing signal normalizer. The legacy tool path, routes, schemas,
+  persistence, authorization, and lifecycle cancellation are unchanged.
+- [Empirical] The regression calls the registered read callback both without a
+  second argument and with an empty context. Both calls use the existing page
+  lifecycle signal and return the bounded V2 contract.
+
+### Real-client verification
+
+- Local native Chrome 152.0.7977.66 four-tool trace: `PASS`.
+- Exactly four tools were discovered; read, create, guarded apply, and verify completed through the native WebMCP client surface.
+- The premature apply was rejected before visible UI approval; Chrome returned its generic invocation-failure wrapper.
+- Visible UI observation and approval remained mandatory before apply advanced implemented revision 1 to 2.
+- Final raw-event verification: `6/6 PASS`.
+- Sanitized native trace: `docs/evidence/webmcp-native-context-r8-trace.json` · SHA-256 `3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92`.
+- [Empirical] The final verification receipt used `focus-event-verifier-v1` and
+  passed initial focus, focus order, forward wrap, backward wrap, Escape, and
+  returned focus. The trace ran against the clean local built Worker with an
+  isolated disposable D1 database containing migrations 0001 through 0006.
+
+### Truth and publication boundary
+
+- Public main, release branch, final tag, and deployed Site remain on approved commit `835cb812faf8ec043486b2e0ebec7d7784236dbb`.
+- R8 source publication, tag, deployment, and public hosted revalidation: `NOT_RUN`.
+- ChatGPT in-app-browser trace: `BLOCKED` by unavailable admin-policy verification; no bypass attempted.
+- [Empirical] The local R8 candidate is a descendant, not a replacement claim
+  for the approved public release. A distinct public release identity and fresh
+  external authorization are required before publication or deployment.
