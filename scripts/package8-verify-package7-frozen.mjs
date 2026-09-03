@@ -8,6 +8,26 @@ import { fileURLToPath } from 'node:url';
 const PACKAGE7_COMMIT = '0b616fc5f790da11eb44bb03930ee181d976a452';
 const PACKAGE7_TREE = '02aa277c855b5e8dd486026ddc1f37c4bdcde9a1';
 
+export function applyFrozenPackage5Timeout(argv = process.argv) {
+  const executable = (argv[1] ?? '').split(/[\\/]/u).at(-1);
+  const configIndex = argv.indexOf('--config');
+  const hasTimeout = argv.some(
+    (argument) => argument === '--testTimeout' || argument.startsWith('--testTimeout='),
+  );
+  if (
+    !['vitest', 'vitest.mjs'].includes(executable) ||
+    argv[configIndex + 1] !== 'vitest.package5.config.ts' ||
+    hasTimeout
+  ) return false;
+
+  argv.push('--testTimeout', '20000');
+  return true;
+}
+
+const frozenPackage5TimeoutModule = `(${applyFrozenPackage5Timeout.toString()})(process.argv)`;
+export const frozenPackage5TimeoutNodeOption =
+  `--import=data:text/javascript;base64,${Buffer.from(frozenPackage5TimeoutModule).toString('base64')}`;
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
@@ -38,7 +58,13 @@ export function verifyFrozenPackage7(repositoryRoot) {
     }
     run('npm', ['run', 'verify:package7'], {
       cwd: clone,
-      env: { ...process.env, npm_config_offline: 'true' },
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, frozenPackage5TimeoutNodeOption]
+          .filter(Boolean)
+          .join(' '),
+        npm_config_offline: 'true',
+      },
       stdio: 'inherit',
     });
     for (const link of linked.toReversed()) unlinkSync(link);

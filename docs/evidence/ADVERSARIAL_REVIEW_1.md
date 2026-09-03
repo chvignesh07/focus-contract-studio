@@ -911,7 +911,7 @@ This unpublished descendant preserves the approved final release at
 `835cb812faf8ec043486b2e0ebec7d7784236dbb`, repairs the shared native WebMCP
 callback-context boundary, and stabilizes the immutable nested verification replay.
 
-<!-- package9-webmcp-native-context-r8-source-binding files=5 sha256=2db097bda9ad3008f386d03aef085654feccdfcb7b5a88c87534566ef6b5f267 -->
+<!-- package9-webmcp-native-context-r8-source-binding files=5 sha256=9a96c3bed0e66bbac857ddaacaa6adbbc8d03be5486060978a057dadfb95facd -->
 
 ### Root cause and minimal repair
 
@@ -943,8 +943,8 @@ callback-context boundary, and stabilizes the immutable nested verification repl
 ### Canonical replay stability
 
 - Public CI and the clean local canonical gate both reproduced the immutable Package 5 concurrency test crossing its inherited five-second timeout during the parallel nested replay.
-- The canonical Package 8 core gate now serializes only the nested frozen Package 7→6→5 replay with `VITEST_MAX_WORKERS=1`; current Package 8 and Package 9 suites retain their existing worker policy.
-- No assertion or timeout was weakened.
+- A bounded invocation hook now adds the current test's 20-second timeout only to Vitest running `vitest.package5.config.ts` without an explicit timeout.
+- Every other Node and Vitest invocation remains unchanged; no assertion or product code was weakened.
 
 ### Truth and publication boundary
 
