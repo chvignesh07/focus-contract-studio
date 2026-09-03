@@ -90,6 +90,7 @@ const finalReleaseSourcePaths = [
 ] as const;
 const webMcpNativeContextSourcePaths = [
   'lib/webmcp/contracts.ts',
+  'package.json',
   'tests/package7-node/webmcp-v2-contract.test.ts',
   'tests/package9-node/source-evidence.test.ts',
   nativeTracePath,
@@ -628,6 +629,9 @@ test('the R8 native WebMCP context compatibility descendant is exactly source-bo
     'Visible UI observation and approval remained mandatory before apply advanced implemented revision 1 to 2.',
     'Final raw-event verification: `6/6 PASS`.',
     'Sanitized native trace: `docs/evidence/webmcp-native-context-r8-trace.json` · SHA-256 `3dfd056772fd4dab22d2d0206165c60643a19a4618cfbda1c3f990ec2ab28c92`.',
+    'Public CI and the clean local canonical gate both reproduced the immutable Package 5 concurrency test crossing its inherited five-second timeout during the parallel nested replay.',
+    'The canonical Package 8 core gate now serializes only the nested frozen Package 7→6→5 replay with `VITEST_MAX_WORKERS=1`; current Package 8 and Package 9 suites retain their existing worker policy.',
+    'No assertion or timeout was weakened.',
     'Public main, release branch, final tag, and deployed Site remain on approved commit `835cb812faf8ec043486b2e0ebec7d7784236dbb`.',
     'R8 source publication, tag, deployment, and public hosted revalidation: `NOT_RUN`.',
     'ChatGPT in-app-browser trace: `BLOCKED` by unavailable admin-policy verification; no bypass attempted.',
@@ -654,6 +658,8 @@ test('the Package 9 canonical gate preserves frozen Package 8 configuration and 
   ]) {
     delete normalizedPackage.scripts[script];
   }
+  normalizedPackage.scripts['verify:package8:core'] =
+    priorPackage.scripts['verify:package8:core']!;
   normalizedPackage.scripts.verify = priorPackage.scripts.verify!;
   assert.deepEqual(normalizedPackage, priorPackage);
   assert.equal(
@@ -664,5 +670,12 @@ test('the Package 9 canonical gate preserves frozen Package 8 configuration and 
     currentPackage.scripts['verify:package9'],
     'npm run verify:package8:core && npm run test:package7:node:core && npm run test:package9:d1 && npm run test:package9:node && npm run verify:review1:disposition && npm run verify:package9:binding',
   );
-  assert.equal(currentPackage.scripts.verify, 'npm run verify:package9');
+  assert.equal(
+    currentPackage.scripts['verify:package8:core'],
+    'VITEST_MAX_WORKERS=1 node scripts/package8-verify-package7-frozen.mjs && npm run typecheck && npm run lint && npm run test:package8:node:core && npm run test:package8:d1 && npm run test:package8:seed && npm run test:package8:memory && npm run verify:package8:clean-d1 && npm run verify:package8:benchmark && npm run build && npm run test:package8:browser:built && npm run audit:package7:offline && npm run verify:package8:release',
+  );
+  assert.equal(
+    currentPackage.scripts.verify,
+    'npm run verify:package9',
+  );
 });

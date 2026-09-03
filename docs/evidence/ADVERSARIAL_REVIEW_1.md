@@ -908,10 +908,10 @@ publication blockers plus the judge-facing release pointers.
 ## Package 9 WebMCP native-context compatibility overlay R8
 
 This unpublished descendant preserves the approved final release at
-`835cb812faf8ec043486b2e0ebec7d7784236dbb` and repairs only the shared native
-WebMCP callback-context boundary plus its regression and evidence binding.
+`835cb812faf8ec043486b2e0ebec7d7784236dbb`, repairs the shared native WebMCP
+callback-context boundary, and stabilizes the immutable nested verification replay.
 
-<!-- package9-webmcp-native-context-r8-source-binding files=4 sha256=6fdee5055c0addbb5b13a491c9d533a825d321ccb88bfa6ebed545a31512c865 -->
+<!-- package9-webmcp-native-context-r8-source-binding files=5 sha256=2db097bda9ad3008f386d03aef085654feccdfcb7b5a88c87534566ef6b5f267 -->
 
 ### Root cause and minimal repair
 
@@ -939,6 +939,12 @@ WebMCP callback-context boundary plus its regression and evidence binding.
   passed initial focus, focus order, forward wrap, backward wrap, Escape, and
   returned focus. The trace ran against the clean local built Worker with an
   isolated disposable D1 database containing migrations 0001 through 0006.
+
+### Canonical replay stability
+
+- Public CI and the clean local canonical gate both reproduced the immutable Package 5 concurrency test crossing its inherited five-second timeout during the parallel nested replay.
+- The canonical Package 8 core gate now serializes only the nested frozen Package 7→6→5 replay with `VITEST_MAX_WORKERS=1`; current Package 8 and Package 9 suites retain their existing worker policy.
+- No assertion or timeout was weakened.
 
 ### Truth and publication boundary
 

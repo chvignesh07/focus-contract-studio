@@ -114,7 +114,7 @@
     ,"verify:package8:source-binding": "node scripts/package8-source-manifest.mjs"
     ,"verify:package8:evidence-binding": "node scripts/package8-evidence-binding.mjs"
     ,"verify:review1:disposition": "node scripts/package8-evidence-binding.mjs --review1"
-    ,"verify:package8:core": "node scripts/package8-verify-package7-frozen.mjs && npm run typecheck && npm run lint && npm run test:package8:node:core && npm run test:package8:d1 && npm run test:package8:seed && npm run test:package8:memory && npm run verify:package8:clean-d1 && npm run verify:package8:benchmark && npm run build && npm run test:package8:browser:built && npm run audit:package7:offline && npm run verify:package8:release"
+    ,"verify:package8:core": "VITEST_MAX_WORKERS=1 node scripts/package8-verify-package7-frozen.mjs && npm run typecheck && npm run lint && npm run test:package8:node:core && npm run test:package8:d1 && npm run test:package8:seed && npm run test:package8:memory && npm run verify:package8:clean-d1 && npm run verify:package8:benchmark && npm run build && npm run test:package8:browser:built && npm run audit:package7:offline && npm run verify:package8:release"
     ,"record:package8:local-gate": "npm run verify:package8:core && node scripts/package8-source-manifest.mjs --write && node scripts/package8-local-gate.mjs --write"
     ,"verify:package8": "npm run verify:package8:core && node --experimental-strip-types --test tests/package8-node/source-evidence.test.ts && npm run verify:package8:source-binding && npm run verify:review1:disposition && npm run verify:package8:evidence-binding"
     ,"test:package9:node": "node --experimental-strip-types --test tests/package9-node/sites-migration-packaging.test.ts"
