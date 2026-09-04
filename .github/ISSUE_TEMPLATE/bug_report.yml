@@ -1,0 +1,82 @@
+name: Bug report
+description: Report a reproducible Focus Contract Studio defect
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Focus Contract Studio. Do not include secrets, session values, personal data, or unredacted traces. Security vulnerabilities belong in private reporting described in SECURITY.md.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Visible review and approval
+        - WebMCP tool behavior
+        - Browser rehearsal and verification
+        - History, undo, or reset
+        - Local setup or verification
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Use the release tag or full commit SHA when known.
+      placeholder: webmcp-challenge-2026-r10
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, browser and version, viewport, and whether WebMCP was available.
+      placeholder: macOS; Chrome version; 1440 x 900; WebMCP enabled
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest repeatable sequence using synthetic demo data.
+      placeholder: |
+        1. Reset the demo to revision 1.
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Keyboard or accessibility details
+      description: Include input method, focus location/order, zoom or viewport, reduced-motion setting, and assistive technology when relevant.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Add screenshots or public error codes only after removing tokens, identifiers, private data, and unrelated browser content.
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I reproduced this with synthetic demo data and searched existing issues.
+          required: true
+        - label: I removed secrets, session values, personal data, and private identifiers.
+          required: true
+        - label: This is not a security vulnerability requiring private disclosure.
+          required: true

@@ -1,109 +1,244 @@
 # Focus Contract Studio
 
-Focus Contract Studio turns an accessibility focus review into a governed, reversible change. Retrieval may support a proposal; it can never approve or authorize one. The user reviews the exact diff in the visible page, applies it through guarded D1 state transitions, rehearses the result in the browser, verifies six focus behaviors, and can undo it.
+**A human-controlled accessibility workflow where browser evidence informs an
+agent, the agent proposes a bounded repair, and only a visible review can
+authorize the change.**
 
-- **Application URL:** [focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
-- **Planned judge release target:** `webmcp-challenge-2026-r10`
-- **Repository:** [github.com/chvignesh07/focus-contract-studio](https://github.com/chvignesh07/focus-contract-studio)
+[![Verify](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml)
+[![Release R10](https://img.shields.io/badge/release-R10-24368f)](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+[![WebMCP four tools](https://img.shields.io/badge/WebMCP-4%20page--bound%20tools-163f35)](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-5b625f)](LICENSE)
 
-The canonical repository gate verifies source, tests, security checks, and a reproducible build. Treat the target above as the judge release only after its annotated tag and matching GitHub release resolve publicly; historical package evidence intentionally keeps the status that was true at each earlier checkpoint. Post-deploy receipts live with the matching GitHub release because a source commit cannot truthfully contain evidence produced after its own deployment.
+[Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
+· [See the exact R10 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+· [Read the WebMCP contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 
-## 60-second judge path
+![Focus Contract Studio showing a live Delete focus behavior that conflicts with the applicable Cancel precedent](docs/media/r10/hero-mismatch.png)
 
-1. Open the app in ChatGPT's in-app browser and choose **Reset demo** if the workspace is not at revision 1.
-2. Ask ChatGPT to call `read_active_focus_review`, then `create_focus_contract_proposal` using the returned evidence. The preview remains visibly `NOT APPLIED`.
-3. In the page, check the exact-review acknowledgement and approve the proposal. There is intentionally no approval tool.
-4. Ask ChatGPT to call `apply_approved_focus_contract`. The exact approved diff advances revision 1 to revision 2.
-5. Run the complete keyboard rehearsal in the page. Ask ChatGPT to read again; `verificationTarget` supplies the exact current committed browser rehearsal without privileged lookup.
-6. Ask ChatGPT to call `verify_focus_contract` with that target and inspect the six behavior results. Undo or reset remains a visible human action.
+## The problem, as a short story
 
-The human workflow remains complete when WebMCP is unavailable.
+An accessibility lead opens a destructive **Delete account** dialog. The
+current page puts keyboard focus on **Delete**. An approved precedent says the
+safer first target is **Cancel**.
 
-## Supported local setup
+The evidence exists, but evidence is not permission. A normal AI assistant can
+suggest a fix in chat, yet it does not automatically share the page's exact
+revision, policy, review state, or fresh browser result. Copying those details
+between tools is slow and error-prone. Giving an agent broad mutation power is
+worse.
 
-Requirements: exact Node.js `22.22.3`, npm `10.9.8`, Git, Gitleaks `8.30.1`, and the platform prerequisites installed by Playwright.
+Focus Contract Studio keeps the entire decision on the page:
+
+1. The browser records the actual focus behavior.
+2. WebMCP lets an agent read that bounded evidence and create a proposal.
+3. The proposal stays visibly **NOT APPLIED**.
+4. A human reviews the exact diff and explicitly approves it in the page.
+5. The agent may apply only that already-approved revision.
+6. A fresh browser rehearsal proves six focus behaviors; the change can still
+   be undone.
+
+The result is not "AI made an accessibility change." It is **human and agent
+completed one verifiable decision together, without transferring authority to
+the agent.**
+
+## Why this is a strong WebMCP use case
+
+WebMCP makes a website an active collaborator instead of a passive screen. The
+four tools are registered by the page and operate through the same session,
+workspace, revision checks, and server operations as the visible UI.
+
+| Participant | Can do | Cannot do |
+|---|---|---|
+| Agent | Read the current review, create an evidence-backed proposal, apply an already-approved proposal, verify the committed browser rehearsal | Approve, check the review box, invent browser evidence, choose another workspace, undo, or reset |
+| Human | Inspect the exact diff, approve or reject visibly, perform the keyboard rehearsal, undo, and reset | Silently bypass revision, idempotency, or database guards |
+| Page | Resolve current state, enforce the authority boundary, persist receipts, and expose bounded results | Treat retrieval relevance or model text as permission |
+
+This was difficult in disconnected chat-and-dashboard workflows because the
+human, agent, and browser each saw a different slice of state. Here they work
+against one page-bound contract while retaining different powers.
+
+## See the governed loop
+
+### 1. The agent proposes; nothing changes
+
+![Exact proposal showing status NOT APPLIED, base revision 1, and the proposed Cancel button focus](docs/media/r10/proposal-not-applied.png)
+
+### 2. The human supplies the missing authority
+
+![Visible confirmation stating that evidence and verification cannot authorize approval](docs/media/r10/visible-review.png)
+
+### 3. The browser proves the rendered result
+
+![Fresh raw browser rehearsal passing initial focus, focus order, both tab wraps, Escape action, and return focus](docs/media/r10/verification-pass.png)
+
+## 60-second judge walkthrough
+
+Use ChatGPT's in-app browser or Chrome with WebMCP enabled.
+
+1. [Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
+   and choose **Reset demo** if the workspace is not at revision 1.
+2. Ask the agent to call `read_active_focus_review`, then
+   `create_focus_contract_proposal` using the returned evidence. Confirm the
+   page still says **NOT APPLIED**.
+3. In the page, check the exact-review acknowledgement and approve the proposal.
+   There is intentionally no approval tool.
+4. Ask the agent to call `apply_approved_focus_contract`. The guarded operation
+   advances revision 1 to revision 2.
+5. Run the complete keyboard rehearsal in the page. Ask the agent to read the
+   review again and call `verify_focus_contract` with the returned
+   `verificationTarget`.
+6. Inspect the six results, then try the visible undo or reset path if desired.
+
+No WebMCP client? The complete human workflow still works in an ordinary
+browser.
+
+## Exact WebMCP surface
+
+The top-level page registers exactly four imperative tools under contract
+`fcs-webmcp-v2`:
+
+| Tool | Purpose | Authority limit |
+|---|---|---|
+| `read_active_focus_review` | Read the bounded current review and exact committed verification target | Read-only; no caller-selected identity or workspace |
+| `create_focus_contract_proposal` | Stage the evidence-backed revision-1 to revision-2 diff | Creates a `NOT APPLIED` proposal only |
+| `apply_approved_focus_contract` | Apply the exact proposal after visible approval | Cannot approve; stale or conflicting revisions fail closed |
+| `verify_focus_contract` | Verify the fresh committed raw-browser rehearsal | Cannot manufacture events or authorize mutation |
+
+Registration uses `document.modelContext.registerTool(...)`. Inputs are strict,
+outputs are bounded, cancellation is preserved, and duplicate registration is
+recovered without expanding the surface. See the
+[full tool contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md) and
+[implementation](lib/webmcp/contracts.ts).
+
+## Run locally
+
+### Requirements
+
+- Node.js `22.22.3`
+- npm `10.9.8`
+- Git
+- Gitleaks `8.30.1` for the complete release gate
+- Playwright platform prerequisites
+
+### Install and verify
 
 ```sh
+git clone https://github.com/chvignesh07/focus-contract-studio.git
+cd focus-contract-studio
 npm ci
 npm run setup:browsers
 npm run verify
 ```
 
-`setup:browsers` installs the pinned Chromium build into the ignored project-local `.playwright-browsers/` directory. The canonical `verify` command checks the frozen Package 7 commit, typecheck, lint, Package 8 Node/D1/seed tests, a clean numbered-migration database, the deterministic development benchmark, production build, the real built-Worker browser journey, accessibility automation, offline dependency audit, dependency/license inventory, live pinned-version Gitleaks scans of an exact tracked-plus-nonignored current-tree snapshot and reachable history with a planted-negative control, bundle scan, local links, pinned CI, release inputs, source binding, and evidence binding. It fails closed if Gitleaks is missing or not exactly `8.30.1`, if config/ignore policy can be overridden, or if the scan receipt is stale for current file content.
+`npm run verify` is the canonical gate. It checks the frozen package lineage,
+types, lint, Node and D1 behavior, migrations, deterministic retrieval,
+production builds, real Chromium journeys, keyboard and responsive behavior,
+automated accessibility checks, dependency licenses, local links, CI pinning,
+source/evidence binding, and live Gitleaks scans.
 
-Useful narrow commands:
+### Start the interactive app
+
+Copy the safe template and replace each placeholder with a different 32-byte
+unpadded base64url secret:
 
 ```sh
+cp .env.example .env.local
+node --input-type=module -e "import { randomBytes } from 'node:crypto'; for (const name of ['FCS_SESSION_HMAC_SECRET','FCS_CSRF_HMAC_SECRET','FCS_RATE_LIMIT_HMAC_SECRET']) console.log(name + '=' + randomBytes(32).toString('base64url'))"
+npm run dev
+```
+
+Paste the three generated assignments into `.env.local`. Never commit that
+file. `FCS_PUBLIC_ORIGIN` defaults in the template to
+`http://127.0.0.1:5173`; change it only when the browser uses another exact
+origin.
+
+Useful focused checks:
+
+```sh
+npm run typecheck
+npm run lint
 npm run verify:package8:clean-d1
-npm run test:package8:seed
 npm run verify:package8:benchmark
 npm run test:package8:browser
 npm run verify:package8:release
-npm run verify:package8:evidence-binding
 npm run build
 ```
 
-The standalone evidence-binding command requires exact clean HEAD/tree state. If its
-ignored live Gitleaks receipt is absent, it performs the required pinned scan once;
-if a current receipt exists, it validates and reuses it without a duplicate scan.
+## Architecture and trust boundary
 
-For local interactive development, provide `FCS_PUBLIC_ORIGIN` plus distinct project-scoped `FCS_SESSION_HMAC_SECRET`, `FCS_CSRF_HMAC_SECRET`, and `FCS_RATE_LIMIT_HMAC_SECRET` values. Each secret is the unpadded base64url encoding of exactly 32 random bytes. Never commit these values. Then run `npm run dev`.
-
-## Architecture and trust boundaries
-
-| Layer | Responsibility | Cannot authorize |
+| Layer | Responsibility | Never grants |
 |---|---|---|
-| React/Vinext page | Visible review, approval controls, rehearsal, history, undo/reset, privacy disclosure | Model text alone |
-| WebMCP adapter | Exactly four narrow imperative tools using the same application operations as the UI | Review, rehearsal capture, undo, reset, workspace selection |
-| Server operations | Session/workspace resolution, strict validation, replay recovery, bounded admission | Caller-supplied identity or workspace |
-| D1 | Isolation, guarded atomic batches, constraints/triggers, receipts, append-only evidence | Retrieval relevance by itself |
-| Retrieval/verifier | Deterministic RRF evidence and independent focus-event checks | Approval or mutation permission |
+| React/Vinext page | Visible review, approval, rehearsal, history, undo, reset | Approval from model text |
+| WebMCP adapter | Four page-bound tools using shared application operations | Review, rehearsal capture, undo, reset, workspace selection |
+| Server operations | Session resolution, strict validation, revision checks, replay recovery | Trust in caller-supplied identity or workspace |
+| Cloudflare D1 | Guarded atomic transitions, constraints, receipts, append-only evidence | Permission from retrieval relevance |
+| Retrieval and verifier | Deterministic RRF evidence and independent focus-event checks | Approval or mutation authority |
 
-The anonymous bearer stays in a secure host-only cookie; D1 stores only its one-way digest. The workspace ID is server-resolved. Idempotency recovery occurs before a read-only admission preflight; the operation quota is consumed by the durable success marker inside the same D1 batch as the product mutation. A lost-response replay consumes no additional unit, a conflicting payload fails closed, and a failed batch rolls back product state, idempotency, audit, and admission together.
+The anonymous bearer stays in a secure host-only cookie; D1 stores only a
+one-way digest. Mutations use strict validation, compare-and-swap revisions,
+idempotency, bounded admission, and atomic database batches. A conflicting
+replay fails closed; a failed batch rolls back product state and receipts
+together. The [architecture](docs/architecture/ARCHITECTURE.md) and
+[domain model](docs/architecture/DOMAIN_MODEL.md) contain the full design.
 
-## Exact WebMCP surface
+## Security, privacy, and accessibility
 
-The page registers exactly:
+- Use synthetic demo data only. Do not enter credentials or personal,
+  regulated, customer, employee, or production information.
+- The app does not store raw session tokens, typed values, reasons, names,
+  emails, IP addresses, or user agents.
+- Dynamic responses use nonce-based CSP plus restrictive browser headers.
+- Anonymous workspaces expire; rate limits and bounded cleanup are enforced.
+- The visible path uses native dialog semantics, keyboard-operable controls,
+  deterministic focus return, responsive reflow, and reduced-motion handling.
+- Automated tests reject serious or critical Axe findings on the built Worker.
 
-- `read_active_focus_review`
-- `create_focus_contract_proposal`
-- `apply_approved_focus_contract`
-- `verify_focus_contract`
+This is a focused demonstration, not a general WCAG conformance claim, security
+certification, production SaaS, or source-code patching system. Founder-manual
+assistive-technology evaluation and the sealed release holdout are not claimed.
+Read [Security](SECURITY.md), the detailed
+[security and privacy model](docs/quality/SECURITY_AND_PRIVACY.md), and the
+[test strategy](docs/quality/TEST_STRATEGY.md).
 
-Create never applies, apply never approves, retrieval never authorizes, and all tool output is bounded. The second read exposes only the exact committed browser rehearsal for the server-resolved active workspace, variant, and revision; the verify tool remains exact-ID and replay-safe.
+## Verified R10 release
 
-## Security and privacy
+The public app is bound to annotated tag
+[`webmcp-challenge-2026-r10`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+at commit `cd432d4a055f061ff3a2df8a95fb1b5fae17b47a`. That release contains
+the public deployment evidence, ChatGPT and Chrome WebMCP traces, and the
+screenshots shown above. The canonical local gate reports
+`PACKAGE8_RELEASE_PASS packages=724 checks=16`; the exact R10 binding suite
+also passes.
 
-Every dynamic response receives a per-request nonce CSP with nonce-rooted `script-src 'nonce-…' 'strict-dynamic'`, no script `'self'`, and `style-src 'self' 'nonce-…'` for nonced inline framework styles plus same-origin built stylesheets. The policy contains no wildcard, `unsafe-inline`, or `unsafe-eval`. Responses also set `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Origin-Agent-Cluster: ?1`, and a same-origin `tools=(self)` Permissions Policy while disabling camera, geolocation, microphone, and payment. The built-Worker browser test injects an unnonced same-origin script and proves it is blocked while built scripts, dynamic chunks, styles, the exact four WebMCP tools, responsive states, keyboard focus, and Axe checks continue to work.
+Later `main` commits may improve documentation and repository presentation.
+Unless a newer annotated app release says otherwise, the live deployment's
+source of truth remains the R10 tag—not a later non-runtime repository commit.
 
-Anonymous access expires after eight hours. Reset rotates the session while preserving its anonymous admission lineage. Request-driven cleanup removes at most ten expired workspaces after a 24-hour grace period; no immediate backup deletion is claimed. Per anonymous workspace lineage/hour the locally enforced limits are 12 variant selections, 10 proposals, 10 reviews, 6 applies, 12 rehearsals, 12 verifications, 6 undos, and 5 resets. A new-workspace bootstrap is locally limited to 32 requests per minute per rotating HMAC client digest. The application uses a strictly validated `CF-Connecting-IP` only to derive an ephemeral abuse-control HMAC bucket; it does not access `request.cf`. `X-Forwarded-For`, `X-Real-IP`, and other forwarding headers cannot select the rate bucket. The raw address is neither stored nor logged. Missing or malformed input returns structured HTTP 503 before application writes. This value is never used for authentication or authorization. Before submission, the deployed edge overwrite/spoof-resistance boundary must be verified separately; local checks alone are not treated as proof.
+The demo video and final Devpost submission are intentionally not represented
+as complete in this repository.
 
-Use synthetic demo data only. Do not enter credentials or sensitive, regulated, customer, employee, or production information. The app stores bounded proposals, reviews, revisions, receipts, audits, and allowlisted focus-event evidence; it does not store raw session tokens, typed values, reasons, email/name identity headers, IP addresses, or user agents. The platform may retain its own logs and analytics under its policies. No data-residency or production-security certification is claimed. See [Security and Privacy](docs/quality/SECURITY_AND_PRIVACY.md).
+## Documentation map
 
-## Accessibility
+- [Documentation index](docs/README.md)
+- [Product truth](docs/authority/PRODUCT_TRUTH.md)
+- [WebMCP contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
+- [Architecture](docs/architecture/ARCHITECTURE.md)
+- [UX specification](docs/product/UX_SPEC.md)
+- [Verification and accessibility](docs/quality/ACCESSIBILITY_AND_VERIFICATION.md)
+- [Evidence registry](docs/delivery/EVIDENCE_REGISTRY.md)
+- [Deployment and operations](docs/delivery/DEPLOYMENT_AND_OPERATIONS.md)
+- [Submission draft](devpost-submission.md)
 
-The product uses a visible UI approval path, native/dialog semantics, deterministic focus return, keyboard-operable controls, responsive layouts, reduced-motion handling, and a complete no-WebMCP fallback. Local automation exercises keyboard behavior and rejects serious/critical axe findings on the built Worker. Founder-manual assistive-technology evaluation and any WCAG-conformance claim remain `NOT_RUN`/unmade.
+## Contributing and license
 
-## Benchmark truth
+Contributions are welcome when they preserve the product's authority and
+evidence boundaries. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md). Security reports follow
+[SECURITY.md](SECURITY.md).
 
-The 36 precedent records and queries are synthetic. RRF development benchmark v2 is sealed and rerun deterministically; its 12/12 development dispositions are not a holdout result and do not establish general superiority. Benchmark v1 remains preserved and labeled invalid. The one-time release holdout is explicitly outside Package 8 and remains `NOT_RUN`.
-
-## CI, evidence, and release boundary
-
-[The verify workflow](.github/workflows/verify.yml) uses read-only permissions, exact commit-pinned checkout/setup actions, Ubuntu 24.04, Node `22.22.3`, a checksum-pinned Gitleaks `8.30.1` binary, locked installation, explicit project-local browser setup, and the canonical verification command. Cache reuse is disabled as a correctness dependency.
-
-[Build inputs](release/BUILD_INPUTS.json) contain only authorized pre-deploy inputs: exact toolchain, commands, lockfile hash, authority revision, and fixture-manifest hash. They deliberately contain no source commit, self-hash, Sites identifiers, deployed URL, video, Devpost, or post-deploy fact. Deployment, tag/push, publication, hosted mutation, and submission follow the separately approval-gated [deployment runbook](docs/delivery/DEPLOYMENT_AND_OPERATIONS.md); none occurred in Package 8.
-
-Primary local evidence:
-
-- [Package 8 checkpoint](docs/evidence/PACKAGE8_CHECKPOINT.md)
-- [Package 8 implementation reviews](docs/evidence/PACKAGE8_REVIEWS.md), distinct from completed local `E-018` Review 1
-- [Execution state](docs/evidence/EXECUTION_STATE.md) and [evidence registry](docs/delivery/EVIDENCE_REGISTRY.md)
-- [Provenance ledger](docs/evidence/PROVENANCE_LEDGER.md), [third-party notices](THIRD_PARTY_NOTICES.md), and deterministic dependency/license inventory
-- Machine-readable local gate, source manifest, clean-D1 result, and security scan summaries under `.artifacts/`
-
-## Provenance and AI use
-
-This is a new isolated project. No Clivus source, service, database, corpus, prompt, model, identifier, history, or private data is included. The RRF formula is a clean-room implementation of the cited 2009 method over original synthetic fixtures. Codex/ChatGPT assisted official-source research, implementation, tests, documentation, and review; Claude provided an earlier advisory plan review. The entrant directed and reviewed the work. The Site calls no hidden model API: deterministic application code owns persistence, ranking, authorization, application, and verification.
-
-Original repository content is licensed under Apache License 2.0; see [LICENSE](LICENSE). Dependencies and generated material retain their own terms. [Third-party notices](THIRD_PARTY_NOTICES.md) record every locked package and explicitly surface reviewed LGPL, MPL, CC-BY, and Python-license obligations.
+Original repository content is licensed under the
+[Apache License 2.0](LICENSE). Dependencies and generated material retain their
+own terms; [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) records the reviewed
+obligations. Codex/ChatGPT assisted research, implementation, tests,
+documentation, and review; the entrant directed and reviewed the work. The app
+calls no hidden model API.

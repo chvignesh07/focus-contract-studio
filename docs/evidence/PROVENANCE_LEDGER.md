@@ -1,5 +1,9 @@
 # Provenance Ledger
 
+> Historical note: `E-017` below records the Package 8 pre-publication checkpoint.
+> The post-R10 supplement records later public-release facts without rewriting that
+> historical disposition.
+
 Evidence ID: `E-017`  
 Package 8 local integrity status: **PASS**; overall disposition: **BLOCKED** — source, dependency/license, notices, live security-scan, and AI-use provenance are recorded, while actual Sites edge client isolation remains `NOT_RUN`. Final source commit `C` and its clean-clone proof are terminal session evidence and are not self-recorded; deployed/version identities, media, and submission provenance remain `NOT_RUN`.
 
@@ -20,5 +24,21 @@ Package 8 local integrity status: **PASS**; overall disposition: **BLOCKED** —
 | Clivus | No Clivus source, service, database, corpus, prompts, models, identifiers, history, or private data used | Not applicable | Explicit clean-room boundary; only the independently stated evidence-versus-authority idea is present | `START_HERE.md`, `docs/delivery/PROVENANCE_AND_LICENSE.md` |
 | AI assistance | Codex/ChatGPT used for official-source research, scaffold inspection, code, tests, documentation, and review; Claude supplied an earlier advisory plan review | Entrant-reviewed original output | No hidden model API in the Site; deterministic app code owns state and authorization; advisory output was not treated as authority | This ledger and Git history |
 | Public source custody | `https://github.com/chvignesh07/focus-contract-studio`; initial public commit `61a9249e6ac2727986147a5476307271db4ee9be` | Apache-2.0 detected from root `LICENSE` | Created only after exact-name owner inventory, history privacy rewrite, full local gate, secret scans, and no-hardlinks verification; normal pushes only | `.artifacts/release/public-repository.json` |
+
+## Post-R10 presentation supplement
+
+The screenshots below are first-party captures of the public R10 application.
+They were published with the annotated
+[`webmcp-challenge-2026-r10`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+release, visually reviewed for private data, and copied byte-for-byte into this
+repository for a self-contained project explanation. They are project-authored
+documentation assets covered by the repository's Apache-2.0 license.
+
+| Asset | R10 state shown | SHA-256 |
+|---|---|---|
+| `docs/media/r10/hero-mismatch.png` | Implemented and browser-observed Delete focus versus D001 Cancel precedent | `c3e1daddf0fe9003c29e8a0762f24ba473a6e17f0cc1930207ba14cd2214b6a9` |
+| `docs/media/r10/proposal-not-applied.png` | Agent-authored proposal remains visibly `NOT APPLIED` before review | `6d089fdd35e5dfc1e05a1ff1234ed2200a25b8ac65823703ccf89f456697e0cd` |
+| `docs/media/r10/visible-review.png` | Human-only confirmation boundary | `7f5fcc9c1f90f0174d068c2e2ad99f38b57616f86d6d67c5e6e0605a45090d28` |
+| `docs/media/r10/verification-pass.png` | Fresh raw browser rehearsal passes all six focus checks | `9915bcef0149f5e1534a21772c34060c529e63c4b85a5712ecb9929ec2842998` |
 
 Copyright 2026 Vignesh. Original repository content is licensed under Apache-2.0. This statement does not relicense dependencies, generated third-party material, fonts, trademarks, or external documentation.

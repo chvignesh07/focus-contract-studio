@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Status: **SOURCE DRAFT COMPLETE; R10 POST-DEPLOY PROOF AND REQUIRED VIDEO PENDING**
+Status: **PUBLIC R10 RELEASE VERIFIED; REQUIRED VIDEO AND FINAL DEVPOST SUBMISSION PENDING**
 
 ## One-line Summary
 
@@ -39,7 +39,7 @@ ChatGPT is the runtime reasoning client. It discovers four typed capabilities ex
 
 ## How We Used Codex
 
-Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, local browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. This source snapshot does not claim R10 hosted qualification; immutable post-deploy receipts belong on the matching GitHub release.
+Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, local browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. The exact R10 release now carries the immutable post-deploy and supported-client evidence; later non-runtime repository commits are not represented as deployed application source.
 
 ## Key Features
 
@@ -81,7 +81,7 @@ https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/
 
 https://github.com/chvignesh07/focus-contract-studio
 
-Planned judge release target: `webmcp-challenge-2026-r10`; treat it as released only when the tag and matching GitHub release resolve publicly.
+Exact live-source release: [webmcp-challenge-2026-r10](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10) at commit `cd432d4a055f061ff3a2df8a95fb1b5fae17b47a`.
 
 ## Demo Video
 
@@ -107,9 +107,9 @@ Recommended final cut:
 
 ## Submission Readiness Notes
 
-- Public live URL: R9 is live; exact R10 deployment mapping is pending post-deploy evidence.
-- Public source repository and Apache-2.0 license: ready at R9; R10 tag/push is pending.
-- Exact four-tool WebMCP implementation and judge instructions: locally ready; hosted R10 qualification is pending.
+- Public live URL and exact R10 deployment mapping: verified; immutable post-deploy evidence is attached to the R10 GitHub release.
+- Public source repository, annotated R10 tag/release, and Apache-2.0 license: verified.
+- Exact four-tool WebMCP implementation and judge instructions: verified in the hosted ChatGPT in-app browser and Chrome traces attached to R10.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
 - Required demo video: missing.
 - Final Devpost update/submit action: wait for the video URL and a fresh live-status check.
@@ -120,16 +120,16 @@ Recommended final cut:
 - The public demo is anonymous and uses synthetic data only.
 - Automated keyboard and Axe checks do not constitute a WCAG conformance claim or replace manual assistive-technology testing.
 
-## TODO Official Form Fields
+## Submission Form Field Map
 
 Live requirements checked 2026-09-03:
 
 - `28254` Live URL: `https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/`
 - `28255` Testing instructions: use the copy-ready sequence above.
 - `28256` Public repository: `https://github.com/chvignesh07/focus-contract-studio`
-- `28257` Tested clients: populate from the immutable R10 post-deploy traces attached to the matching GitHub release; do not promote the earlier R9 qualification as R10 proof.
+- `28257` Tested clients: `ChatGPT desktop in-app browser and Chrome 152.0.7977.66 with WebMCP testing enabled; exact R10 traces are attached to the public R10 GitHub release.`
 - `28258` AI tools: `ChatGPT, Codex, and Claude (advisory review). ChatGPT is the runtime reasoning client through WebMCP; the Site calls no hidden model API.`
 - `28259` Learning: `Significant`
 - `28260` Career AI value: `Yes`
 - Retain the truthful submitter-type and country-of-residence answers already stored in the live Devpost entry; do not reconstruct or overwrite identity fields from repository data.
-- Add the public YouTube URL, then run the final Devpost submission/update flow before the extended 2026-09-04 01:00 PT deadline.
+- Add the public YouTube URL, perform one fresh live check, then run the final Devpost submission/update flow before the official deadline.

@@ -21,6 +21,7 @@ const webMcpClientSignalHead = 'c4152ec524ec339b1939811ecab5773fe8e33903';
 const finalReleaseHead = '835cb812faf8ec043486b2e0ebec7d7784236dbb';
 const r8NativeContextHead = '08c2043df9873ee39852a1fb4c281bb70cc8c45d';
 const r9LinuxCiHead = '21d0a6bd7744c83050a09075d1e7e0d36cd2b778';
+const r10VerificationTargetHead = 'cd432d4a055f061ff3a2df8a95fb1b5fae17b47a';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
 const nativeToolNames = [
@@ -127,6 +128,26 @@ const verificationTargetSourcePaths = [
 const verificationTargetChangedPaths = [
   ...verificationTargetSourcePaths,
   evidencePath,
+] as const;
+const postR10RepositoryChangedPaths = [
+  '.devpost-hackathon-state.json',
+  '.env.example',
+  '.github/ISSUE_TEMPLATE/bug_report.yml',
+  '.gitignore',
+  'CHANGELOG.md',
+  'CODE_OF_CONDUCT.md',
+  'CONTRIBUTING.md',
+  'README.md',
+  'SECURITY.md',
+  'devpost-submission.md',
+  'docs/README.md',
+  'docs/evidence/PROVENANCE_LEDGER.md',
+  'docs/media/r10/hero-mismatch.png',
+  'docs/media/r10/proposal-not-applied.png',
+  'docs/media/r10/verification-pass.png',
+  'docs/media/r10/visible-review.png',
+  'docs/superpowers/plans/2026-09-03-repository-professionalism.md',
+  'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -716,15 +737,14 @@ test('the R9 Linux CI lint stabilization ignores only generated browser binaries
 
 test('the R10 page-bound verification target repair is minimal and source-bound', () => {
   const changedPaths = new Set([
-    ...gitLines(['diff', '--name-only', r9LinuxCiHead, '--']),
-    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+    ...gitLines(['diff', '--name-only', r9LinuxCiHead, r10VerificationTargetHead, '--']),
   ]);
   assert.deepEqual(
     [...changedPaths].sort(),
     [...verificationTargetChangedPaths].sort(),
   );
   assert.doesNotThrow(() => {
-    git(['merge-base', '--is-ancestor', r9LinuxCiHead, 'HEAD']);
+    git(['merge-base', '--is-ancestor', r9LinuxCiHead, r10VerificationTargetHead]);
   }, 'R10 must descend from the published R9 release');
   assert.equal(
     git(['cat-file', '-t', 'webmcp-challenge-2026-r9']).trim(),
@@ -736,12 +756,22 @@ test('the R10 page-bound verification target repair is minimal and source-bound'
     r9LinuxCiHead,
     'the published R9 tag must remain immutable',
   );
+  assert.equal(
+    git(['cat-file', '-t', 'webmcp-challenge-2026-r10']).trim(),
+    'tag',
+    'the published R10 tag must remain annotated',
+  );
+  assert.equal(
+    git(['rev-parse', 'webmcp-challenge-2026-r10^{}']).trim(),
+    r10VerificationTargetHead,
+    'the published R10 tag must remain immutable',
+  );
 
   const priorEvidence = git(['show', `${r9LinuxCiHead}:${evidencePath}`]);
-  const evidence = readFileSync(path.join(repositoryRoot, evidencePath), 'utf8');
+  const evidence = git(['show', `${r10VerificationTargetHead}:${evidencePath}`]);
   assert.ok(evidence.startsWith(priorEvidence), 'the published R9 evidence must remain byte-identical');
 
-  const identity = sourceIdentity(verificationTargetSourcePaths);
+  const identity = sourceIdentity(verificationTargetSourcePaths, r10VerificationTargetHead);
   assert.match(
     evidence,
     new RegExp(
@@ -760,6 +790,25 @@ test('the R10 page-bound verification target repair is minimal and source-bound'
   ]) {
     assert.ok(evidence.includes(claim), `missing R10 verification-target evidence: ${claim}`);
   }
+});
+
+test('post-R10 repository improvements preserve the deployed application source boundary', () => {
+  const changedPaths = new Set([
+    ...gitLines(['diff', '--name-only', r10VerificationTargetHead, '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
+  assert.deepEqual(
+    [...changedPaths].sort(),
+    [...postR10RepositoryChangedPaths].sort(),
+  );
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r10VerificationTargetHead, 'HEAD']);
+  }, 'repository improvements must descend from the exact deployed R10 source');
+  assert.equal(
+    git(['rev-parse', 'webmcp-challenge-2026-r10^{}']).trim(),
+    r10VerificationTargetHead,
+    'post-R10 repository work cannot move the deployed-source tag',
+  );
 });
 
 test('the frozen Package 5 Vitest compatibility hook changes only its missing timeout', async () => {
