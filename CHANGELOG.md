@@ -4,7 +4,7 @@ This file records public product releases and later repository-only changes.
 The live deployment remains bound to its named annotated release unless a newer
 release explicitly replaces it.
 
-## Unreleased — R11 candidate
+## [webmcp-challenge-2026-r11] - 2026-09-04
 
 ### Product presentation
 
@@ -33,8 +33,9 @@ release explicitly replaces it.
   fixed to the immutable R10 tag while post-R10 paths are explicit and the R11
   visual source receives its own immutable tag binding.
 
-The R10 source and evidence remain immutable. This candidate is not represented
-as deployed until its annotated tag and Sites-version mapping are recorded.
+The R10 source and evidence remain immutable. R11 is published at commit
+`cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5`, saved as ChatGPT Sites version
+11, and deployed successfully to the public Site.
 
 ## [webmcp-challenge-2026-r10] - 2026-09-03
 
@@ -46,3 +47,4 @@ as deployed until its annotated tag and Sites-version mapping are recorded.
 - Passed the canonical local release gate and exact R10 source binding.
 
 [webmcp-challenge-2026-r10]: https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10
+[webmcp-challenge-2026-r11]: https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11

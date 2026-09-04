@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Status: **DEVPOST DRAFT UPDATED; PUBLIC R10 RELEASE VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
+Status: **DEVPOST DRAFT UPDATED; PUBLIC R11 RELEASE VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
 
 ## One-line Summary
 
@@ -39,7 +39,7 @@ ChatGPT is the runtime reasoning client. It discovers four typed capabilities ex
 
 ## How We Used Codex
 
-Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, local browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. The exact R10 release now carries the immutable post-deploy and supported-client evidence; later non-runtime repository commits are not represented as deployed application source.
+Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, local browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. The exact R11 release carries the redesigned product experience, immutable source-to-Sites mapping, canonical gate evidence, and first-party screenshots. The unchanged four-tool contract retains the exact R10 ChatGPT and Chrome traces as historical supported-client evidence.
 
 ## Key Features
 
@@ -81,7 +81,7 @@ https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/
 
 https://github.com/chvignesh07/focus-contract-studio
 
-Exact live-source release: [webmcp-challenge-2026-r10](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10) at commit `cd432d4a055f061ff3a2df8a95fb1b5fae17b47a`.
+Exact live-source release: [webmcp-challenge-2026-r11](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11) at commit `cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5`, saved as ChatGPT Sites version 11 and deployed successfully to the public URL.
 
 ## Demo Video
 
@@ -107,9 +107,9 @@ Recommended final cut:
 
 ## Submission Readiness Notes
 
-- Public live URL and exact R10 deployment mapping: verified; immutable post-deploy evidence is attached to the R10 GitHub release.
-- Public source repository, annotated R10 tag/release, and Apache-2.0 license: verified.
-- Exact four-tool WebMCP implementation and judge instructions: verified in the hosted ChatGPT in-app browser and Chrome traces attached to R10.
+- Public live URL and exact R11 deployment mapping: verified; immutable release evidence and screenshots are attached to the R11 GitHub release.
+- Public source repository, annotated R11 tag/release, release branch, and Apache-2.0 license: verified.
+- Exact four-tool WebMCP implementation and judge instructions: verified; the unchanged contract's hosted ChatGPT in-app browser and Chrome traces are attached to R10, while R11's full built-Worker browser suite passes 5/5.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
 - Devpost judge fields for submitter type, app status, live URL, testing instructions, repository, tested clients, AI-tool disclosure, learning, and career value: saved and reloaded from the live form on 2026-09-03.
 - Official current deadline: 2026-09-04 at 1:00 AM Pacific Time (2026-09-04T08:00:00Z).
