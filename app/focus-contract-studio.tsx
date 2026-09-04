@@ -518,12 +518,19 @@ export function FocusContractStudio() {
   const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
   const onWebMcpMutationCommitted = useEffectEvent((
     toolName: RegisteredFcsWebMcpV2Tool['name'],
+    result: unknown,
   ) => {
+    const application = (result as {
+      application?: { idempotentReplay?: boolean };
+    }).application;
     void refreshCommittedState()
       .then(() => setActivity(
         'Agent operation committed. Visible state refreshed.',
         'success',
-        toolName === 'apply_approved_focus_contract' ? 'yes' : 'no',
+        toolName === 'apply_approved_focus_contract' &&
+          application?.idempotentReplay === false
+          ? 'yes'
+          : 'no',
       ))
       .catch((error) => setActivityError(
         error,

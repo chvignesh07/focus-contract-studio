@@ -66,7 +66,10 @@ type FcsWebMcpV2RegistryOptions = {
   fetcher: Parameters<typeof createFcsWebMcpV2Tools>[0]['fetcher'];
   pageKey: string;
   currentPageKey: () => string;
-  onMutationCommitted?: (toolName: RegisteredFcsWebMcpV2Tool['name']) => void;
+  onMutationCommitted?: (
+    toolName: RegisteredFcsWebMcpV2Tool['name'],
+    result: unknown,
+  ) => void;
 };
 
 type RegistryGlobal = typeof globalThis & {
@@ -108,7 +111,7 @@ export class FcsWebMcpV2Registry {
               execute: async (...args: Parameters<typeof registeredTool.execute>) => {
                 const result = await registeredTool.execute(...args);
                 try {
-                  this.options.onMutationCommitted?.(registeredTool.name);
+                  this.options.onMutationCommitted?.(registeredTool.name, result);
                 } catch {
                   // The mutation already committed; UI synchronization must not falsify its result.
                 }

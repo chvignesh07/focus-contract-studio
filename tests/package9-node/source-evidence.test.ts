@@ -24,6 +24,7 @@ const r9LinuxCiHead = '21d0a6bd7744c83050a09075d1e7e0d36cd2b778';
 const r10VerificationTargetHead = 'cd432d4a055f061ff3a2df8a95fb1b5fae17b47a';
 const r11PresentationHead = 'cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5';
 const r12RepairBase = 'c64298bb3bc8279e368323d281c0e35f40a151f8';
+const r12RepairHead = '95bde24fb858281f151dd9b469cd6293ddd75c86';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
 const nativeToolNames = [
@@ -145,7 +146,9 @@ const postR10RepositoryChangedPaths = [
   'app/globals.css',
   'devpost-submission.md',
   'docs/README.md',
+  'docs/delivery/SUBMISSION_PLAN.md',
   'docs/delivery/EVIDENCE_REGISTRY.md',
+  'docs/evidence/CLIENT_MATRIX.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
   'docs/evidence/R11_RELEASE.md',
   'docs/media/r10/hero-mismatch.png',
@@ -166,6 +169,7 @@ const postR10RepositoryChangedPaths = [
 
 const r11Tag = 'webmcp-challenge-2026-r11';
 const r12Tag = 'webmcp-challenge-2026-r12';
+const r13Tag = 'webmcp-challenge-2026-r13';
 const r11PresentationSourcePaths = [
   'app/focus-contract-studio.tsx',
   'app/globals.css',
@@ -186,13 +190,26 @@ const r12RepairChangedPaths = [
   ...r12RepairSourcePaths,
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
-const postR12EvidencePaths = [
+const r13ReleaseSourcePaths = [
+  'README.md',
+  'app/focus-contract-studio.tsx',
+  'devpost-submission.md',
+  'docs/delivery/SUBMISSION_PLAN.md',
+  'docs/evidence/CLIENT_MATRIX.md',
+  'lib/webmcp/register.ts',
+  'tests/package7-dom/webmcp-v2-integration.test.tsx',
+] as const;
+const r13ReleaseChangedPaths = [
+  ...r13ReleaseSourcePaths,
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const postR13EvidencePaths = [
   '.devpost-hackathon-state.json',
   'CHANGELOG.md',
   'README.md',
   'devpost-submission.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
-  'docs/evidence/R12_RELEASE.md',
+  'docs/evidence/R13_RELEASE.md',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
@@ -887,27 +904,45 @@ test('R11 remains immutable and the R12 WebMCP UI-sync repair is source-bound', 
     'the R12 repair release must use an annotated tag',
   );
   const r12Head = git(['rev-parse', `${r12Tag}^{}`]).trim();
+  assert.equal(r12Head, r12RepairHead, 'the published R12 tag must remain immutable');
   assert.doesNotThrow(() => {
     git(['merge-base', '--is-ancestor', r11Head, r12RepairBase]);
     git(['merge-base', '--is-ancestor', r12RepairBase, r12Head]);
-    git(['merge-base', '--is-ancestor', r12Head, 'HEAD']);
   }, 'R12 must descend from immutable R11 through the reviewed repair base');
   assert.deepEqual(
     gitLines(['diff', '--name-only', r12RepairBase, r12Head, '--']).sort(),
     [...r12RepairChangedPaths].sort(),
     'R12 may contain only the UI-sync repair, its regression, security truth, and release binding',
   );
+});
+
+test('R13 binds the final WebMCP apply truth and judge sequence without moving R12', () => {
+  assert.equal(
+    git(['cat-file', '-t', r13Tag]).trim(),
+    'tag',
+    'the R13 release must use an annotated tag',
+  );
+  const r13Head = git(['rev-parse', `${r13Tag}^{}`]).trim();
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r12RepairHead, r13Head]);
+    git(['merge-base', '--is-ancestor', r13Head, 'HEAD']);
+  }, 'R13 must descend from immutable R12');
   assert.deepEqual(
-    sourceIdentity(r12RepairSourcePaths),
-    sourceIdentity(r12RepairSourcePaths, r12Head),
-    'R12 repair source must remain byte-identical after the tag',
+    gitLines(['diff', '--name-only', r12RepairHead, r13Head, '--']).sort(),
+    [...r13ReleaseChangedPaths].sort(),
+    'R13 may contain only the apply-truth repair, its regression, and corrected judge guidance',
+  );
+  assert.deepEqual(
+    sourceIdentity(r13ReleaseSourcePaths),
+    sourceIdentity(r13ReleaseSourcePaths, r13Head),
+    'R13 release source must remain byte-identical after the tag',
   );
 
-  const postTagChanges = gitLines(['diff', '--name-only', r12Head, 'HEAD', '--']);
+  const postTagChanges = gitLines(['diff', '--name-only', r13Head, 'HEAD', '--']);
   for (const relativePath of postTagChanges) {
     assert.ok(
-      postR12EvidencePaths.includes(relativePath as typeof postR12EvidencePaths[number]),
-      `post-R12 runtime drift is forbidden: ${relativePath}`,
+      postR13EvidencePaths.includes(relativePath as typeof postR13EvidencePaths[number]),
+      `post-R13 runtime drift is forbidden: ${relativePath}`,
     );
   }
 });

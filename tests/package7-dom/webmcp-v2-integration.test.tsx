@@ -18,6 +18,7 @@ function pageHarness() {
     'delete-account-standard';
   let viewRevision = 1;
   let implementedRevision = 1;
+  const appliedKeys = new Set<string>();
   let proposal: Record<string, unknown> | null = null;
   const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -108,6 +109,11 @@ function pageHarness() {
       return json({ ok: true, contractVersion: 'fcs-webmcp-v2', proposal }, 201);
     }
     if (url.endsWith('/apply')) {
+      const { idempotencyKey } = JSON.parse(String(init?.body)) as {
+        idempotencyKey: string;
+      };
+      const replayed = appliedKeys.has(idempotencyKey);
+      appliedKeys.add(idempotencyKey);
       implementedRevision = 2;
       proposal = { ...proposal, status: 'applied', applied: true, label: 'APPLIED' };
       return json({
@@ -120,7 +126,7 @@ function pageHarness() {
           toRevision: 2,
           result: 'applied',
           createdAt: '2026-09-04T06:15:02Z',
-          replayed: false,
+          replayed,
         },
       }, 201);
     }
@@ -240,4 +246,18 @@ test('a successful WebMCP mutation refreshes the visible review without a reload
     .toHaveTextContent('IMPLEMENTED REVISION 2');
   expect(screen.getByRole('region', { name: 'OPERATION_COMMITTED state' }))
     .toHaveTextContent(/Implemented revision changed\s*YES/u);
+
+  await apply.execute({
+    proposalId: '00000000-0000-4000-8000-000000007101',
+    expectedImplementedRevision: 1,
+    idempotencyKey: '00000000-0000-4000-8000-000000007104',
+  });
+
+  await waitFor(() => expect(
+    fetcher.mock.calls.filter(([input]) => String(input) === '/api/focus-review'),
+  ).toHaveLength(4));
+  expect(screen.getByRole('region', { name: 'Current focus decision truth' }))
+    .toHaveTextContent('IMPLEMENTED REVISION 2');
+  expect(screen.getByRole('region', { name: 'OPERATION_COMMITTED state' }))
+    .toHaveTextContent(/Implemented revision changed\s*NO/u);
 });
