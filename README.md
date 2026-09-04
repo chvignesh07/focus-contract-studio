@@ -77,17 +77,20 @@ Use ChatGPT's in-app browser or Chrome with WebMCP enabled.
 
 1. [Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
    and choose **Reset demo** if the workspace is not at revision 1.
-2. Ask the agent to call `read_active_focus_review`, then
+2. Choose **Run opening rehearsal**, confirm focus lands on **Delete**, then
+   close with **Cancel**. Wait for the page to show **OBSERVED DELETE**; this
+   finalized baseline observation is required before review.
+3. Ask the agent to call `read_active_focus_review`, then
    `create_focus_contract_proposal` using the returned evidence. Confirm the
    page still says **NOT APPLIED**.
-3. In the page, check the exact-review acknowledgement and approve the proposal.
+4. In the page, check the exact-review acknowledgement and approve the proposal.
    There is intentionally no approval tool.
-4. Ask the agent to call `apply_approved_focus_contract`. The guarded operation
+5. Ask the agent to call `apply_approved_focus_contract`. The guarded operation
    advances revision 1 to revision 2.
-5. Run the complete keyboard rehearsal in the page. Ask the agent to read the
+6. Run the complete keyboard rehearsal in the page. Ask the agent to read the
    review again and call `verify_focus_contract` with the returned
    `verificationTarget`.
-6. Inspect the six results, then try the visible undo or reset path if desired.
+7. Inspect the six results, then try the visible undo or reset path if desired.
 
 No WebMCP client? The complete human workflow still works in an ordinary
 browser.

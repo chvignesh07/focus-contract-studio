@@ -64,7 +64,7 @@ Target final duration: **165–170 seconds**. Public YouTube, English narration,
 
 | Time | Exact screen action | Proof conveyed |
 |---:|---|---|
-| 0–12 s | Public Site already open. Trigger Delete Account; focus lands on Delete. Show `Revision 1: Delete`, `Prior decision D001: Cancel`, and `DECISION MISMATCH`. | Working product immediately; coherent current-versus-precedent problem, not a fake standards verdict. |
+| 0–12 s | Public Site already open. Run the opening rehearsal; focus lands on Delete. Close with Cancel and show `OBSERVED DELETE`, `Revision 1: Delete`, `Prior decision D001: Cancel`, and `DECISION MISMATCH`. | Working product plus the finalized baseline observation required for later review; coherent current-versus-precedent problem, not a fake standards verdict. |
 | 12–29 s | ChatGPT invokes `read_active_focus_review`; show page state and bounded evidence cards/rank contributions. | WebMCP reads the exact live page; evidence is scoped and labeled non-authoritative. |
 | 29–47 s | ChatGPT invokes `create_focus_contract_proposal`; show `Delete → Cancel` diff and large `NOT APPLIED`. Reopen dialog and show it still focuses Delete. | Proposal is real/durable but cannot mutate. |
 | 47–65 s | Brief paired memory proof: same change with D001 is accepted; prepared no-evidence variant returns `EVIDENCE_REQUIRED_FOR_AGENT_CHANGE`. Return to accepted proposal. | Precedent materially affects agent proposal eligibility without creating approval. |

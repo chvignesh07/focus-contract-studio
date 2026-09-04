@@ -17,6 +17,7 @@ function pageHarness() {
   let variant: 'delete-account-standard' | 'delete-account-danger-emphasis' =
     'delete-account-standard';
   let viewRevision = 1;
+  let implementedRevision = 1;
   let proposal: Record<string, unknown> | null = null;
   const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -36,8 +37,13 @@ function pageHarness() {
         contractVersion: 'fcs-webmcp-v2',
         review: {
           variant,
-          implementedRevision: 1,
-          implemented: REVISION_1_CONFIGURATION,
+          implementedRevision,
+          implemented: implementedRevision === 1
+            ? REVISION_1_CONFIGURATION
+            : {
+                ...REVISION_1_CONFIGURATION,
+                initialFocus: 'cancel-button',
+              },
           observation: null,
           precedentComparison: {
             label: 'DECISION_MISMATCH',
@@ -73,7 +79,7 @@ function pageHarness() {
       });
     }
     if (url === '/api/focus-history') {
-      return json({ ok: true, activeRevision: 1, records: [] });
+      return json({ ok: true, activeRevision: implementedRevision, records: [] });
     }
     if (url === '/api/focus-proposals') {
       proposal = {
@@ -100,6 +106,23 @@ function pageHarness() {
         parentProposalId: null,
       };
       return json({ ok: true, contractVersion: 'fcs-webmcp-v2', proposal }, 201);
+    }
+    if (url.endsWith('/apply')) {
+      implementedRevision = 2;
+      proposal = { ...proposal, status: 'applied', applied: true, label: 'APPLIED' };
+      return json({
+        ok: true,
+        receipt: {
+          receiptId: '00000000-0000-4000-8000-000000007103',
+          proposalId: '00000000-0000-4000-8000-000000007101',
+          proposalDigest8: '12345678',
+          fromRevision: 1,
+          toRevision: 2,
+          result: 'applied',
+          createdAt: '2026-09-04T06:15:02Z',
+          replayed: false,
+        },
+      }, 201);
     }
     if (url === '/api/active-variant') {
       const body = JSON.parse(String(init?.body)) as { variant: typeof variant };
@@ -202,4 +225,19 @@ test('a successful WebMCP mutation refreshes the visible review without a reload
   expect(screen.getByRole('region', { name: 'Proposal state' })).toHaveTextContent('NOT APPLIED');
   expect(screen.getByRole('region', { name: 'Current focus decision truth' }))
     .toHaveTextContent('IMPLEMENTED REVISION 1');
+
+  const apply = modelContext.tools.get('apply_approved_focus_contract')!;
+  await apply.execute({
+    proposalId: '00000000-0000-4000-8000-000000007101',
+    expectedImplementedRevision: 1,
+    idempotencyKey: '00000000-0000-4000-8000-000000007104',
+  });
+
+  await waitFor(() => expect(
+    fetcher.mock.calls.filter(([input]) => String(input) === '/api/focus-review'),
+  ).toHaveLength(3));
+  expect(screen.getByRole('region', { name: 'Current focus decision truth' }))
+    .toHaveTextContent('IMPLEMENTED REVISION 2');
+  expect(screen.getByRole('region', { name: 'OPERATION_COMMITTED state' }))
+    .toHaveTextContent(/Implemented revision changed\s*YES/u);
 });

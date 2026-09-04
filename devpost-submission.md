@@ -64,12 +64,13 @@ Zod defines strict route and WebMCP schemas. An indexed D1 query filters precede
 No credentials are required.
 
 1. Open the [public app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/) in ChatGPT's desktop in-app browser. Choose **Reset demo** if the page is not at implemented revision 1.
-2. Ask ChatGPT: “Read the active focus review and create the evidence-backed Cancel-first proposal.”
-3. Confirm the page still shows revision 1 and `NOT APPLIED`. Check the exact-review acknowledgement, choose **Approve**, and confirm in the visible page.
-4. Ask ChatGPT: “Apply the exact approved proposal.”
-5. Run the complete keyboard rehearsal shown on the page.
-6. Ask ChatGPT: “Read the current review again and verify the exact returned verification target.”
-7. Confirm revision 2 and six passing checks.
+2. Choose **Run opening rehearsal**, confirm focus lands on **Delete**, then close with **Cancel**. Wait for `OBSERVED DELETE`; this finalized baseline observation is required before review.
+3. Ask ChatGPT: “Read the active focus review and create the evidence-backed Cancel-first proposal.”
+4. Confirm the page still shows revision 1 and `NOT APPLIED`. Check the exact-review acknowledgement, choose **Approve**, and confirm in the visible page.
+5. Ask ChatGPT: “Apply the exact approved proposal.”
+6. Run the complete keyboard rehearsal shown on the page.
+7. Ask ChatGPT: “Read the current review again and verify the exact returned verification target.”
+8. Confirm revision 2 and six passing checks.
 
 The final release target is ChatGPT's desktop in-app browser plus Chrome 152.0.7977.66 with `chrome://flags/#enable-webmcp-testing` enabled and the browser restarted. Treat those clients as qualified only when the matching GitHub release carries the exact-version post-deploy traces. No database console, developer tools, copied cookie, CSRF value, workspace ID, or manually supplied rehearsal ID belongs in the judge flow.
 

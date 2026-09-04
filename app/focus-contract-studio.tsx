@@ -24,6 +24,7 @@ import type { ActiveFocusReviewResult } from '../lib/server/active-focus-review'
 import {
   FcsWebMcpV2Registry,
   type FcsWebMcpV2ModelContextLike,
+  type RegisteredFcsWebMcpV2Tool,
 } from '../lib/webmcp/register';
 import {
   DeleteAccountDialog,
@@ -515,9 +516,15 @@ export function FocusContractStudio() {
   }, []);
 
   const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
-  const onWebMcpMutationCommitted = useEffectEvent(() => {
+  const onWebMcpMutationCommitted = useEffectEvent((
+    toolName: RegisteredFcsWebMcpV2Tool['name'],
+  ) => {
     void refreshCommittedState()
-      .then(() => setActivity('Agent operation committed. Visible state refreshed.'))
+      .then(() => setActivity(
+        'Agent operation committed. Visible state refreshed.',
+        'success',
+        toolName === 'apply_approved_focus_contract' ? 'yes' : 'no',
+      ))
       .catch((error) => setActivityError(
         error,
         'The agent operation committed, but the visible state could not be refreshed.',
