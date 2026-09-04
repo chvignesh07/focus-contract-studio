@@ -42,7 +42,11 @@
   },
   "submission": {
     "draft_file": "devpost-submission.md",
-    "status": "needs-video-and-residence"
+    "status": "needs-work",
+    "blocking_items": [
+      "public-demo-video-url",
+      "entrant-country-of-residence"
+    ]
   },
   "next_command": "submit-project"
 }

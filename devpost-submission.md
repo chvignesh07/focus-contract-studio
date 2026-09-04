@@ -112,10 +112,11 @@ Recommended final cut:
 - Exact four-tool WebMCP implementation and judge instructions: verified; the unchanged contract's hosted ChatGPT in-app browser and Chrome traces are attached to R10, while R11's full built-Worker browser suite passes 5/5.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
 - Devpost judge fields for submitter type, app status, live URL, testing instructions, repository, tested clients, AI-tool disclosure, learning, and career value: saved and reloaded from the live form on 2026-09-03.
+- Public Devpost project description and tagline: updated for R11 and read back as live project version 9 on 2026-09-04.
 - Official current deadline: 2026-09-04 at 1:00 AM Pacific Time (2026-09-04T08:00:00Z).
 - Country of residence: blank; requires the entrant's own truthful answer and must not be inferred from citizenship or repository data.
 - Required demo video: missing.
-- Final Devpost submit action: blocked only by the country-of-residence answer and public video URL.
+- Final Devpost submit action: blocked only by the entrant-supplied country-of-residence answer and required public video URL; Devpost currently reports `submitted_at: null`.
 
 ## Known Limitations
 
