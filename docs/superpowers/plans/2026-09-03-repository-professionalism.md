@@ -187,12 +187,12 @@ rg -n "TBD|TODO|FIXME|CHANGEME|<your" README.md CONTRIBUTING.md SECURITY.md CODE
 ```
 
 - [x] Run the existing exported `checkLocalMarkdownLinks` verifier and require zero broken local links.
-- [ ] Run `npm run verify` from the clean committed branch with localhost permission; require exit `0`, `PACKAGE8_RELEASE_PASS packages=724 checks=16`, and all R10 binding checks passing.
-- [ ] Create a clean no-hardlinks clone of the exact branch HEAD, run `npm ci`, then run `npm run verify` there with localhost permission.
+- [x] Run `npm run verify` from the clean committed branch with localhost permission; require exit `0`, `PACKAGE8_RELEASE_PASS packages=724 checks=16`, and all 11 binding tests passing.
+- [x] Create a clean no-hardlinks clone of the exact branch HEAD, run `npm ci`, install the repository-pinned Chromium, then run `npm run verify` there with localhost permission.
 - [x] Ask one read-only reviewer to assess product clarity, README hierarchy, setup completeness, status truth, accessibility of screenshots, broken links, and open-source professionalism against the approved design.
 - [x] Ask one read-only reviewer to assess security/privacy claims, secret handling, release lineage, four-tool invariants, and whether any changed wording exceeds the evidence.
 - [x] Resolve every Critical or Important finding and rerun the affected checks.
-- [ ] Record the final branch name, HEAD, diff summary, gate result, clone result, and any genuinely unverified external item.
+- [x] Record the final branch name, HEAD, diff summary, gate result, clone result, and any genuinely unverified external item in the final handoff. The final commit hash is reported outside this self-referential file.
 
 ### Task 7: Finish at the external publication boundary
 
