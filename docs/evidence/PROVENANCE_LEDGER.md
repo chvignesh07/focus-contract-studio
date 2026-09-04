@@ -64,4 +64,23 @@ that same source SHA and is deployed to the public Site.
 | `docs/media/r11/visible-review.png` | Visible review confirmation remains the sole authorization boundary | `b75395a1310c01a9533c6b6487207c8eb398373c8825e3a79da78f177cb7dbc7` |
 | `docs/media/r11/verification-pass.png` | Six-check browser rehearsal and chronological committed state | `0bca986b30a0b2d615f191d65186a007ddf558691e4a31d825d66df2645e5b50` |
 
+## R13 release supplement
+
+The annotated `webmcp-challenge-2026-r13` tag binds commit
+`3a37d92cb22d39602acbb3bd323f40a8c96e70d8` and tree
+`4011d1c91b714acea84f229fc4de694df4b4c413`. ChatGPT Sites version 13 reports
+that exact source commit and archive
+`sha256:fab0d07d6839e25e0168cf824fecab1ce43841aacb1a2626a513a75919d7523c`
+(102 files). Deployment `appgdep_6a9a6f2a52d081918f5b700cecc19f78`
+succeeded at `2026-09-04T07:12:02Z` and serves the public Site.
+
+A fresh ChatGPT in-app-browser run against that deployment discovered exactly
+four tools and completed the current judge flow. The agent created proposal
+`6bd47b51-6bf1-4a5c-b48f-89368319dd45`; visible human approval remained the
+only authorization path; the first apply advanced revision 1 to 2 with receipt
+`0ad3df9b-4661-4011-91dc-c2478b52305b`; a same-key replay returned the same
+receipt without changing the revision; and rehearsal
+`43ddfcc0-cf2f-4d2c-92c9-bbfcd9365928` passed all six verification checks.
+The visible page refreshed after each agent mutation without a manual reload.
+
 Copyright 2026 Vignesh. Original repository content is licensed under Apache-2.0. This statement does not relicense dependencies, generated third-party material, fonts, trademarks, or external documentation.

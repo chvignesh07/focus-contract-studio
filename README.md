@@ -5,12 +5,12 @@ agent, the agent proposes a bounded repair, and only a visible review can
 authorize the change.**
 
 [![Verify](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml)
-[![R11 release](https://img.shields.io/badge/release-R11-3158c7)](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11)
+[![R13 release](https://img.shields.io/badge/release-R13-3158c7)](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13)
 [![WebMCP four tools](https://img.shields.io/badge/WebMCP-4%20page--bound%20tools-163f35)](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-5b625f)](LICENSE)
 
 [Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
-· [See the exact deployed R11 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11)
+· [See the exact deployed R13 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13)
 · [Read the WebMCP contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 
 ![R11 release of Focus Contract Studio explaining the human-agent authority boundary and the live Delete-versus-Cancel focus mismatch](docs/media/r11/hero-story.png)
@@ -206,19 +206,19 @@ Read [Security](SECURITY.md), the detailed
 ## Release lineage
 
 The current public Site is the
-[`webmcp-challenge-2026-r11`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11)
+[`webmcp-challenge-2026-r13`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13)
 release, immutable at commit
-`cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5`. ChatGPT Sites saved it as
-version 11 from that exact SHA and deployed it successfully to the public URL.
-The complete mapping is recorded in the
-[R11 release record](docs/evidence/R11_RELEASE.md).
+`3a37d92cb22d39602acbb3bd323f40a8c96e70d8`. ChatGPT Sites saved version 13
+from that exact SHA and deployed it successfully to the public URL. The
+complete source, deployment, and live supported-client mapping is recorded in
+the [R13 release record](docs/evidence/R13_RELEASE.md).
 
-R11 changes the visual story and interaction hierarchy, not the four-tool
-contract, review authority, D1 state machine, or independent verifier. The
-immutable
+R13 preserves R11's visual system and exact four-tool authority contract while
+making successful WebMCP mutations refresh the visible page and distinguishing
+a fresh revision-changing apply from a safe idempotent replay. The complete
+R13 flow passed in ChatGPT's in-app browser. The immutable
 [`webmcp-challenge-2026-r10`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
-release remains the historical supported-client trace for that unchanged
-contract.
+release remains the historical Chrome trace for the same contract.
 
 The demo video and final Devpost submission are intentionally not represented
 as complete in this repository.

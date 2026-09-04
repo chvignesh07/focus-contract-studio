@@ -151,6 +151,7 @@ const postR10RepositoryChangedPaths = [
   'docs/evidence/CLIENT_MATRIX.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
   'docs/evidence/R11_RELEASE.md',
+  'docs/evidence/R13_RELEASE.md',
   'docs/media/r10/hero-mismatch.png',
   'docs/media/r10/proposal-not-applied.png',
   'docs/media/r10/verification-pass.png',
@@ -170,6 +171,7 @@ const postR10RepositoryChangedPaths = [
 const r11Tag = 'webmcp-challenge-2026-r11';
 const r12Tag = 'webmcp-challenge-2026-r12';
 const r13Tag = 'webmcp-challenge-2026-r13';
+const r13ReleaseHead = '3a37d92cb22d39602acbb3bd323f40a8c96e70d8';
 const r11PresentationSourcePaths = [
   'app/focus-contract-studio.tsx',
   'app/globals.css',
@@ -212,6 +214,11 @@ const postR13EvidencePaths = [
   'docs/evidence/R13_RELEASE.md',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
+const r13ImmutableReleasePaths = r13ReleaseSourcePaths.filter(
+  (relativePath) => !postR13EvidencePaths.includes(
+    relativePath as typeof postR13EvidencePaths[number],
+  ),
+);
 
 function sha256(value: string | Buffer) {
   return createHash('sha256').update(value).digest('hex');
@@ -923,6 +930,7 @@ test('R13 binds the final WebMCP apply truth and judge sequence without moving R
     'the R13 release must use an annotated tag',
   );
   const r13Head = git(['rev-parse', `${r13Tag}^{}`]).trim();
+  assert.equal(r13Head, r13ReleaseHead, 'the published R13 tag must remain immutable');
   assert.doesNotThrow(() => {
     git(['merge-base', '--is-ancestor', r12RepairHead, r13Head]);
     git(['merge-base', '--is-ancestor', r13Head, 'HEAD']);
@@ -933,12 +941,15 @@ test('R13 binds the final WebMCP apply truth and judge sequence without moving R
     'R13 may contain only the apply-truth repair, its regression, and corrected judge guidance',
   );
   assert.deepEqual(
-    sourceIdentity(r13ReleaseSourcePaths),
-    sourceIdentity(r13ReleaseSourcePaths, r13Head),
-    'R13 release source must remain byte-identical after the tag',
+    sourceIdentity(r13ImmutableReleasePaths),
+    sourceIdentity(r13ImmutableReleasePaths, r13Head),
+    'R13 runtime and frozen judge guidance must remain byte-identical after the tag',
   );
 
-  const postTagChanges = gitLines(['diff', '--name-only', r13Head, 'HEAD', '--']);
+  const postTagChanges = new Set([
+    ...gitLines(['diff', '--name-only', r13Head, 'HEAD', '--']),
+    ...gitLines(['ls-files', '--others', '--exclude-standard']),
+  ]);
   for (const relativePath of postTagChanges) {
     assert.ok(
       postR13EvidencePaths.includes(relativePath as typeof postR13EvidencePaths[number]),

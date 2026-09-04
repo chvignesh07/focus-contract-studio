@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Status: **DEVPOST DRAFT UPDATED; PUBLIC R11 RELEASE VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
+Status: **PUBLIC R13 RELEASE AND LIVE CHATGPT FLOW VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
 
 ## One-line Summary
 
@@ -39,7 +39,7 @@ ChatGPT is the runtime reasoning client. It discovers four typed capabilities ex
 
 ## How We Used Codex
 
-Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, local browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. The exact R11 release carries the redesigned product experience, immutable source-to-Sites mapping, canonical gate evidence, and first-party screenshots. The unchanged four-tool contract retains the exact R10 ChatGPT and Chrome traces as historical supported-client evidence.
+Codex supported current official-source research, product and architecture work, implementation, test-driven repairs, browser testing, documentation, security review, and adversarial release audits. Claude supplied an earlier advisory plan review. The entrant directed the product choices and retained control over public release and submission. The exact R13 release carries the redesigned product experience, immutable source-to-Sites mapping, canonical gate evidence, the first-party R11 screenshots, and a fresh successful ChatGPT in-app-browser flow. R10 retains the historical Chrome trace for the same four-tool contract.
 
 ## Key Features
 
@@ -72,7 +72,7 @@ No credentials are required.
 7. Ask ChatGPT: “Read the current review again and verify the exact returned verification target.”
 8. Confirm revision 2 and six passing checks.
 
-The final release target is ChatGPT's desktop in-app browser plus Chrome 152.0.7977.66 with `chrome://flags/#enable-webmcp-testing` enabled and the browser restarted. Treat those clients as qualified only when the matching GitHub release carries the exact-version post-deploy traces. No database console, developer tools, copied cookie, CSRF value, workspace ID, or manually supplied rehearsal ID belongs in the judge flow.
+R13 is qualified in ChatGPT's desktop in-app browser. Chrome 152.0.7977.66 with `chrome://flags/#enable-webmcp-testing` enabled has a historical R10 trace for the same contract; no R13 Chrome run is claimed. No database console, developer tools, copied cookie, CSRF value, workspace ID, or manually supplied rehearsal ID belongs in the judge flow.
 
 ## Public Demo Link
 
@@ -82,7 +82,7 @@ https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/
 
 https://github.com/chvignesh07/focus-contract-studio
 
-Exact live-source release: [webmcp-challenge-2026-r11](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11) at commit `cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5`, saved as ChatGPT Sites version 11 and deployed successfully to the public URL.
+Exact live-source release: [webmcp-challenge-2026-r13](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13) at commit `3a37d92cb22d39602acbb3bd323f40a8c96e70d8`, saved as ChatGPT Sites version 13 and deployed successfully to the public URL.
 
 ## Demo Video
 
@@ -108,12 +108,12 @@ Recommended final cut:
 
 ## Submission Readiness Notes
 
-- Public live URL and exact R11 deployment mapping: verified; immutable release evidence and screenshots are attached to the R11 GitHub release.
-- Public source repository, annotated R11 tag/release, release branch, and Apache-2.0 license: verified.
-- Exact four-tool WebMCP implementation and judge instructions: verified; the unchanged contract's hosted ChatGPT in-app browser and Chrome traces are attached to R10, while R11's full built-Worker browser suite passes 5/5.
+- Public live URL and exact R13 deployment mapping: verified; the immutable release evidence is linked from the public R13 GitHub release.
+- Public source repository, annotated R13 tag/release, release branch, and Apache-2.0 license: verified.
+- Exact four-tool WebMCP implementation and judge instructions: verified; the complete R13 flow passed in ChatGPT's in-app browser, the built-Worker browser suite passes 5/5, and R10 retains the historical Chrome trace.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
 - Devpost judge fields for submitter type, app status, live URL, testing instructions, repository, tested clients, AI-tool disclosure, learning, and career value: saved and reloaded from the live form on 2026-09-03.
-- Public Devpost project description and tagline: updated for R11 and read back as live project version 9 on 2026-09-04.
+- Public Devpost project description and tagline: R13 copy saved and read back as live project version 10 on 2026-09-04.
 - Official current deadline: 2026-09-04 at 1:00 AM Pacific Time (2026-09-04T08:00:00Z).
 - Country of residence: blank; requires the entrant's own truthful answer and must not be inferred from citizenship or repository data.
 - Required demo video: missing.
@@ -127,7 +127,7 @@ Recommended final cut:
 
 ## Submission Form Field Map
 
-Live requirements checked 2026-09-03:
+Submission fields were initially checked on 2026-09-03; the R13 project description was saved and read back on 2026-09-04:
 
 - `28249` Submitter type: `Individual`
 - `28250` Country of residence: **entrant answer required**
@@ -135,7 +135,7 @@ Live requirements checked 2026-09-03:
 - `28254` Live URL: `https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/`
 - `28255` Testing instructions: use the copy-ready sequence above.
 - `28256` Public repository: `https://github.com/chvignesh07/focus-contract-studio`
-- `28257` Tested clients: `ChatGPT desktop in-app browser and Chrome 152.0.7977.66 with WebMCP testing enabled; exact R10 traces are attached to the public R10 GitHub release.`
+- `28257` Tested clients: `ChatGPT desktop in-app browser: complete live R13 flow passed. Chrome 152.0.7977.66 with WebMCP testing enabled: historical R10 trace for the same four-tool contract is attached to the public R10 GitHub release.`
 - `28258` AI tools: `ChatGPT, Codex, and Claude (advisory review). ChatGPT is the runtime reasoning client through WebMCP; the Site calls no hidden model API.`
 - `28259` Learning: `Significant`
 - `28260` Career AI value: `Yes`

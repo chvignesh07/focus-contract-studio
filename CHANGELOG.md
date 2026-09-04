@@ -4,6 +4,23 @@ This file records public product releases and later repository-only changes.
 The live deployment remains bound to its named annotated release unless a newer
 release explicitly replaces it.
 
+## [webmcp-challenge-2026-r13] - 2026-09-04
+
+- Refreshed the visible review, history, and verification state immediately
+  after successful agent mutations without changing the guarded tool result.
+- Made the page report a revision change only for a fresh apply; same-key
+  idempotent recovery keeps the receipt while truthfully reporting no new
+  revision change.
+- Corrected the judge sequence so the required revision-1 observation is
+  finalized before proposal review.
+- Passed the canonical release gate, then passed the complete public R13 flow
+  in ChatGPT's in-app browser, including proposal, visible approval, fresh
+  apply, replay recovery, revision-2 rehearsal, and six-check verification.
+
+R13 is immutable at commit
+`3a37d92cb22d39602acbb3bd323f40a8c96e70d8`, saved as ChatGPT Sites version
+13, and deployed successfully to the public Site.
+
 ## [webmcp-challenge-2026-r11] - 2026-09-04
 
 ### Product presentation
@@ -48,3 +65,4 @@ The R10 source and evidence remain immutable. R11 is published at commit
 
 [webmcp-challenge-2026-r10]: https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10
 [webmcp-challenge-2026-r11]: https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r11
+[webmcp-challenge-2026-r13]: https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13
