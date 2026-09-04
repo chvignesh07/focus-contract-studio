@@ -22,6 +22,8 @@ const finalReleaseHead = '835cb812faf8ec043486b2e0ebec7d7784236dbb';
 const r8NativeContextHead = '08c2043df9873ee39852a1fb4c281bb70cc8c45d';
 const r9LinuxCiHead = '21d0a6bd7744c83050a09075d1e7e0d36cd2b778';
 const r10VerificationTargetHead = 'cd432d4a055f061ff3a2df8a95fb1b5fae17b47a';
+const r11PresentationHead = 'cc9fd46f92cc51445d9d2b9ee36ff6f3300242e5';
+const r12RepairBase = 'c64298bb3bc8279e368323d281c0e35f40a151f8';
 const evidencePath = 'docs/evidence/ADVERSARIAL_REVIEW_1.md';
 const nativeTracePath = 'docs/evidence/webmcp-native-context-r8-trace.json';
 const nativeToolNames = [
@@ -155,12 +157,15 @@ const postR10RepositoryChangedPaths = [
   'docs/media/r11/verification-pass.png',
   'docs/media/r11/visible-review.png',
   'docs/superpowers/plans/2026-09-03-repository-professionalism.md',
+  'lib/webmcp/register.ts',
+  'tests/package7-dom/webmcp-v2-integration.test.tsx',
   'tests/package8-browser/security-runtime.spec.ts',
   'tests/package8-browser/r11-presentation.spec.ts',
   'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
 const r11Tag = 'webmcp-challenge-2026-r11';
+const r12Tag = 'webmcp-challenge-2026-r12';
 const r11PresentationSourcePaths = [
   'app/focus-contract-studio.tsx',
   'app/globals.css',
@@ -171,13 +176,24 @@ const r11PresentationSourcePaths = [
   'tests/package8-browser/r11-presentation.spec.ts',
   'tests/package8-browser/security-runtime.spec.ts',
 ] as const;
-const postR11EvidencePaths = [
+const r12RepairSourcePaths = [
+  'SECURITY.md',
+  'app/focus-contract-studio.tsx',
+  'lib/webmcp/register.ts',
+  'tests/package7-dom/webmcp-v2-integration.test.tsx',
+] as const;
+const r12RepairChangedPaths = [
+  ...r12RepairSourcePaths,
+  'tests/package9-node/source-evidence.test.ts',
+] as const;
+const postR12EvidencePaths = [
   '.devpost-hackathon-state.json',
   'CHANGELOG.md',
   'README.md',
   'devpost-submission.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
-  'docs/evidence/R11_RELEASE.md',
+  'docs/evidence/R12_RELEASE.md',
+  'tests/package9-node/source-evidence.test.ts',
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -847,29 +863,51 @@ test('post-R10 work preserves the immutable deployed R10 source boundary', () =>
   );
 });
 
-test('R11 presentation source is bound to one immutable annotated tag', () => {
+test('R11 remains immutable and the R12 WebMCP UI-sync repair is source-bound', () => {
   assert.equal(
     git(['cat-file', '-t', r11Tag]).trim(),
     'tag',
     'the R11 presentation release must use an annotated tag',
   );
   const r11Head = git(['rev-parse', `${r11Tag}^{}`]).trim();
+  assert.equal(r11Head, r11PresentationHead, 'the published R11 tag must remain immutable');
   assert.doesNotThrow(() => {
     git(['merge-base', '--is-ancestor', r10VerificationTargetHead, r11Head]);
-    git(['merge-base', '--is-ancestor', r11Head, 'HEAD']);
-  }, 'R11 must descend from immutable R10 and remain an ancestor of HEAD');
+  }, 'R11 must descend from immutable R10');
 
   assert.deepEqual(
-    sourceIdentity(r11PresentationSourcePaths),
     sourceIdentity(r11PresentationSourcePaths, r11Head),
-    'R11 runtime, presentation tests, and screenshots must remain byte-identical after the tag',
+    { fileCount: 8, sha256: '060c360b5e44189c5dc35b5f4958840467f6fb2a420afff8e20dc4084508af1d' },
+    'the immutable R11 presentation source identity must remain exact',
   );
 
-  const postTagChanges = gitLines(['diff', '--name-only', r11Head, 'HEAD', '--']);
+  assert.equal(
+    git(['cat-file', '-t', r12Tag]).trim(),
+    'tag',
+    'the R12 repair release must use an annotated tag',
+  );
+  const r12Head = git(['rev-parse', `${r12Tag}^{}`]).trim();
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r11Head, r12RepairBase]);
+    git(['merge-base', '--is-ancestor', r12RepairBase, r12Head]);
+    git(['merge-base', '--is-ancestor', r12Head, 'HEAD']);
+  }, 'R12 must descend from immutable R11 through the reviewed repair base');
+  assert.deepEqual(
+    gitLines(['diff', '--name-only', r12RepairBase, r12Head, '--']).sort(),
+    [...r12RepairChangedPaths].sort(),
+    'R12 may contain only the UI-sync repair, its regression, security truth, and release binding',
+  );
+  assert.deepEqual(
+    sourceIdentity(r12RepairSourcePaths),
+    sourceIdentity(r12RepairSourcePaths, r12Head),
+    'R12 repair source must remain byte-identical after the tag',
+  );
+
+  const postTagChanges = gitLines(['diff', '--name-only', r12Head, 'HEAD', '--']);
   for (const relativePath of postTagChanges) {
     assert.ok(
-      postR11EvidencePaths.includes(relativePath as typeof postR11EvidencePaths[number]),
-      `post-R11 runtime drift is forbidden: ${relativePath}`,
+      postR12EvidencePaths.includes(relativePath as typeof postR12EvidencePaths[number]),
+      `post-R12 runtime drift is forbidden: ${relativePath}`,
     );
   }
 });
