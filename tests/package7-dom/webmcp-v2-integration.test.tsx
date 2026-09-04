@@ -17,6 +17,7 @@ function pageHarness() {
   let variant: 'delete-account-standard' | 'delete-account-danger-emphasis' =
     'delete-account-standard';
   let viewRevision = 1;
+  let proposal: Record<string, unknown> | null = null;
   const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     if (url === '/api/session/bootstrap') {
@@ -68,11 +69,37 @@ function pageHarness() {
             rationaleExcerpt: 'Cancel protects the escape path. Evidence only — not approval.',
           }],
         },
-        proposal: null,
+        proposal,
       });
     }
     if (url === '/api/focus-history') {
       return json({ ok: true, activeRevision: 1, records: [] });
+    }
+    if (url === '/api/focus-proposals') {
+      proposal = {
+        proposalId: '00000000-0000-4000-8000-000000007101',
+        baseImplementedRevision: 1,
+        proposalDigest8: '12345678',
+        proposalDigest: '1'.repeat(64),
+        changedFields: ['initialFocus'],
+        fieldEvidence: [{
+          field: 'initialFocus',
+          recordId: 'D001',
+          outcomeKey: 'cancel-button',
+        }],
+        status: 'proposed',
+        applied: false,
+        label: 'NOT APPLIED',
+        configuration: {
+          ...REVISION_1_CONFIGURATION,
+          initialFocus: 'cancel-button',
+        },
+        summary: 'Focus Cancel first.',
+        authorKind: 'agent',
+        createdAt: '2026-09-04T06:15:01Z',
+        parentProposalId: null,
+      };
+      return json({ ok: true, contractVersion: 'fcs-webmcp-v2', proposal }, 201);
     }
     if (url === '/api/active-variant') {
       const body = JSON.parse(String(init?.body)) as { variant: typeof variant };
@@ -145,4 +172,34 @@ test('unsupported WebMCP keeps the complete visible human workflow', async () =>
     .getAllByRole('link')).toHaveLength(6);
   expect(screen.getByRole('link', { name: /Reviewavailable/u })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Reset this workspace' })).toBeEnabled();
+});
+
+test('a successful WebMCP mutation refreshes the visible review without a reload', async () => {
+  const modelContext = new ModelContext();
+  (document as Document & { modelContext?: ModelContext }).modelContext = modelContext;
+  const fetcher = pageHarness();
+  vi.stubGlobal('fetch', fetcher);
+  render(<FocusContractStudio />);
+
+  expect(await screen.findByText('Four bounded Site tools are registered for this page.')).toBeVisible();
+  const create = modelContext.tools.get('create_focus_contract_proposal')!;
+  await create.execute({
+    baseImplementedRevision: 1,
+    configuration: {
+      ...REVISION_1_CONFIGURATION,
+      initialFocus: 'cancel-button',
+    },
+    evidenceQueryToken: `v1.1788500000.${'A'.repeat(43)}`,
+    evidenceRecordIds: ['D001'],
+    summary: 'Focus Cancel first.',
+    idempotencyKey: '00000000-0000-4000-8000-000000007102',
+  });
+
+  await waitFor(() => expect(
+    fetcher.mock.calls.filter(([input]) => String(input) === '/api/focus-review'),
+  ).toHaveLength(2));
+  expect(screen.getByRole('heading', { name: 'Complete exact authority' })).toBeVisible();
+  expect(screen.getByRole('region', { name: 'Proposal state' })).toHaveTextContent('NOT APPLIED');
+  expect(screen.getByRole('region', { name: 'Current focus decision truth' }))
+    .toHaveTextContent('IMPLEMENTED REVISION 1');
 });

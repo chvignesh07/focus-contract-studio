@@ -2,7 +2,7 @@
 
 import '../lib/client/zod-jitless';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 import {
   CANCEL_CONFIGURATION,
@@ -515,6 +515,14 @@ export function FocusContractStudio() {
   }, []);
 
   const toolCsrfToken = page.kind === 'ready' ? page.csrfToken : null;
+  const onWebMcpMutationCommitted = useEffectEvent(() => {
+    void refreshCommittedState()
+      .then(() => setActivity('Agent operation committed. Visible state refreshed.'))
+      .catch((error) => setActivityError(
+        error,
+        'The agent operation committed, but the visible state could not be refreshed.',
+      ));
+  });
   useEffect(() => {
     if (!toolCsrfToken || !toolPageKey) return;
     const modelContext = (document as ToolDocument).modelContext;
@@ -524,6 +532,7 @@ export function FocusContractStudio() {
       fetcher: window.fetch.bind(window),
       pageKey: toolPageKey,
       currentPageKey: () => currentToolPageKey.current,
+      onMutationCommitted: onWebMcpMutationCommitted,
     });
     let mounted = true;
     void registry

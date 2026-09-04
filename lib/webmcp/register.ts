@@ -66,6 +66,7 @@ type FcsWebMcpV2RegistryOptions = {
   fetcher: Parameters<typeof createFcsWebMcpV2Tools>[0]['fetcher'];
   pageKey: string;
   currentPageKey: () => string;
+  onMutationCommitted?: (toolName: RegisteredFcsWebMcpV2Tool['name']) => void;
 };
 
 type RegistryGlobal = typeof globalThis & {
@@ -93,13 +94,27 @@ export class FcsWebMcpV2Registry {
     registryGlobal.__fcsWebMcpV2Registration = controller;
     this.registrationController = controller;
     try {
-      for (const tool of createFcsWebMcpV2Tools({
+      for (const registeredTool of createFcsWebMcpV2Tools({
         csrfToken: this.options.csrfToken,
         fetcher: this.options.fetcher,
         lifecycleSignal: controller.signal,
         isCurrent: () => this.options.currentPageKey() === this.options.pageKey,
       })) {
         controller.signal.throwIfAborted();
+        const tool = registeredTool.annotations.readOnlyHint || !this.options.onMutationCommitted
+          ? registeredTool
+          : {
+              ...registeredTool,
+              execute: async (...args: Parameters<typeof registeredTool.execute>) => {
+                const result = await registeredTool.execute(...args);
+                try {
+                  this.options.onMutationCommitted?.(registeredTool.name);
+                } catch {
+                  // The mutation already committed; UI synchronization must not falsify its result.
+                }
+                return result;
+              },
+            };
         await modelContext.registerTool(tool, { signal: controller.signal });
       }
       controller.signal.throwIfAborted();

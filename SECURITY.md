@@ -11,8 +11,7 @@ maintained as separate supported products.
 
 ## Report a vulnerability privately
 
-This branch must not be published until GitHub private vulnerability reporting
-is enabled and verified for the repository. Once enabled, use
+GitHub private vulnerability reporting is enabled for this repository. Use
 [Report a vulnerability](https://github.com/chvignesh07/focus-contract-studio/security/advisories/new).
 Do not open a public issue or send a social-media message with exploit details,
 credentials, tokens, personal data, or an unredacted trace.
