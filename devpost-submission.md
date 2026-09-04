@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Status: **PUBLIC R10 RELEASE VERIFIED; REQUIRED VIDEO AND FINAL DEVPOST SUBMISSION PENDING**
+Status: **DEVPOST DRAFT UPDATED; PUBLIC R10 RELEASE VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
 
 ## One-line Summary
 
@@ -111,8 +111,11 @@ Recommended final cut:
 - Public source repository, annotated R10 tag/release, and Apache-2.0 license: verified.
 - Exact four-tool WebMCP implementation and judge instructions: verified in the hosted ChatGPT in-app browser and Chrome traces attached to R10.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
+- Devpost judge fields for submitter type, app status, live URL, testing instructions, repository, tested clients, AI-tool disclosure, learning, and career value: saved and reloaded from the live form on 2026-09-03.
+- Official current deadline: 2026-09-04 at 1:00 AM Pacific Time (2026-09-04T08:00:00Z).
+- Country of residence: blank; requires the entrant's own truthful answer and must not be inferred from citizenship or repository data.
 - Required demo video: missing.
-- Final Devpost update/submit action: wait for the video URL and a fresh live-status check.
+- Final Devpost submit action: blocked only by the country-of-residence answer and public video URL.
 
 ## Known Limitations
 
@@ -124,6 +127,9 @@ Recommended final cut:
 
 Live requirements checked 2026-09-03:
 
+- `28249` Submitter type: `Individual`
+- `28250` Country of residence: **entrant answer required**
+- `28252` App status: `New`
 - `28254` Live URL: `https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/`
 - `28255` Testing instructions: use the copy-ready sequence above.
 - `28256` Public repository: `https://github.com/chvignesh07/focus-contract-studio`
@@ -131,5 +137,5 @@ Live requirements checked 2026-09-03:
 - `28258` AI tools: `ChatGPT, Codex, and Claude (advisory review). ChatGPT is the runtime reasoning client through WebMCP; the Site calls no hidden model API.`
 - `28259` Learning: `Significant`
 - `28260` Career AI value: `Yes`
-- Retain the truthful submitter-type and country-of-residence answers already stored in the live Devpost entry; do not reconstruct or overwrite identity fields from repository data.
+- Retain the saved submitter-type answer. Enter country of residence only from the entrant's explicit answer; do not reconstruct it from citizenship, timezone, or repository data.
 - Add the public YouTube URL, perform one fresh live check, then run the final Devpost submission/update flow before the official deadline.

@@ -16,14 +16,15 @@
     "name": "Focus Contract Studio",
     "summary": "A WebMCP-native, human-governed studio that preserves dialog-focus decisions as revisioned precedent, stages unapplied proposals, binds approval to an exact revision, and verifies the resulting live behavior.",
     "ai_usage": "ChatGPT reasons over page-bound WebMCP tools; the application uses no model API. D1-backed RRF retrieves scoped precedent but never authorizes mutation.",
-    "codex_usage": "Codex supported official-source research, implementation, test-driven repairs, security and adversarial review, release preparation, and repository documentation. Exact R10 deployment and supported-client evidence are attached to the public R10 GitHub release. The required video and final Devpost submission are still outstanding."
+    "codex_usage": "Codex supported official-source research, implementation, test-driven repairs, security and adversarial review, release preparation, and repository documentation. Exact R10 deployment and supported-client evidence are attached to the public R10 GitHub release. The live Devpost draft is complete except for the entrant's country-of-residence answer, required video, and final submission."
   },
-  "current_stage": "prepare-submission",
+  "current_stage": "submit-project",
   "completed_stages": [
     "start-hackathon",
     "review",
     "resources",
-    "build-project"
+    "build-project",
+    "prepare-submission"
   ],
   "rules_acknowledged": true,
   "learning": {
@@ -41,7 +42,7 @@
   },
   "submission": {
     "draft_file": "devpost-submission.md",
-    "status": "drafting"
+    "status": "needs-video-and-residence"
   },
-  "next_command": "prepare-submission"
+  "next_command": "submit-project"
 }

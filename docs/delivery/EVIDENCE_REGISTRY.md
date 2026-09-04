@@ -3,6 +3,13 @@
 Status: **CONTROLLING EVIDENCE CONTRACT**  
 Authority revision: **2.0 — 2026-08-29 EDT**
 
+> **Historical checkpoint:** the row statuses below are the frozen Package 8
+> pre-publication record and are intentionally not rewritten. Current R10
+> deployment and supported-client results are recorded in the
+> [R10 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+> and the [provenance ledger](../evidence/PROVENANCE_LEDGER.md). A historical
+> `NOT_RUN` below is not a statement about the later R10 release.
+
 ## Purpose
 
 This registry prevents “we tested it” from becoming an unverifiable claim. Every release gate, compatibility statement, benchmark number, security statement, accessibility statement, and submission link must resolve to one named artifact tied to the correct source commit and, where relevant, the exact deployed Sites version.

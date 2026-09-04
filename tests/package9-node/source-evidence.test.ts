@@ -141,6 +141,7 @@ const postR10RepositoryChangedPaths = [
   'SECURITY.md',
   'devpost-submission.md',
   'docs/README.md',
+  'docs/delivery/EVIDENCE_REGISTRY.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
   'docs/media/r10/hero-mismatch.png',
   'docs/media/r10/proposal-not-applied.png',
