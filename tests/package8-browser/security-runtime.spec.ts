@@ -156,6 +156,13 @@ test('built page enforces nonce headers without breaking WebMCP, privacy, or acc
   expect(csp).not.toMatch(/\*|'unsafe-inline'|'unsafe-eval'|https?:/u);
 
   await expect(page.getByRole('heading', { name: 'Govern one real focus decision' })).toBeVisible();
+  await expect(page.getByText('The agent can propose.')).toBeVisible();
+  await expect(page.getByText('Only you can approve.')).toBeVisible();
+  const authorityMap = page.getByRole('region', { name: 'One shared page · four clear roles' });
+  await expect(authorityMap.getByRole('list')).toContainText(
+    'BrowserobservesAgentstagesReviewerauthorizesBrowserverifies',
+  );
+  await expect(authorityMap).toContainText('No approval tool exists.');
   await expect(page.getByRole('heading', { name: 'Privacy and public-demo limits' })).toBeVisible();
   const runtime = await page.evaluate((expectedNonce) => {
     const state = (window as unknown as Window & {

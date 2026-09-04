@@ -4,7 +4,20 @@ This file records public product releases and later repository-only changes.
 The live deployment remains bound to its named annotated release unless a newer
 release explicitly replaces it.
 
-## Unreleased
+## Unreleased — R11 candidate
+
+### Product presentation
+
+- Rebuilt the first-screen narrative around the concrete Delete-versus-Cancel
+  decision and the line: “The agent can propose. Only you can approve.”
+- Added a compact Browser → Agent → Reviewer → Browser authority map, a sticky
+  six-step protocol rail, denser evidence hierarchy, and responsive editorial
+  layout without adding a runtime dependency.
+- Added purposeful scroll progress and depth transitions with a complete
+  reduced-motion path.
+- Re-ran the current-schema full browser journey at desktop, 320 px, 375 px,
+  and 640 CSS px at DPR 2, including keyboard flow and serious/critical Axe
+  checks.
 
 ### Repository presentation
 
@@ -17,11 +30,11 @@ release explicitly replaces it.
 - Reconciled repository copy with the already-public R10 release while keeping
   the demo video and final Devpost submission pending.
 - Corrected the canonical binding gate so the historical R10 assertion remains
-  fixed to the immutable R10 tag while post-R10 changes are restricted to an
-  explicit non-runtime repository allowlist.
+  fixed to the immutable R10 tag while post-R10 paths are explicit and the R11
+  visual source receives its own immutable tag binding.
 
-These are documentation, repository-health, and verification changes. They are
-not represented as a new deployed application version.
+The R10 source and evidence remain immutable. This candidate is not represented
+as deployed until its annotated tag and Sites-version mapping are recorded.
 
 ## [webmcp-challenge-2026-r10] - 2026-09-03
 

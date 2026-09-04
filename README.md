@@ -5,15 +5,15 @@ agent, the agent proposes a bounded repair, and only a visible review can
 authorize the change.**
 
 [![Verify](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/chvignesh07/focus-contract-studio/actions/workflows/verify.yml)
-[![Release R10](https://img.shields.io/badge/release-R10-24368f)](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+[![R11 candidate](https://img.shields.io/badge/UI-R11%20candidate-3158c7)](docs/evidence/R11_RELEASE.md)
 [![WebMCP four tools](https://img.shields.io/badge/WebMCP-4%20page--bound%20tools-163f35)](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-5b625f)](LICENSE)
 
 [Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
-· [See the exact R10 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
+· [See the current deployed R10 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
 · [Read the WebMCP contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 
-![Focus Contract Studio showing a live Delete focus behavior that conflicts with the applicable Cancel precedent](docs/media/r10/hero-mismatch.png)
+![R11 candidate of Focus Contract Studio explaining the human-agent authority boundary and the live Delete-versus-Cancel focus mismatch](docs/media/r11/hero-story.png)
 
 ## The problem, as a short story
 
@@ -61,15 +61,15 @@ against one page-bound contract while retaining different powers.
 
 ### 1. The agent proposes; nothing changes
 
-![Exact proposal showing status NOT APPLIED, base revision 1, and the proposed Cancel button focus](docs/media/r10/proposal-not-applied.png)
+![Exact proposal showing status NOT APPLIED, base revision 1, and the proposed Cancel button focus](docs/media/r11/proposal-not-applied.png)
 
 ### 2. The human supplies the missing authority
 
-![Visible confirmation stating that evidence and verification cannot authorize approval](docs/media/r10/visible-review.png)
+![Visible confirmation stating that evidence and verification cannot authorize approval](docs/media/r11/visible-review.png)
 
 ### 3. The browser proves the rendered result
 
-![Fresh raw browser rehearsal passing initial focus, focus order, both tab wraps, Escape action, and return focus](docs/media/r10/verification-pass.png)
+![Fresh raw browser rehearsal passing initial focus, focus order, both tab wraps, Escape action, and return focus](docs/media/r11/verification-pass.png)
 
 ## 60-second judge walkthrough
 
@@ -200,19 +200,20 @@ Read [Security](SECURITY.md), the detailed
 [security and privacy model](docs/quality/SECURITY_AND_PRIVACY.md), and the
 [test strategy](docs/quality/TEST_STRATEGY.md).
 
-## Verified R10 release
+## Release lineage
 
-The public app is bound to annotated tag
+The currently deployed source remains the
 [`webmcp-challenge-2026-r10`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
-at commit `cd432d4a055f061ff3a2df8a95fb1b5fae17b47a`. That release contains
-the public deployment evidence, ChatGPT and Chrome WebMCP traces, and the
-screenshots shown above. The canonical local gate reports
-`PACKAGE8_RELEASE_PASS packages=724 checks=16`; the exact R10 binding suite
-also passes.
+release, immutable at commit
+`cd432d4a055f061ff3a2df8a95fb1b5fae17b47a`; its original deployment and
+supported-client traces remain historical evidence.
 
-Later `main` commits may improve documentation and repository presentation.
-Unless a newer annotated app release says otherwise, the live deployment's
-source of truth remains the R10 tag—not a later non-runtime repository commit.
+The R11 candidate shown in this README changes the visual story and interaction
+hierarchy, not the four-tool contract, review authority, D1 state machine, or
+independent verifier. Its exact source, Sites version, public URL, and
+post-deploy result remain explicitly pending in
+[the R11 release record](docs/evidence/R11_RELEASE.md) until those external steps
+complete.
 
 The demo video and final Devpost submission are intentionally not represented
 as complete in this repository.

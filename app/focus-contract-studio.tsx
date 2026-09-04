@@ -1117,45 +1117,73 @@ export function FocusContractStudio() {
   return (
     <main className="studio-shell">
       <header className="top-rail">
-        <div>
-          <a className="brand" href="#review">
+        <a className="brand" href="#review">
+          <span aria-hidden="true" className="brand-mark">FC</span>
+          <span>
             Focus Contract Studio
-          </a>
-          <p>Observe browser truth. Review exact authority. Verify rendered behavior.</p>
+            <small>Governed interface change</small>
+          </span>
+        </a>
+        <div className="rail-meta">
+          <p><span aria-hidden="true" /> Live WebMCP surface</p>
+          <p className="demo-label">Synthetic demo · No private data</p>
         </div>
-        <p className="demo-label">Isolated demo · No private data</p>
       </header>
 
       <section aria-labelledby="review-heading" className="hero" id="review">
         <div className="hero-heading">
-          <div>
-            <p className="eyebrow">One governed accessibility decision</p>
+          <div className="hero-story">
+            <p className="eyebrow">A page-bound human + agent contract</p>
             <h1 id="review-heading">Govern one real focus decision</h1>
-            <p className="hero-copy">
-              Browser observation and precedent can inform a proposal. Only an exact
-              visible UI review can authorize apply.
+            <p className="hero-declaration">
+              The agent can propose. <strong>Only you can approve.</strong>
             </p>
+            <p className="hero-copy">
+              The seeded Delete Account dialog began by focusing the destructive Delete
+              action. This workspace currently implements{' '}
+              {titleCaseTarget(review.review.implemented.initialFocus)}. Prior decision
+              D001 says Cancel. ChatGPT can stage that repair; the page will not apply
+              it until you review the exact change. Only an exact visible UI review can
+              authorize apply.
+            </p>
+            <div aria-label="Product guarantees" className="hero-guarantees">
+              <span>01 · Real browser behavior</span>
+              <span>02 · Durable proposal</span>
+              <span>03 · Independent verification</span>
+            </div>
           </div>
-          <div className="variant-control" id="variant-tabs">
-            <span className="control-label">Active dialog variant</span>
-            <div aria-label="Dialog variant" className="variant-tabs" role="tablist">
-              {([
-                ['delete-account-standard', 'Standard'],
-                ['delete-account-danger-emphasis', 'Danger-emphasis'],
-              ] as const).map(([variant, label]) => (
-                <button
-                  aria-selected={activeVariant.slug === variant}
-                  className="variant-tab"
-                  disabled={variantBusy || mutationBusy || proposalBusy || rehearsalBusy}
-                  id={`tab-${variant}`}
-                  key={variant}
-                  onClick={() => void switchVariant(variant)}
-                  role="tab"
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
+          <div className="hero-control-stack">
+            <section aria-labelledby="authority-map-label" className="authority-map">
+              <p className="control-label" id="authority-map-label">One shared page · four clear roles</p>
+              <ol>
+                <li><span>Browser</span><strong>observes</strong></li>
+                <li><span>Agent</span><strong>stages</strong></li>
+                <li className="authority-owner"><span>Reviewer</span><strong>authorizes</strong></li>
+                <li><span>Browser</span><strong>verifies</strong></li>
+              </ol>
+              <p className="authority-note">No approval tool exists.</p>
+            </section>
+            <div className="variant-control" id="variant-tabs">
+              <span className="control-label">Active dialog variant</span>
+              <div aria-label="Dialog variant" className="variant-tabs" role="tablist">
+                {([
+                  ['delete-account-standard', 'Standard'],
+                  ['delete-account-danger-emphasis', 'Danger-emphasis'],
+                ] as const).map(([variant, label]) => (
+                  <button
+                    aria-selected={activeVariant.slug === variant}
+                    className="variant-tab"
+                    disabled={variantBusy || mutationBusy || proposalBusy || rehearsalBusy}
+                    id={`tab-${variant}`}
+                    key={variant}
+                    onClick={() => void switchVariant(variant)}
+                    role="tab"
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1191,26 +1219,30 @@ export function FocusContractStudio() {
           </a>
         </section>
 
-        <nav aria-label="Governed workflow stages" className="stage-rail">
-          <ol>
-            {stages.map((stage, index) => (
-              <li data-stage-state={stage.state} key={stage.id}>
-                <a
-                  aria-current={stage.state === 'current' ? 'step' : undefined}
-                  href={stage.href}
-                >
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <strong>{stage.label}</strong>
-                  <small>{stage.state}</small>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
+        <div className="workspace-layout">
+          <nav aria-label="Governed workflow stages" className="stage-rail">
+            <p className="rail-label">Live protocol</p>
+            <ol>
+              {stages.map((stage, index) => (
+                <li data-stage-state={stage.state} key={stage.id}>
+                  <a
+                    aria-current={stage.state === 'current' ? 'step' : undefined}
+                    href={stage.href}
+                  >
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{stage.label}</strong>
+                    <small>{stage.state}</small>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p className="rail-footnote">Evidence informs. Review permits. Behavior proves.</p>
+          </nav>
 
-        {proposal ? <ProposalBanner activeRevision={review.review.implementedRevision} proposal={proposal} /> : null}
+          <div className="workspace-body">
+            {proposal ? <ProposalBanner activeRevision={review.review.implementedRevision} proposal={proposal} /> : null}
 
-        <div className="review-grid">
+            <div className="review-grid">
           <section
             aria-labelledby="observe-heading"
             className={`panel dialog-panel ${activeVariant.slug === 'delete-account-danger-emphasis' ? 'danger-emphasis' : ''}`}
@@ -1346,10 +1378,10 @@ export function FocusContractStudio() {
               </div>
             ) : null}
           </section>
-        </div>
+            </div>
 
-        {proposal ? (
-          <ProposalReview
+            {proposal ? (
+              <ProposalReview
             acknowledged={reviewAcknowledged}
             busy={mutationBusy}
             implemented={review.review.implemented}
@@ -1371,11 +1403,11 @@ export function FocusContractStudio() {
               }
             }}
             proposal={proposal}
-          />
-        ) : null}
+              />
+            ) : null}
 
-        {confirmAction ? (
-          <section aria-labelledby="confirmation-heading" className="confirmation-panel">
+            {confirmAction ? (
+              <section aria-labelledby="confirmation-heading" className="confirmation-panel">
             <h2 id="confirmation-heading">Confirm {confirmAction}</h2>
             <p>
               This deliberate visible action uses one recoverable key. Evidence and
@@ -1408,10 +1440,10 @@ export function FocusContractStudio() {
                 Cancel
               </button>
             </div>
-          </section>
-        ) : null}
+              </section>
+            ) : null}
 
-        <section aria-labelledby="apply-heading" className="boundary-panel application-panel" id="apply">
+            <section aria-labelledby="apply-heading" className="boundary-panel application-panel" id="apply">
           <p className="stage-number">05 · Apply</p>
           <h2 id="apply-heading">Guarded application receipt</h2>
           {durableReceipt ? (
@@ -1426,9 +1458,9 @@ export function FocusContractStudio() {
               UI-mediated reviewer decision passes the guarded application checks.
             </p>
           )}
-        </section>
+            </section>
 
-        <div className="verification-history" id="verify-history">
+            <div className="verification-history" id="verify-history">
           {verification ? (
             <VerificationResult verification={verification} />
           ) : (
@@ -1485,6 +1517,8 @@ export function FocusContractStudio() {
               </button>
             </div>
           </section>
+            </div>
+          </div>
         </div>
 
         <section

@@ -139,16 +139,45 @@ const postR10RepositoryChangedPaths = [
   'CONTRIBUTING.md',
   'README.md',
   'SECURITY.md',
+  'app/focus-contract-studio.tsx',
+  'app/globals.css',
   'devpost-submission.md',
   'docs/README.md',
   'docs/delivery/EVIDENCE_REGISTRY.md',
   'docs/evidence/PROVENANCE_LEDGER.md',
+  'docs/evidence/R11_RELEASE.md',
   'docs/media/r10/hero-mismatch.png',
   'docs/media/r10/proposal-not-applied.png',
   'docs/media/r10/verification-pass.png',
   'docs/media/r10/visible-review.png',
+  'docs/media/r11/hero-story.png',
+  'docs/media/r11/proposal-not-applied.png',
+  'docs/media/r11/verification-pass.png',
+  'docs/media/r11/visible-review.png',
   'docs/superpowers/plans/2026-09-03-repository-professionalism.md',
+  'tests/package8-browser/security-runtime.spec.ts',
+  'tests/package8-browser/r11-presentation.spec.ts',
   'tests/package9-node/source-evidence.test.ts',
+] as const;
+
+const r11Tag = 'webmcp-challenge-2026-r11';
+const r11PresentationSourcePaths = [
+  'app/focus-contract-studio.tsx',
+  'app/globals.css',
+  'docs/media/r11/hero-story.png',
+  'docs/media/r11/proposal-not-applied.png',
+  'docs/media/r11/verification-pass.png',
+  'docs/media/r11/visible-review.png',
+  'tests/package8-browser/r11-presentation.spec.ts',
+  'tests/package8-browser/security-runtime.spec.ts',
+] as const;
+const postR11EvidencePaths = [
+  '.devpost-hackathon-state.json',
+  'CHANGELOG.md',
+  'README.md',
+  'devpost-submission.md',
+  'docs/evidence/PROVENANCE_LEDGER.md',
+  'docs/evidence/R11_RELEASE.md',
 ] as const;
 
 function sha256(value: string | Buffer) {
@@ -159,6 +188,12 @@ function git(args: string[]) {
   return execFileSync('git', args, {
     cwd: repositoryRoot,
     encoding: 'utf8',
+  });
+}
+
+function gitBytes(args: string[]) {
+  return execFileSync('git', args, {
+    cwd: repositoryRoot,
   });
 }
 
@@ -174,7 +209,7 @@ function sourceIdentity(sourcePaths: readonly string[], revision?: string) {
   const files = sourcePaths.map((relativePath) => {
     let bytes: Buffer;
     if (revision) {
-      bytes = Buffer.from(git(['show', `${revision}:${relativePath}`]));
+      bytes = gitBytes(['show', `${revision}:${relativePath}`]);
     } else {
       const absolutePath = path.join(repositoryRoot, relativePath);
       const stat = lstatSync(absolutePath);
@@ -793,7 +828,7 @@ test('the R10 page-bound verification target repair is minimal and source-bound'
   }
 });
 
-test('post-R10 repository improvements preserve the deployed application source boundary', () => {
+test('post-R10 work preserves the immutable deployed R10 source boundary', () => {
   const changedPaths = new Set([
     ...gitLines(['diff', '--name-only', r10VerificationTargetHead, '--']),
     ...gitLines(['ls-files', '--others', '--exclude-standard']),
@@ -810,6 +845,33 @@ test('post-R10 repository improvements preserve the deployed application source 
     r10VerificationTargetHead,
     'post-R10 repository work cannot move the deployed-source tag',
   );
+});
+
+test('R11 presentation source is bound to one immutable annotated tag', () => {
+  assert.equal(
+    git(['cat-file', '-t', r11Tag]).trim(),
+    'tag',
+    'the R11 presentation release must use an annotated tag',
+  );
+  const r11Head = git(['rev-parse', `${r11Tag}^{}`]).trim();
+  assert.doesNotThrow(() => {
+    git(['merge-base', '--is-ancestor', r10VerificationTargetHead, r11Head]);
+    git(['merge-base', '--is-ancestor', r11Head, 'HEAD']);
+  }, 'R11 must descend from immutable R10 and remain an ancestor of HEAD');
+
+  assert.deepEqual(
+    sourceIdentity(r11PresentationSourcePaths),
+    sourceIdentity(r11PresentationSourcePaths, r11Head),
+    'R11 runtime, presentation tests, and screenshots must remain byte-identical after the tag',
+  );
+
+  const postTagChanges = gitLines(['diff', '--name-only', r11Head, 'HEAD', '--']);
+  for (const relativePath of postTagChanges) {
+    assert.ok(
+      postR11EvidencePaths.includes(relativePath as typeof postR11EvidencePaths[number]),
+      `post-R11 runtime drift is forbidden: ${relativePath}`,
+    );
+  }
 });
 
 test('the frozen Package 5 Vitest compatibility hook changes only its missing timeout', async () => {
