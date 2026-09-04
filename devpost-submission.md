@@ -1,6 +1,6 @@
 # Focus Contract Studio
 
-Status: **PUBLIC R13 RELEASE AND LIVE CHATGPT FLOW VERIFIED; REQUIRED VIDEO, RESIDENCE ANSWER, AND FINAL SUBMISSION PENDING**
+Status: **SUBMITTED TO THE WEBMCP CHALLENGE — VERIFIED LIVE**
 
 ## One-line Summary
 
@@ -86,7 +86,10 @@ Exact live-source release: [webmcp-challenge-2026-r13](https://github.com/chvign
 
 ## Demo Video
 
-**REQUIRED REMAINING ITEM:** Add a public YouTube URL for a clear demo with audio, under three minutes.
+[Public YouTube demo — 2:36](https://youtu.be/USMMeYYoYs0)
+
+YouTube reported the video public with no copyright issues. The public oEmbed
+endpoint returned the exact title, confirming unauthenticated availability.
 
 Recommended final cut:
 
@@ -113,11 +116,11 @@ Recommended final cut:
 - Exact four-tool WebMCP implementation and judge instructions: verified; the complete R13 flow passed in ChatGPT's in-app browser, the built-Worker browser suite passes 5/5, and R10 retains the historical Chrome trace.
 - Text description covering WebMCP fit, user experience, new human-agent capability, and implementation: ready.
 - Devpost judge fields for submitter type, app status, live URL, testing instructions, repository, tested clients, AI-tool disclosure, learning, and career value: saved and reloaded from the live form on 2026-09-03.
-- Public Devpost project description and tagline: R13 copy saved and read back as live project version 10 on 2026-09-04.
+- Public Devpost project description, video, tagline, and R13 links: saved and read back as live project version 12 on 2026-09-04.
 - Official current deadline: 2026-09-04 at 1:00 AM Pacific Time (2026-09-04T08:00:00Z).
-- Country of residence: blank; requires the entrant's own truthful answer and must not be inferred from citizenship or repository data.
-- Required demo video: missing.
-- Final Devpost submit action: blocked only by the entrant-supplied country-of-residence answer and required public video URL; Devpost currently reports `submitted_at: null`.
+- Country of residence: `United States`, supplied explicitly by the entrant.
+- Required demo video: public and linked on Devpost.
+- Final Devpost submission: verified; submission `1157114`, submitted at `2026-09-04T03:47:19.724-04:00`.
 
 ## Known Limitations
 
@@ -130,7 +133,7 @@ Recommended final cut:
 Submission fields were initially checked on 2026-09-03; the R13 project description was saved and read back on 2026-09-04:
 
 - `28249` Submitter type: `Individual`
-- `28250` Country of residence: **entrant answer required**
+- `28250` Country of residence: `United States`
 - `28252` App status: `New`
 - `28254` Live URL: `https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/`
 - `28255` Testing instructions: use the copy-ready sequence above.
@@ -139,5 +142,5 @@ Submission fields were initially checked on 2026-09-03; the R13 project descript
 - `28258` AI tools: `ChatGPT, Codex, and Claude (advisory review). ChatGPT is the runtime reasoning client through WebMCP; the Site calls no hidden model API.`
 - `28259` Learning: `Significant`
 - `28260` Career AI value: `Yes`
-- Retain the saved submitter-type answer. Enter country of residence only from the entrant's explicit answer; do not reconstruct it from citizenship, timezone, or repository data.
-- Add the public YouTube URL, perform one fresh live check, then run the final Devpost submission/update flow before the official deadline.
+- Public video: `https://youtu.be/USMMeYYoYs0`
+- Submission readback: `Submitted`, 5/5 steps complete.

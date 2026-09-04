@@ -24,7 +24,8 @@
     "review",
     "resources",
     "build-project",
-    "prepare-submission"
+    "prepare-submission",
+    "submit-project"
   ],
   "rules_acknowledged": true,
   "learning": {
@@ -42,11 +43,10 @@
   },
   "submission": {
     "draft_file": "devpost-submission.md",
-    "status": "needs-work",
-    "blocking_items": [
-      "public-demo-video-url",
-      "entrant-country-of-residence"
-    ]
+    "status": "submitted",
+    "blocking_items": [],
+    "submission_id": 1157114,
+    "url": "https://devpost.com/software/focus-contract-studio"
   },
-  "next_command": "submit-project"
+  "next_command": "hackathon-map"
 }

@@ -56,5 +56,14 @@ Against the public version-13 deployment, ChatGPT's in-app browser:
    all six focus checks.
 
 R10 remains the historical Chrome trace for the same four-tool contract. No
-claim is made that Chrome reran R13. The public YouTube URL, entrant residence
-answer, and final Devpost submission remain external submission steps.
+claim is made that Chrome reran R13.
+
+## Submission closeout
+
+- Public YouTube demo: `https://youtu.be/USMMeYYoYs0`; 2:36; H.264 video and
+  AAC audio; YouTube copyright check reported no issues.
+- Local source-video SHA-256:
+  `095f4eb6f1b0b293f6607bdbcbebf1270e58073b718b4b86f3251842a87588b3`.
+- Devpost submission: `1157114`; status `Submitted`; live readback timestamp
+  `2026-09-04T03:47:19.724-04:00`.
+- Public project page: `https://devpost.com/software/focus-contract-studio`.

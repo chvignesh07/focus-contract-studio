@@ -83,4 +83,14 @@ receipt without changing the revision; and rehearsal
 `43ddfcc0-cf2f-4d2c-92c9-bbfcd9365928` passed all six verification checks.
 The visible page refreshed after each agent mutation without a manual reload.
 
+## Public submission supplement
+
+The final 2:36 H.264/AAC demo was published at
+`https://youtu.be/USMMeYYoYs0`. Its local SHA-256 is
+`095f4eb6f1b0b293f6607bdbcbebf1270e58073b718b4b86f3251842a87588b3`;
+YouTube reported no copyright issue and its public oEmbed endpoint returned the
+exact video title. Devpost submission `1157114` was read back as `Submitted`
+at `2026-09-04T03:47:19.724-04:00` with the public video, Site, repository,
+R13 release, and entrant-supplied `United States` residence answer.
+
 Copyright 2026 Vignesh. Original repository content is licensed under Apache-2.0. This statement does not relicense dependencies, generated third-party material, fonts, trademarks, or external documentation.

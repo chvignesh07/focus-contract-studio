@@ -11,6 +11,8 @@ authorize the change.**
 
 [Open the live app](https://focus-contract-studio-package-0.newmailforyouvignesh.chatgpt.site/)
 · [See the exact deployed R13 release](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r13)
+· [Watch the 2:36 demo](https://youtu.be/USMMeYYoYs0)
+· [View the Devpost submission](https://devpost.com/software/focus-contract-studio)
 · [Read the WebMCP contract](docs/contracts/WEBMCP_TOOL_CONTRACT.md)
 
 ![R11 release of Focus Contract Studio explaining the human-agent authority boundary and the live Delete-versus-Cancel focus mismatch](docs/media/r11/hero-story.png)
@@ -220,8 +222,9 @@ R13 flow passed in ChatGPT's in-app browser. The immutable
 [`webmcp-challenge-2026-r10`](https://github.com/chvignesh07/focus-contract-studio/releases/tag/webmcp-challenge-2026-r10)
 release remains the historical Chrome trace for the same contract.
 
-The demo video and final Devpost submission are intentionally not represented
-as complete in this repository.
+The [public 2:36 demo](https://youtu.be/USMMeYYoYs0) and
+[Devpost submission](https://devpost.com/software/focus-contract-studio) were
+verified live on 2026-09-04.
 
 ## Documentation map
 
